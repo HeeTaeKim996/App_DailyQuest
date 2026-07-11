@@ -5,12 +5,19 @@ import java.util.ArrayList;
 public class MainCalender
 {
     private ArrayList<Date> dates;
+    public int year;
+    public int month;
+    public int maxDate;
 
-    public MainCalender(int year, int month)
+    public MainCalender(int InYear, int InMonth)
     {
-        int startDay = CalenderUtils.instance().getFirstDayFromYearMonth(year, month);
-        int lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
-        int maxDate = startDay + lastDate - 1;
+        year = InYear;
+        month = InMonth;
+
+
+        int startDay = CalenderUtils.instance().getFirstDayFromYearMonth(InYear, InMonth);
+        maxDate = CalenderUtils.instance().getLastDateFromYearMonth(InYear, InMonth);
+        int indexMaxDate = startDay + maxDate - 1;
 
         dates = new ArrayList<Date>(42);
 
@@ -18,25 +25,25 @@ public class MainCalender
         {
             dates.add(new Date.Builder().setIsCurrMonth(false).create());
         }
-        for(int i = startDay; i <= maxDate; i++)
+        for(int i = startDay; i <= indexMaxDate; i++)
         {
             int dateNumber = i - startDay + 1;
             dates.add(new Date.Builder().setDate(dateNumber).setIsCurrMonth(true).create());
         }
         int firstDate = 1;
-        for(int i = maxDate + 1; i < 42; i++)
+        for(int i = indexMaxDate + 1; i < 42; i++)
         {
             dates.add(new Date.Builder().setDate(firstDate++).setIsCurrMonth(false).create());
         }
 
         int lastMonthsLastDate = 0;
-        if(month == 1)
+        if(InMonth == 1)
         {
-            lastMonthsLastDate = CalenderUtils.instance().getLastDateFromYearMonth(year - 1, 12);
+            lastMonthsLastDate = CalenderUtils.instance().getLastDateFromYearMonth(InYear - 1, 12);
         }
         else
         {
-            lastMonthsLastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month - 1);
+            lastMonthsLastDate = CalenderUtils.instance().getLastDateFromYearMonth(InYear, InMonth - 1);
         }
 
         for(int i = startDay - 1; i >= 0; i--)

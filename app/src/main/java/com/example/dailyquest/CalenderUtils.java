@@ -20,6 +20,11 @@ public class CalenderUtils
     private final int[] MonthToDays = new int[]
             { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
+    public final char[] INDEX_TO_DAY = new char[]
+            {
+                    '일', '월', '화', '수', '목', '금', '토', '일'
+            };
+
     public static class Calender
     {
         public Calender(int InYear, int InMonth, int InDate)

@@ -1,12 +1,14 @@
 package com.example.dailyquest;
 
+import java.util.ArrayList;
+
 public class Date
 {
     public Date(){}
     public Date(int InDate) { date = InDate;}
     public int date;
     public boolean isCurrMonth = false;
-
+    public ArrayList<Todo> todos;
 
     public static class Builder
     {

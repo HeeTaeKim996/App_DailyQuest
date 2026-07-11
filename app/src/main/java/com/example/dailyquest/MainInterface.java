@@ -15,6 +15,7 @@ public class MainInterface
     private int year;
     private int month;
 
+
     MainInterface(Context context)
     {
         mainBinding = ActivityMainBinding.inflate(LayoutInflater.from(context));
@@ -66,7 +67,7 @@ public class MainInterface
     {
         mainCalender = new MainCalender(year, month);
 
-        CalenderAdapter calenderAdapter = new CalenderAdapter(mainCalender.getDates());
+        CalenderAdapter calenderAdapter = new CalenderAdapter(mainCalender);
         mainBinding.recycleCalender.setAdapter(calenderAdapter);
 
 
