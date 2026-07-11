@@ -12,24 +12,65 @@ public class MainInterface
 {
     private ActivityMainBinding mainBinding;
     private MainCalender mainCalender;
+    private int year;
+    private int month;
 
     MainInterface(Context context)
     {
         mainBinding = ActivityMainBinding.inflate(LayoutInflater.from(context));
 
-        DateConverter.Calender today = DateConverter.instance().getTodaybyCalender();
-        mainCalender = new MainCalender(today.year, today.month);
-//        mainCalender = new MainCalender(2026, 6);
+        CalenderUtils.Calender today = CalenderUtils.instance().getTodaybyCalender();
+        year = today.year;
+        month = today.month;
 
         mainBinding.recycleCalender.setLayoutManager(
                 new GridLayoutManager(context, 7));
 
-        CalenderAdapter calenderAdapter = new CalenderAdapter(mainCalender.getDates());
-        mainBinding.recycleCalender.setAdapter(calenderAdapter);
+        changeMainCalenderByYearMonth();
+
+        mainBinding.buttonToLowerMonth.setOnClickListener(v->
+        {
+            if(month == 1)
+            {
+                year--;
+                month = 12;
+            }
+            else
+            {
+                month--;
+            }
+            changeMainCalenderByYearMonth();
+        });
+
+        mainBinding.buttonToUpperMonth.setOnClickListener(v->
+        {
+            if(month == 12)
+            {
+                year++;
+                month = 1;
+            }
+            else
+            {
+                month++;
+            }
+            changeMainCalenderByYearMonth();
+        });
     }
 
     public ViewGroup getRootView()
     {
         return mainBinding.getRoot();
     }
+
+    private void changeMainCalenderByYearMonth()
+    {
+        mainCalender = new MainCalender(year, month);
+
+        CalenderAdapter calenderAdapter = new CalenderAdapter(mainCalender.getDates());
+        mainBinding.recycleCalender.setAdapter(calenderAdapter);
+
+
+        mainBinding.textViewYearMonth.setText(String.format("%4d년 %2d월", year, month));
+    }
+
 }

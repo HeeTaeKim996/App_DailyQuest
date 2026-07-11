@@ -1,5 +1,6 @@
 package com.example.dailyquest;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,12 @@ public class CalenderAdapter extends RecyclerView.Adapter<CalenderAdapter.Calend
     @Override
     public void onBindViewHolder(@NonNull CalenderViewHolder holder, int position)
     {
-        holder.dayText.setText(dateList.get(position).tempString);
+        Date date = dateList.get(position);
+        holder.dayText.setText(String.valueOf(date.date));
+        if(date.isCurrMonth == false)
+        {
+            holder.itemView.setBackgroundResource(R.drawable.date_background_not_used);
+        }
     }
 
     @Override

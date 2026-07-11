@@ -2,10 +2,10 @@ package com.example.dailyquest;
 
 import java.util.Calendar;
 
-public class DateConverter
+public class CalenderUtils
 {
-    private static DateConverter _instance = new DateConverter();
-    private DateConverter() {}
+    private static CalenderUtils _instance = new CalenderUtils();
+    private CalenderUtils() {}
 
     private final int _400_years_to_dates = 146097;
     private final int _100_years_to_dates = 36524;
@@ -33,7 +33,7 @@ public class DateConverter
         public final int date;
     }
 
-    public static DateConverter instance()
+    public static CalenderUtils instance()
     {
         return _instance;
     }
