@@ -8,7 +8,7 @@ public class Date
     public Date(int InDate) { date = InDate;}
     public int date;
     public boolean isCurrMonth = false;
-    public ArrayList<Todo> todos;
+    public ArrayList<Todo> todos = null;
 
     public static class Builder
     {

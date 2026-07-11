@@ -50,7 +50,6 @@ public class MainCalender
         {
             dates.get(i).date = lastMonthsLastDate--;
         }
-
     }
 
     public ArrayList<Date> getDates()
@@ -58,4 +57,9 @@ public class MainCalender
         return dates;
     }
 
+
+    public void inform_dateUpdated(Date date)
+    {
+        // TODO : SAVE
+    }
 }
