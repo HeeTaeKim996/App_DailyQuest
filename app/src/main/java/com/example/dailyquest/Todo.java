@@ -7,5 +7,5 @@ public class Todo
     public boolean isCompleted = false;
     public String mainText = "";
     public String explainText = "";
-    public List<Todo> subTodos;
+    public List<SubTodo> subTodos = null;
 }

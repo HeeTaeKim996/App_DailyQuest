@@ -85,6 +85,18 @@
                 android:text="Name"
 
                 />
+
+            <LinearLayout
+                android:id="@+id/linearLayout_SubTodos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"></LinearLayout>
+
+            <Button
+                android:id="@+id/button_addSubTodo"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="추가" />
         </LinearLayout>
     </ScrollView>
 
