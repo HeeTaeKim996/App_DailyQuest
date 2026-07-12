@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal"
+        android:background="@color/sky"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,6 +41,7 @@
             android:background="@android:color/transparent"
             android:clickable="false"
             android:cursorVisible="false"
+            android:imeOptions="actionDone"
             />
 
         <Button

@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.renderscript.ScriptGroup;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethod;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
@@ -124,7 +127,7 @@ public class CalenderAdapter extends RecyclerView.Adapter<CalenderAdapter.Calend
                 shortInfo.textViewShortMainText.setText(todo.mainText);
                 shortInfo.textViewShortMainText.setOnClickListener(v->
                 {
-                    show_todo_info(context, date, todo, position);
+                    show_todo_info(context, date, todo, position, false);
                     dialog.dismiss();
                 });
 
@@ -169,19 +172,29 @@ public class CalenderAdapter extends RecyclerView.Adapter<CalenderAdapter.Calend
             date.todos.add(newTodo);
 
 
-            show_todo_info(context, date, newTodo, position);
+            show_todo_info(context, date, newTodo, position, true);
             dialog.dismiss();
         });
 
     }
 
-    private void show_todo_info(Context context, Date date, Todo todo, int position)
+    private void show_todo_info(Context context, Date date, Todo todo, int position,
+                                boolean isDirectEditing)
     {
         TodoInfoBinding binding = TodoInfoBinding.inflate(LayoutInflater.from(context));
         AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot())
                 .create();
         dialog.show();
 
+        if(dialog.getWindow() != null)
+        {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.white);
+
+            dialog.getWindow().setLayout(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT
+            );
+        }
 
 
         final boolean[] isEditMode = {false};
@@ -200,29 +213,73 @@ public class CalenderAdapter extends RecyclerView.Adapter<CalenderAdapter.Calend
         binding.editTextMainText.setText(todo.mainText.toString());
         binding.editTextExplainText.setText(todo.explainText.toString());
 
+        Runnable toEditMode = ()->
+        {
+            isEditMode[0] = true;
+
+            binding.editTextMainText.setFocusableInTouchMode(true);
+            binding.editTextMainText.setFocusable(true);
+            binding.editTextMainText.setCursorVisible(true);
+            TypedArray ta = makeEditTextBackground.get();
+            binding.editTextMainText.setBackground(ta.getDrawable(0));
+            ta.recycle();
+            binding.editTextMainText.requestFocus();
+
+            binding.editTextExplainText.setFocusableInTouchMode(true);
+            binding.editTextExplainText.setFocusable(true);
+            binding.editTextExplainText.setCursorVisible(true);
+            TypedArray ta2 = makeEditTextBackground.get();
+            binding.editTextExplainText.setBackground(ta2.getDrawable(0));
+            ta2.recycle();
+
+            InputMethodManager imm = (InputMethodManager) context
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            if(imm != null)
+            {
+                imm.showSoftInput(binding.editTextMainText, InputMethodManager.SHOW_IMPLICIT);
+            }
+            if(dialog.getWindow() != null)
+            {
+                dialog.getWindow().setSoftInputMode(
+                        WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+                );
+            }
+
+            binding.buttonSecondRight.setText("N");
+        };
+
+        Runnable toViewMode = ()->
+        {
+            isEditMode[0] = false;
+
+            todo.mainText = binding.editTextMainText.getText().toString();
+            todo.explainText = binding.editTextExplainText.getText().toString();
+
+            binding.editTextMainText.setFocusableInTouchMode(false);
+            binding.editTextMainText.setFocusable(false);
+            binding.editTextMainText.setCursorVisible(false);
+            binding.editTextMainText.setBackgroundColor(Color.TRANSPARENT);
+
+            binding.editTextExplainText.setFocusableInTouchMode(false);
+            binding.editTextExplainText.setFocusable(false);
+            binding.editTextExplainText.setCursorVisible(false);
+            binding.editTextExplainText.setBackgroundColor(Color.TRANSPARENT);
+
+            binding.buttonSecondRight.setText("C");
+
+                onDateUpdated(date, position);
+        };
+
+        if(isDirectEditing && isEditMode[0] == false)
+        {
+            toEditMode.run();
+        }
+
         binding.buttonSecondRight.setOnClickListener(v->
         {
             if(isEditMode[0] == false)
             {
-                isEditMode[0] = true;
-
-                binding.editTextMainText.setFocusableInTouchMode(true);
-                binding.editTextMainText.setFocusable(true);
-                binding.editTextMainText.setCursorVisible(true);
-                TypedArray ta = makeEditTextBackground.get();
-                binding.editTextMainText.setBackground(ta.getDrawable(0));
-                ta.recycle();
-                binding.editTextMainText.requestFocus();
-
-                binding.editTextExplainText.setFocusableInTouchMode(true);
-                binding.editTextExplainText.setFocusable(true);
-                binding.editTextExplainText.setCursorVisible(true);
-                TypedArray ta2 = makeEditTextBackground.get();
-                binding.editTextExplainText.setBackground(ta2.getDrawable(0));
-                ta2.recycle();
-
-
-                binding.buttonSecondRight.setText("N");
+                toEditMode.run();
             }
         });
 
@@ -230,26 +287,16 @@ public class CalenderAdapter extends RecyclerView.Adapter<CalenderAdapter.Calend
         {
             if(isEditMode[0])
             {
-                isEditMode[0] = false;
-
-                todo.mainText = binding.editTextMainText.getText().toString();
-                todo.explainText = binding.editTextExplainText.getText().toString();
-                onDateUpdated(date, position);
-
-
-                binding.editTextMainText.setFocusableInTouchMode(false);
-                binding.editTextMainText.setFocusable(false);
-                binding.editTextMainText.setCursorVisible(false);
-                binding.editTextMainText.setBackgroundColor(Color.TRANSPARENT);
-
-                binding.editTextExplainText.setFocusableInTouchMode(false);
-                binding.editTextExplainText.setFocusable(false);
-                binding.editTextExplainText.setCursorVisible(false);
-                binding.editTextExplainText.setBackgroundColor(Color.TRANSPARENT);
-
-                binding.buttonSecondRight.setText("C");
-
-
+//                InputMethodManager imm = (InputMethodManager)context
+//                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+//                View currentFocus = dialog.getCurrentFocus();
+//                if(imm != null && currentFocus != null && imm.isActive(currentFocus))
+//                {
+//                    imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
+//                    currentFocus.clearFocus();
+//
+//                }
+                toViewMode.run();
             }
             else
             {
