@@ -119,10 +119,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         >
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycleCalender"
+        <com.example.dailyquest.InterceptGridLayout
+            android:id="@+id/gridLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            app:columnCount="7"
+            app:rowCount="6">
+
+        </com.example.dailyquest.InterceptGridLayout>
+
     </LinearLayout>
 
     <LinearLayout
