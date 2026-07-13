@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -14,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.gridlayout.widget.GridLayout;
@@ -26,8 +24,6 @@ import com.example.dailyquest.databinding.ItemTodoShortInfoBinding;
 import com.example.dailyquest.databinding.TodoInfoBinding;
 
 import java.util.ArrayList;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class MainInterface
@@ -324,36 +320,14 @@ public class MainInterface
         };
 
 
-        binding.editTextMainText.setText(todo.mainText.toString());
-        binding.editTextExplainText.setText(todo.explainText.toString());
+        TodoInfoInterface infoInterface = binding.getRoot();
+        infoInterface.initialize(todo);
+
 
         Runnable toEditMode = ()->
         {
-            Log.d("Calender", "NotifyToEditMode Called 병신아. 이거 반영 후에 호출 된다고");
+            infoInterface.toEditMode();
 
-            isEditMode[0] = true;
-
-            binding.editTextMainText.setFocusableInTouchMode(true);
-            binding.editTextMainText.setFocusable(true);
-            binding.editTextMainText.setCursorVisible(true);
-            TypedArray ta = makeEditTextBackground.get();
-            binding.editTextMainText.setBackground(ta.getDrawable(0));
-            ta.recycle();
-            binding.editTextMainText.requestFocus();
-
-            binding.editTextExplainText.setFocusableInTouchMode(true);
-            binding.editTextExplainText.setFocusable(true);
-            binding.editTextExplainText.setCursorVisible(true);
-            TypedArray ta2 = makeEditTextBackground.get();
-            binding.editTextExplainText.setBackground(ta2.getDrawable(0));
-            ta2.recycle();
-
-            InputMethodManager imm = (InputMethodManager) context
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            if(imm != null)
-            {
-                imm.showSoftInput(binding.editTextMainText, InputMethodManager.SHOW_IMPLICIT);
-            }
             if(dialog.getWindow() != null)
             {
                 dialog.getWindow().setSoftInputMode(
@@ -361,98 +335,32 @@ public class MainInterface
                 );
             }
 
-            binding.buttonLeft.setText("S");
-            binding.buttonSecondRight.setText("N");
-            binding.buttonAddSubTodo.setVisibility(View.VISIBLE);
-
-            int subTodoSize = binding.linearLayoutSubTodos.getChildCount();
-            for(int i = 0; i < subTodoSize; i++)
-            {
-                EditOrPlainText subText = (EditOrPlainText) binding.linearLayoutSubTodos
-                        .getChildAt(i).findViewById(R.id.editText_subTodo);
-                subText.onEditMode();
-                subText.setClickable(false);
-                subText.setTextColor(Color.parseColor("#000000"));
-                subText.setPaintFlags(subText.getPaintFlags()
-                        & ~(Paint.STRIKE_THRU_TEXT_FLAG));
-            }
         };
 
         Runnable toViewMode = ()->
         {
-            Log.d("Calender", "NotifyToViewMode Called 병신아. 이거 반영 후에 호출된다고");
-
-            isEditMode[0] = false;
-            // [] 배열은 자바에서 객체에 포함되어, 메모리를 힙메모리 고정 할당. 따라서 위 함수 발동시 힙메모리에
-            // 1 바이트 할당됨.
-            // 아래의 button.setOnClickListener.. 등이 이 배열의 주소를 참조하기에, GC가 메모리를 수거해가지 않음.
-            // 만약 dialog.dismiss(); 로 button 들이 소멸하면, GC는 isEditNode 배열을 수거
-
-            // Update Data
-            todo.mainText = binding.editTextMainText.getText().toString();
-            todo.explainText = binding.editTextExplainText.getText().toString();
-
-
-            // Update Interface
-            binding.editTextMainText.setFocusableInTouchMode(false);
-            binding.editTextMainText.setFocusable(false);
-            binding.editTextMainText.setCursorVisible(false);
-            binding.editTextMainText.setBackgroundColor(Color.TRANSPARENT);
-
-            binding.editTextExplainText.setFocusableInTouchMode(false);
-            binding.editTextExplainText.setFocusable(false);
-            binding.editTextExplainText.setCursorVisible(false);
-            binding.editTextExplainText.setBackgroundColor(Color.TRANSPARENT);
-
-            binding.buttonLeft.setText("B");
-            binding.buttonSecondRight.setText("M");
-
-            InputMethodManager imm = (InputMethodManager)context
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            if(imm != null )
-            {
-                imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
-            }
-
-            binding.buttonAddSubTodo.setVisibility(View.GONE);
-
-
-            int subTodoSize = binding.linearLayoutSubTodos.getChildCount();
-            if(subTodoSize > 0)
-            {
-                todo.subTodos = new ArrayList<>(subTodoSize);
-
-                for(int i = 0; i < subTodoSize; i++)
-                {
-                    EditOrPlainText subText = (EditOrPlainText) binding.linearLayoutSubTodos
-                            .getChildAt(i).findViewById(R.id.editText_subTodo);
-                    subText.onViewMode();
-                    if(subText.bCompleted)
-                    {
-                        subText.setPaintFlags(subText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                        subText.setTextColor(Color.parseColor("#AAAAAA"));
-                    }
-                    subText.setClickable(true);
-
-                    // Update Data
-                    SubTodo subTodo = new SubTodo();
-                    subTodo.bCompleted = subText.bCompleted;
-                    subTodo.mainText = subText.getText().toString();
-                    todo.subTodos.add(subTodo);
-                }
-            }
-            else
-            {
-                todo.subTodos = null;
-            }
-
-
-
-
+            infoInterface.toViewMode();
             calender.inform_dateUpdated(date);
         };
 
-
+        binding.buttonLeft.setOnClickListener(v->
+        {
+            if(infoInterface.isEditMode())
+            {
+                toViewMode.run();
+            }
+            else
+            {
+                dialog.dismiss();
+            }
+        });
+        binding.buttonSecondRight.setOnClickListener(v->
+        {
+            if(infoInterface.isEditMode() == false)
+            {
+                toEditMode.run();
+            }
+        });
 
 
         dialog.setOnKeyListener(new DialogInterface.OnKeyListener()
@@ -463,7 +371,7 @@ public class MainInterface
                 if(keyCode == KeyEvent.KEYCODE_BACK
                         && keyEvent.getAction() == KeyEvent.ACTION_DOWN)
                 {
-                    if(isEditMode[0])
+                    if(infoInterface.isEditMode())
                     {
                         toViewMode.run();
                         return true; // 이벤트를 소비하여, 기존 KEYCODE_BACK 이 발동하지 않음
@@ -475,7 +383,6 @@ public class MainInterface
         });
 
         dialog.show();
-
         if(dialog.getWindow() != null)
         {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.white);
@@ -491,145 +398,8 @@ public class MainInterface
 
 
 
-        binding.buttonSecondRight.setOnClickListener(v->
-        {
-            if(isEditMode[0] == false)
-            {
-                toEditMode.run();
-            }
-        });
-
-        binding.buttonLeft.setOnClickListener(v->
-        {
-            if(isEditMode[0])
-            {
-                toViewMode.run();
-            }
-            else
-            {
-                dialog.dismiss();
-            }
-        });
 
 
-        Runnable updateOnSubTodoBFinishChanged = ()->
-        {
-            int size = binding.linearLayoutSubTodos.getChildCount();
-            if(size == 0) return;
-
-            todo.subTodos = new ArrayList<>(size);
-            for(int i = 0; i < size; i++)
-            {
-                EditOrPlainText subText = (EditOrPlainText) binding.linearLayoutSubTodos
-                        .getChildAt(i).findViewById(R.id.editText_subTodo);
-
-                SubTodo subTodo = new SubTodo();
-                subTodo.bCompleted = subText.bCompleted;
-                subTodo.mainText = subText.getText().toString();
-
-                todo.subTodos.add(subTodo);
-            }
-
-            calender.inform_dateUpdated(date);
-        };
-
-        if(todo.subTodos != null)
-        {
-            for(int i = 0; i < todo.subTodos.size(); i++)
-            {
-                SubTodo subTodo = todo.subTodos.get(i);
-                ItemSubTodoBinding subTodoBinding = ItemSubTodoBinding.inflate(
-                        LayoutInflater.from(context),
-                        binding.linearLayoutSubTodos, false);
-
-                EditOrPlainText subText = subTodoBinding.getRoot().findViewById(R.id.editText_subTodo);
-
-                subText.bCompleted = subTodo.bCompleted;
-                subText.setText(subTodo.mainText);
-
-
-                binding.linearLayoutSubTodos.addView(subTodoBinding.getRoot());
-
-                subText.setOnClickListener(v->
-                {
-                    if(subText.bCompleted)
-                    {
-                        subText.setTextColor(Color.parseColor("#000000"));
-                        subText.setPaintFlags(subText.getPaintFlags()
-                                & ~(Paint.STRIKE_THRU_TEXT_FLAG));
-                    }
-                    else
-                    {
-                        subText.setTextColor(Color.parseColor("#AAAAAA"));
-                        subText.setPaintFlags(subText.getPaintFlags()
-                                | Paint.STRIKE_THRU_TEXT_FLAG);
-                    }
-
-                    subText.bCompleted = !subText.bCompleted;
-
-                    updateOnSubTodoBFinishChanged.run();
-                });
-            }
-        }
-
-        binding.buttonAddSubTodo.setOnClickListener(v->
-        {
-            ItemSubTodoBinding itemSubTodoBinding = ItemSubTodoBinding
-                    .inflate(LayoutInflater.from(context),
-                            binding.linearLayoutSubTodos, false);
-            EditOrPlainText subText = itemSubTodoBinding.getRoot()
-                    .findViewById(R.id.editText_subTodo);
-
-            subText.setText("");
-            subText.bCompleted = false;
-            subText.onEditMode();
-
-            SubTodo subTodo = new SubTodo();
-            subTodo.mainText = "";
-            subTodo.bCompleted = false;
-
-            if(todo.subTodos == null)
-            {
-                todo.subTodos = new ArrayList<>(1);
-            }
-            todo.subTodos.add(subTodo);
-
-            subText.setOnClickListener(vi->
-            {
-                if(subText.bCompleted)
-                {
-                    subText.setTextColor(Color.parseColor("#000000"));
-                    subText.setPaintFlags(subText.getPaintFlags()
-                            & ~(Paint.STRIKE_THRU_TEXT_FLAG));
-                }
-                else
-                {
-                    subText.setTextColor(Color.parseColor("#AAAAAA"));
-                    subText.setPaintFlags(subText.getPaintFlags()
-                            | Paint.STRIKE_THRU_TEXT_FLAG);
-                }
-
-                subText.bCompleted = !subText.bCompleted;
-
-                updateOnSubTodoBFinishChanged.run();
-            });
-
-            binding.linearLayoutSubTodos.addView(itemSubTodoBinding.getRoot());
-
-            subText.requestFocus();
-
-            InputMethodManager imm = (InputMethodManager) context
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            if(imm != null)
-            {
-                imm.showSoftInput(subText, InputMethodManager.SHOW_IMPLICIT);
-            }
-            if(dialog.getWindow() != null)
-            {
-                dialog.getWindow().setSoftInputMode
-                        (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-            }
-        });
 
 
 

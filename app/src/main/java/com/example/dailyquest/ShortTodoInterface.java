@@ -23,14 +23,21 @@ public class ShortTodoInterface extends LinearLayout
     public ShortTodoInterface(Context context, @Nullable AttributeSet attrs, int defStyleAttr)
     { super(context, attrs, defStyleAttr); }
 
+
+    @Override
+    protected void onFinishInflate()
+    {
+        super.onFinishInflate();
+
+        completedButton = findViewById(R.id.button_isFinished);
+        shortText = findViewById(R.id.textView_shortMainText);
+    }
+
     public void initialize(Todo InTodo)
     {
         todo = InTodo;
 
-        completedButton = findViewById(R.id.button_isFinished);
         completedButton.setCompleted(todo.isCompleted);
-
-        shortText = findViewById(R.id.textView_shortMainText);
         shortText.setText(todo.mainText);
     }
 

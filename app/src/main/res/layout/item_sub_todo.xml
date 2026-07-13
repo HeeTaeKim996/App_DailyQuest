@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<com.example.dailyquest.SubTodoInterface
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -8,12 +8,10 @@
     android:background="@drawable/date_background"
     >
 
-    <com.example.dailyquest.EditOrPlainText
+    <view class="com.example.dailyquest.SubTodoInterface$SubTodoMainText"
         android:id="@+id/editText_subTodo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        >
-    </com.example.dailyquest.EditOrPlainText>
+        />
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</com.example.dailyquest.SubTodoInterface>
