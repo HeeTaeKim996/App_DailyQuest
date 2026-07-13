@@ -245,31 +245,24 @@ public class MainInterface
 
                 ItemTodoShortInfoBinding shortInfo = ItemTodoShortInfoBinding
                         .inflate(LayoutInflater.from(context));
-                if(todo.isCompleted)
-                {
-                    shortInfo.buttonIsFinished.setText("C");
-                }
-                else
-                {
-                    shortInfo.buttonIsFinished.setText("Y");
-                }
+                ShortTodoInterface shortInterface = shortInfo.getRoot();
+                shortInterface.initialize(todo);
+
                 shortInfo.buttonIsFinished.setOnClickListener(v->
                 {
-                    if(todo.isCompleted) return;
+                    if(shortInterface.isCompleted()) return;
 
-                    todo.isCompleted = true;
-                    shortInfo.buttonIsFinished.setText("C");
+                    shortInterface.setCompleted(true);
                     calender.inform_dateUpdated(date);
                 });
 
-                shortInfo.textViewShortMainText.setText(todo.mainText);
                 shortInfo.textViewShortMainText.setOnClickListener(v->
                 {
                     show_todo_info(context, date, todo, position, false);
                     dialog.dismiss();
                 });
 
-                binding.linearLayoutScrollView.addView(shortInfo.getRoot());
+                binding.linearLayoutScrollView.addView(shortInterface);
             }
         }
         else
