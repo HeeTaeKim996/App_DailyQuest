@@ -324,30 +324,12 @@ public class MainInterface
         infoInterface.initialize(todo);
 
 
-        Runnable toEditMode = ()->
-        {
-            infoInterface.toEditMode();
-
-            if(dialog.getWindow() != null)
-            {
-                dialog.getWindow().setSoftInputMode(
-                        WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
-                );
-            }
-
-        };
-
-        Runnable toViewMode = ()->
-        {
-            infoInterface.toViewMode();
-            calender.inform_dateUpdated(date);
-        };
 
         binding.buttonLeft.setOnClickListener(v->
         {
             if(infoInterface.isEditMode())
             {
-                toViewMode.run();
+                infoInterface.toViewMode();
             }
             else
             {
@@ -358,7 +340,7 @@ public class MainInterface
         {
             if(infoInterface.isEditMode() == false)
             {
-                toEditMode.run();
+                infoInterface.toEditMode();
             }
         });
 
@@ -373,7 +355,7 @@ public class MainInterface
                 {
                     if(infoInterface.isEditMode())
                     {
-                        toViewMode.run();
+                        infoInterface.toViewMode();
                         return true; // 이벤트를 소비하여, 기존 KEYCODE_BACK 이 발동하지 않음
                     }
                 }
@@ -396,21 +378,19 @@ public class MainInterface
 
 
 
-
-
-
-
-
-
-
-
         if(isDirectEditing && isEditMode[0] == false)
         {
-            toEditMode.run();
+            infoInterface.toEditMode();
+            if(dialog.getWindow() != null)
+            {
+                dialog.getWindow().setSoftInputMode(
+                        WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+                );
+            }
         }
         else
         {
-            toViewMode.run();
+            infoInterface.toViewMode();
         }
     }
 }

@@ -72,6 +72,7 @@ public class TodoInfoInterface extends ConstraintLayout
         mainText.setText(todo.mainText);
         explainText.setText(todo.explainText);
 
+
         isEditMode = false;
 
         mainText.addTextChangedListener(new TextWatcher()
