@@ -16,6 +16,7 @@ public class SubTodoInterface extends ConstraintLayout
 {
     public SubTodo subTodo;
     public SubTodoMainText subText;
+    private Runnable invokeSaveDateListener;
 
     public SubTodoInterface(@NonNull Context context)
     { super(context);                       init();}
@@ -39,9 +40,10 @@ public class SubTodoInterface extends ConstraintLayout
     }
 
 
-    public void initialize(SubTodo InSubTodo)
+    public void initialize(SubTodo InSubTodo, Runnable InSaveDateListener)
     {
         subTodo = InSubTodo;
+        invokeSaveDateListener = InSaveDateListener;
 
         subText.bCompleted = subTodo.bCompleted;
         subText.setText(subTodo.subText);
@@ -63,6 +65,11 @@ public class SubTodoInterface extends ConstraintLayout
 
             subText.bCompleted = !subText.bCompleted;
             subTodo.bCompleted = subText.bCompleted;
+
+            if(invokeSaveDateListener != null)
+            {
+                invokeSaveDateListener.run();
+            }
         });
 
         subText.addTextChangedListener(new TextWatcher()
@@ -80,6 +87,8 @@ public class SubTodoInterface extends ConstraintLayout
             }
         });
     }
+
+
 
 
 
@@ -130,8 +139,5 @@ public class SubTodoInterface extends ConstraintLayout
             setPaintFlags(getPaintFlags() & ~(Paint.STRIKE_THRU_TEXT_FLAG));
             setClickable(false);
         }
-
-
-
     }
 }

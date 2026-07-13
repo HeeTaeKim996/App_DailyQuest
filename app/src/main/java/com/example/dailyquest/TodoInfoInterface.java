@@ -8,7 +8,6 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.example.dailyquest.databinding.ItemSubTodoBinding;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class TodoInfoInterface extends ConstraintLayout
 {
@@ -35,6 +35,8 @@ public class TodoInfoInterface extends ConstraintLayout
     private Button buttonAddSubtodo;
 
     private LinearLayout subTodosLayout;
+
+    private Consumer<Date> saveDateListener;
 
     public TodoInfoInterface(@NonNull Context context)
     { super(context);                       init();}
@@ -63,7 +65,7 @@ public class TodoInfoInterface extends ConstraintLayout
     }
 
 
-    public void initialize(Todo InTodo)
+    public void initialize(Todo InTodo, Consumer<Date> SaveDateFunc)
     {
         Context context = getContext();
 
@@ -72,6 +74,7 @@ public class TodoInfoInterface extends ConstraintLayout
         mainText.setText(todo.mainText);
         explainText.setText(todo.explainText);
 
+        saveDateListener = SaveDateFunc;
 
         isEditMode = false;
 
@@ -116,7 +119,7 @@ public class TodoInfoInterface extends ConstraintLayout
                                 subTodosLayout, false);
 
                 SubTodoInterface subInterface = subTodoBinding.getRoot();
-                subInterface.initialize(subTodo);
+                subInterface.initialize(subTodo, invokeSaveDate);
 
                 subTodosLayout.addView(subInterface);
             }
@@ -136,7 +139,7 @@ public class TodoInfoInterface extends ConstraintLayout
                     .inflate(LayoutInflater.from(context),
                             subTodosLayout, false);
             SubTodoInterface subInterface = subTodoBinding.getRoot();
-            subInterface.initialize(subTodo);
+            subInterface.initialize(subTodo, invokeSaveDate);
 
             subTodosLayout.addView(subInterface);
 
@@ -259,6 +262,16 @@ public class TodoInfoInterface extends ConstraintLayout
         return getContext().obtainStyledAttributes(attrs);
     }
 
-
+    public Runnable invokeSaveDate = ()->
+    {
+        if(saveDateListener != null)
+        {
+            Date parentDate = todo.parentDate.get();
+            if(parentDate != null)
+            {
+                saveDateListener.accept(parentDate);
+            }
+        }
+    };
 
 }
