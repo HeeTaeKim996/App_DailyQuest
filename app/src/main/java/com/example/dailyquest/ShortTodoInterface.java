@@ -1,6 +1,8 @@
 package com.example.dailyquest;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,10 +13,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 import java.util.function.BiConsumer;
 
-public class ShortTodoInterface extends FrameLayout
+public class ShortTodoInterface extends FrameLayout implements ISwapableItem
 {
     private Todo todo;
     private BCompletedButton completedButton;
@@ -23,6 +26,7 @@ public class ShortTodoInterface extends FrameLayout
 
     private float xPos;
     private boolean bIntercepting = false;
+    private boolean bMoveOn = false;
 
     private BiConsumer<Todo, ShortTodoInterface> deleteTodoListener;
 
@@ -55,6 +59,24 @@ public class ShortTodoInterface extends FrameLayout
         deleteTodoListener = InDeleteTodo;
 
         completedButton.setCompleted(todo.isCompleted);
+        completedButton.setOnLongClickListener(v->
+        {
+            bMoveOn = true;
+            SwapableItemsContainer parent = (SwapableItemsContainer) getParent();
+            if(parent != null)
+            {
+                long now = SystemClock.uptimeMillis();
+                MotionEvent cancelEvent = MotionEvent.obtain(now, now,
+                        MotionEvent.ACTION_CANCEL, 0, 0, 0);
+                v.onTouchEvent(cancelEvent);
+                cancelEvent.recycle();
+
+                parent.startSwap(this);
+            }
+
+            return true;
+        });
+
         shortText.setText(todo.mainText);
     }
 
@@ -74,7 +96,18 @@ public class ShortTodoInterface extends FrameLayout
         saveTodoFromInterface();
     }
 
+    @Override
+    public void changeBackgroundToPicked()
+    {
+        findViewById(R.id.linearLayout_shortInfo)
+                .setBackgroundResource(R.drawable.date_background_today);
+    }
 
+    @Override
+    public void changeBackgroundToNormal()
+    {
+        findViewById(R.id.linearLayout_shortInfo).setBackgroundColor(Color.TRANSPARENT);
+    }
 
 
     public static class BCompletedButton extends androidx.appcompat.widget.AppCompatButton
@@ -113,13 +146,23 @@ public class ShortTodoInterface extends FrameLayout
             case MotionEvent.ACTION_DOWN:
                 xPos = motionEvent.getX();
                 bIntercepting = false;
+
+                bMoveOn = false;
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 float diff = Math.abs(motionEvent.getX() - xPos);
-                if(bIntercepting == false && diff > HALF_DELETE_THRESHOLD)
+                if(bMoveOn == false
+                        && bIntercepting == false && diff > HALF_DELETE_THRESHOLD)
                 {
                     bIntercepting = true;
+                    if(getParent() != null)
+                    {
+                        // 여기서 인터셉트시, 부모(SwapableItemsContainer) 가 인터셉트 하는 것을 차단
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+
+
                     return true;
                 }
                 break;
@@ -178,4 +221,8 @@ public class ShortTodoInterface extends FrameLayout
 
         return true;
     }
+
+
+
+
 }

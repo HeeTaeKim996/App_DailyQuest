@@ -20,10 +20,12 @@
 
 
     <LinearLayout
+        android:id="@+id/linearLayout_shortInfo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:background="@android:color/transparent">
+        android:background="@android:color/transparent"
+        >
 
         <TextView
             android:id="@+id/textView_shortMainText"

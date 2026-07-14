@@ -222,7 +222,7 @@ public class MainInterface
                 };
 
                 InformUtils.instance().ShowYesOrNo(getRootView().getContext(),
-                        "할 일을 삭제하겠습니까?", isYes);
+                        String.format("[%s]\n을 삭제하겠습니까?", dTodo.mainText), isYes);
             };
 
 

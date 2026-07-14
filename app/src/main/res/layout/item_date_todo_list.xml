@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:fillViewport="true"
         >
-        <LinearLayout
+        <com.example.dailyquest.SwapableItemsContainer
             android:id="@+id/linearLayout_ScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
