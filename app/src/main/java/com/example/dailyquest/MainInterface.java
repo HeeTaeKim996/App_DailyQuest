@@ -22,6 +22,7 @@ import com.example.dailyquest.databinding.TodoInfoBinding;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -207,6 +208,24 @@ public class MainInterface
 
         if(date.todos != null)
         {
+            BiConsumer<Todo, ShortTodoInterface> deleteTodo
+                    = (Todo dTodo, ShortTodoInterface dInterface)->
+            {
+                Consumer<Boolean> isYes = (Boolean bYes) ->
+                {
+                    if(bYes)
+                    {
+                        date.todos.remove(dTodo);
+                        binding.linearLayoutScrollView.removeView(dInterface);
+                        saveDate.accept(date);
+                    }
+                };
+
+                InformUtils.instance().ShowYesOrNo(getRootView().getContext(),
+                        "할 일을 삭제하겠습니까?", isYes);
+            };
+
+
             for(int i = 0; i < date.todos.size(); i++)
             {
                 Todo todo = date.todos.get(i);
@@ -214,7 +233,7 @@ public class MainInterface
                 ItemTodoShortInfoBinding shortInfo = ItemTodoShortInfoBinding
                         .inflate(LayoutInflater.from(context));
                 ShortTodoInterface shortInterface = shortInfo.getRoot();
-                shortInterface.initialize(todo);
+                shortInterface.initialize(todo, deleteTodo);
 
                 shortInfo.buttonIsFinished.setOnClickListener(v->
                 {
@@ -375,6 +394,7 @@ public class MainInterface
     {
         calender.inform_dateUpdated(date);
     };
+
 
 
 }

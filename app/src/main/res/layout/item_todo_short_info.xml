@@ -4,21 +4,46 @@
     android:layout_width="match_parent"
     android:layout_height="40dp">
 
-    <TextView
-        android:id="@+id/textView_shortMainText"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="5"
-        android:gravity="left|center"
-        android:text="TextView"
-        android:clickable="true"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textSize="16sp" />
+   <ProgressBar
+       android:id="@+id/progressBar_swipe"
+       style="?android:attr/progressBarStyleHorizontal"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
 
-    <view class="com.example.dailyquest.ShortTodoInterface$BCompletedButton"
-        android:id="@+id/button_isFinished"
-        android:layout_width="0dp"
+       android:max="100"
+       android:progress="0"
+       android:progressDrawable="@drawable/swipe_progress_bar"
+       android:indeterminate="false"
+       android:clickable="false"
+       android:focusable="false"
+       />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:text="Button" />
+        android:orientation="horizontal"
+        android:background="@android:color/transparent">
+
+        <TextView
+            android:id="@+id/textView_shortMainText"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:gravity="left|center"
+            android:text="TextView"
+            android:clickable="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="16sp" />
+
+        <view class="com.example.dailyquest.ShortTodoInterface$BCompletedButton"
+            android:id="@+id/button_isFinished"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Button" />
+
+    </LinearLayout>
+
+
 </com.example.dailyquest.ShortTodoInterface>

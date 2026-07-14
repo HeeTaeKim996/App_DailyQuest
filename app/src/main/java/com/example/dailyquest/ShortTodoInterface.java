@@ -3,20 +3,31 @@ package com.example.dailyquest;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-public class ShortTodoInterface extends LinearLayout
+import java.util.function.BiConsumer;
+
+public class ShortTodoInterface extends FrameLayout
 {
     private Todo todo;
     private BCompletedButton completedButton;
     private TextView shortText;
+    private ProgressBar swipeProgressBar;
 
     private float xPos;
     private boolean bIntercepting = false;
+
+    private BiConsumer<Todo, ShortTodoInterface> deleteTodoListener;
+
+    private final float DELETE_THRESHOLD = 400f;
+    private final float HALF_DELETE_THRESHOLD = DELETE_THRESHOLD / 2.f;
 
     public ShortTodoInterface(Context context)
     { super(context); }
@@ -35,11 +46,13 @@ public class ShortTodoInterface extends LinearLayout
 
         completedButton = findViewById(R.id.button_isFinished);
         shortText = findViewById(R.id.textView_shortMainText);
+        swipeProgressBar = findViewById(R.id.progressBar_swipe);
     }
 
-    public void initialize(Todo InTodo)
+    public void initialize(Todo InTodo, BiConsumer<Todo, ShortTodoInterface> InDeleteTodo)
     {
         todo = InTodo;
+        deleteTodoListener = InDeleteTodo;
 
         completedButton.setCompleted(todo.isCompleted);
         shortText.setText(todo.mainText);
@@ -104,7 +117,7 @@ public class ShortTodoInterface extends LinearLayout
 
             case MotionEvent.ACTION_MOVE:
                 float diff = Math.abs(motionEvent.getX() - xPos);
-                if(bIntercepting == false && diff > 150f)
+                if(bIntercepting == false && diff > HALF_DELETE_THRESHOLD)
                 {
                     bIntercepting = true;
                     return true;
@@ -123,15 +136,41 @@ public class ShortTodoInterface extends LinearLayout
         switch(motionEvent.getAction())
         {
             case MotionEvent.ACTION_MOVE:
-                float diff = Math.abs(motionEvent.getX() - xPos);
-                // TODO : diff 에 따라 색을 다르게 처리하거나, progressBar 로 diff 를 표현
+                float diff = motionEvent.getX() - xPos;
+                boolean isPlus = diff >= 0;
+                diff = Math.abs(diff);
+
+                if(isPlus == false)
+                {
+                    if(swipeProgressBar.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR)
+                    {
+                        swipeProgressBar.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+                    }
+                }
+                else
+                {
+                    if(swipeProgressBar.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL)
+                    {
+                        swipeProgressBar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+                    }
+                }
+
+                int progress = (int) Math.min(100f,
+                        Math.max(0, (diff - HALF_DELETE_THRESHOLD) / HALF_DELETE_THRESHOLD * 100f ));
+                swipeProgressBar.setProgress(progress);
+
                 break;
 
             case MotionEvent.ACTION_UP:
+                swipeProgressBar.setProgress(0);
+
                 float finalDiff = Math.abs(motionEvent.getX() - xPos);
-                if(finalDiff > 300f)
+                if(finalDiff >= DELETE_THRESHOLD)
                 {
-                    // TODO : 삭제 요청
+                    if(deleteTodoListener != null)
+                    {
+                        deleteTodoListener.accept(todo, this);
+                    }
                     return true;
                 }
                 break;
