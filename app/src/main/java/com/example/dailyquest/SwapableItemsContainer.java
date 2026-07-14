@@ -16,7 +16,8 @@ import androidx.annotation.Nullable;
 public class SwapableItemsContainer extends LinearLayout
 {
     private ISwapableItem swapingItem = null;
-
+    private SwapInsertIndicater indicater;
+    private int indiIndex;
 
     public SwapableItemsContainer(Context context)
     { super(context); }
@@ -96,7 +97,6 @@ public class SwapableItemsContainer extends LinearLayout
                     }
                 }
 
-                if(i == 0) break;
 
                 if(i - 1 != indiIndex)
                 {
@@ -121,35 +121,30 @@ public class SwapableItemsContainer extends LinearLayout
 
                 if(fromIndex != indiIndex - 1)
                 {
-                    int toIndex = indiIndex - 1;
-
                     View fromItem = (View) swapingItem;
-                    View toItem = getChildAt(indiIndex - 1);
 
-                    if(fromIndex < toIndex)
+
+                    if(indiIndex > fromIndex)
                     {
-                        removeViewAt(toIndex);
+                        removeViewAt(indiIndex);
                         removeViewAt(fromIndex);
-
-                        addView(toItem, fromIndex);
-                        addView(fromItem, toIndex);
+                        addView(fromItem, indiIndex - 1);
                     }
                     else
                     {
                         removeViewAt(fromIndex);
-                        removeViewAt(toIndex);
-
-                        addView(fromItem, toIndex);
-                        addView(toItem, fromIndex);
+                        removeViewAt(indiIndex);
+                        addView(fromItem, indiIndex);
                     }
-
-
+                }
+                else
+                {
+                    removeViewAt(indiIndex);
                 }
 
                 swapingItem.changeBackgroundToNormal();
                 swapingItem = null;
 
-                removeView(indicater);
                 indicater = null;
                 return false;
         }
