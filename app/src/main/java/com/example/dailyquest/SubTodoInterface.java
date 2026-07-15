@@ -3,6 +3,7 @@ package com.example.dailyquest;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -19,7 +20,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import java.util.function.BiConsumer;
 
-public class SubTodoInterface extends FrameLayout
+public class SubTodoInterface extends FrameLayout implements ISwapableItem
 {
     public SubTodo subTodo;
     public SubTodoMainText subText;
@@ -35,6 +36,8 @@ public class SubTodoInterface extends FrameLayout
     private ProgressBar swipeProgressBar;
 
     private BiConsumer<SubTodo, SubTodoInterface> deleteSubtodoListener;
+
+
 
     private enum State
     {
@@ -126,6 +129,28 @@ public class SubTodoInterface extends FrameLayout
             }
 
         });
+        setOnLongClickListener(view ->
+        {
+            if(state == State.normal)
+            {
+                state = State.moving;
+
+                SwapableItemsContainer parent = (SwapableItemsContainer) getParent();
+                if(parent != null)
+                {
+                    long now = SystemClock.uptimeMillis();
+                    MotionEvent cancelEvent = MotionEvent.obtain(now, now,
+                            MotionEvent.ACTION_CANCEL, 0, 0, 0);
+                    view.onTouchEvent(cancelEvent);
+                    cancelEvent.recycle();
+
+                    parent.startSwap(this);
+                }
+            }
+
+
+            return false;
+        });
 
         subText.onViewMode(bCompleted);
     }
@@ -136,6 +161,7 @@ public class SubTodoInterface extends FrameLayout
 
         setClickable(false);
         setOnClickListener(null);
+        setOnLongClickListener(null);
         subText.onEditMode(123);
     }
 
@@ -214,8 +240,22 @@ public class SubTodoInterface extends FrameLayout
     }
 
 
+    @Override
+    public void changeBackgroundToPicked()
+    {
+        setBackgroundResource(R.drawable.date_background_today);
+    }
 
+    @Override
+    public void changeBackgroundToNormal()
+    {
+        setBackgroundResource(R.drawable.subtodo_background);
+    }
 
+    public SubTodo getSubTodo()
+    {
+        return subTodo;
+    }
 
 
 

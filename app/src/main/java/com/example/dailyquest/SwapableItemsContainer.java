@@ -11,12 +11,14 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
+import java.util.function.BiConsumer;
 
 
 public class SwapableItemsContainer extends LinearLayout
 {
     private View swapingItem = null;
     private int originIndex;
+    private ISwapCompleteFunc swapFunc;
 
     public SwapableItemsContainer(Context context)
     { super(context); }
@@ -38,6 +40,12 @@ public class SwapableItemsContainer extends LinearLayout
     }
 
 
+    public void setSwapCompleteFunc(ISwapCompleteFunc InSwapFunc)
+    {
+        swapFunc = InSwapFunc;
+    }
+
+
 
     public void startSwap(ISwapableItem requester)
     {
@@ -51,10 +59,16 @@ public class SwapableItemsContainer extends LinearLayout
         long now = SystemClock.uptimeMillis();
         MotionEvent downEvent = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, 0, 0, 0);
 
-
         this.dispatchTouchEvent(downEvent);
-
         downEvent.recycle();
+
+        if(getParent() != null)
+        {
+            getParent().requestDisallowInterceptTouchEvent(true);
+            // requestDisallowInterceptTouchEvent 는 현 뷰의 상위 부모들의 onInteceptTouchEvent 를 차단.
+            // 스크롤 뷰는 onIntercetTouchEvent 내에서 스크롤 기능을 구현하기에, 위 함수를 호출함으로써,
+            // 스크롤 기능을 차단함
+        }
     }
 
     @Override
@@ -116,12 +130,20 @@ public class SwapableItemsContainer extends LinearLayout
 
                 if(toIndex != originIndex)
                 {
-                    // TODO : 데이터도 위치 스와핑 요청
+                    if(swapFunc != null)
+                    {
+                        swapFunc.swapCompleted((ISwapableItem)swapingItem, originIndex, toIndex);
+                    }
                 }
 
 
                 ((ISwapableItem)swapingItem).changeBackgroundToNormal();
                 swapingItem = null;
+
+                if (getParent() != null)
+                {
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                }
 
                 return false;
         }

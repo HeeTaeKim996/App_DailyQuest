@@ -227,6 +227,10 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
     }
 
 
+    public Todo getTodo()
+    {
+        return todo;
+    }
 
 
 }

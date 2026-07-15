@@ -110,6 +110,28 @@ public class TodoInfoInterface extends ConstraintLayout
         });
 
 
+        ISwapCompleteFunc swapCompleteFunc = new ISwapCompleteFunc()
+        {
+            @Override
+            public void swapCompleted(ISwapableItem swappedItem, int fromIndex, int toIndex)
+            {
+                SubTodoInterface subTodoInterface = (SubTodoInterface) swappedItem;
+                SubTodo swappedSubTodo = subTodoInterface.getSubTodo();
+
+                if(fromIndex == toIndex) return;
+                if(todo.subTodos.get(fromIndex) != swappedSubTodo) return;
+
+                todo.subTodos.remove(fromIndex);
+                todo.subTodos.add(toIndex, swappedSubTodo);
+
+                invokeSaveDate.run();
+            }
+        };
+
+
+        SwapableItemsContainer swapableItemsContainer = findViewById(R.id.linearLayout_SubTodos);
+        swapableItemsContainer.setSwapCompleteFunc(swapCompleteFunc);
+
         BiConsumer<SubTodo, SubTodoInterface> deleteFunc
                 = (SubTodo dSubtodo, SubTodoInterface dSubtodoInterface)->
         {

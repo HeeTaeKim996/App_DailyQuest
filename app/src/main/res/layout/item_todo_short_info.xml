@@ -2,7 +2,9 @@
 <com.example.dailyquest.ShortTodoInterface
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="40dp">
+    android:layout_height="wrap_content">
+<!--    android:layout_height="40dp"-->
+
 
    <ProgressBar
        android:id="@+id/progressBar_swipe"
@@ -21,9 +23,9 @@
     <LinearLayout
         android:id="@+id/linearLayout_shortInfo"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:orientation="horizontal"
         android:background="@android:color/transparent"
+        android:layout_height="match_parent"
         >
 
         <TextView

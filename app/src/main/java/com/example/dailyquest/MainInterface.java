@@ -206,6 +206,29 @@ public class MainInterface
                 .setView(binding.getRoot()).create();
         dialog.show();
 
+
+        ISwapCompleteFunc swapCompleteFunc = new ISwapCompleteFunc()
+        {
+            @Override
+            public void swapCompleted(ISwapableItem swappedItem, int fromIndex, int toIndex)
+            {
+                if(fromIndex == toIndex) return;
+
+                ShortTodoInterface shortTodoInterface = (ShortTodoInterface) swappedItem;
+                Todo swappedTodo = shortTodoInterface.getTodo();
+                if(date.todos.get(fromIndex) != swappedTodo) return;
+
+
+                date.todos.remove(fromIndex);
+                date.todos.add(toIndex, swappedTodo);
+
+
+                saveDate.accept(date);
+            }
+        };
+        SwapableItemsContainer swappableContainer = binding.linearLayoutScrollView;
+        swappableContainer.setSwapCompleteFunc(swapCompleteFunc);
+
         if(date.todos != null)
         {
             BiConsumer<Todo, ShortTodoInterface> deleteTodo
@@ -255,10 +278,10 @@ public class MainInterface
         }
         else
         {
-            ViewGroup.LayoutParams layoutParams = binding.scrollView.getLayoutParams();
+            ViewGroup.LayoutParams layoutParams = binding.linearLayoutScrollView.getLayoutParams();
             float density = context.getResources().getDisplayMetrics().density;
             layoutParams.height = (int)(density * 40);
-            binding.scrollView.setLayoutParams(layoutParams);
+            binding.linearLayoutScrollView.setLayoutParams(layoutParams);
         }
         binding.textViewMonthDate.setText(String.format("%d월 %d일 (%c)",
                 calender.month, date.date, CalenderUtils.instance().INDEX_TO_DAY[position % 7]
