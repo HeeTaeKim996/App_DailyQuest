@@ -30,8 +30,9 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
 
     private BiConsumer<Todo, ShortTodoInterface> deleteTodoListener;
 
-    private final float DELETE_THRESHOLD = 400f;
-    private final float HALF_DELETE_THRESHOLD = DELETE_THRESHOLD / 2.f;
+    private static final float DELETE_THRESHOLD = 400f;
+    private static final float HALF_DELETE_THRESHOLD = DELETE_THRESHOLD / 2.f;
+    private static final int MAX_PROGRESS = 500;
 
     public ShortTodoInterface(Context context)
     { super(context); }
@@ -51,6 +52,8 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
         completedButton = findViewById(R.id.button_isFinished);
         shortText = findViewById(R.id.textView_shortMainText);
         swipeProgressBar = findViewById(R.id.progressBar_swipe);
+        swipeProgressBar.setMax(MAX_PROGRESS);
+        swipeProgressBar.setProgress(0);
     }
 
     public void initialize(Todo InTodo, BiConsumer<Todo, ShortTodoInterface> InDeleteTodo)
@@ -198,8 +201,9 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
                     }
                 }
 
-                int progress = (int) Math.min(100f,
-                        Math.max(0, (diff - HALF_DELETE_THRESHOLD) / HALF_DELETE_THRESHOLD * 100f ));
+                int progress = (int) Math.min(MAX_PROGRESS,
+                        Math.max(0, (diff - HALF_DELETE_THRESHOLD) / HALF_DELETE_THRESHOLD
+                                * MAX_PROGRESS ));
                 swipeProgressBar.setProgress(progress);
 
                 break;

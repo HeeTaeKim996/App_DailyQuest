@@ -6,17 +6,43 @@ import android.graphics.Paint;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
-public class SubTodoInterface extends ConstraintLayout
+import java.util.function.BiConsumer;
+
+public class SubTodoInterface extends FrameLayout
 {
     public SubTodo subTodo;
     public SubTodoMainText subText;
     private Runnable invokeSaveDateListener;
+
+    private boolean bCompleted;
+
+    private boolean bIntercepting;
+    private float xPos;
+    private static final float DELETE_THRESHOLD = 400f;
+    private static final float HALF_DELETE_THRESHOLD = DELETE_THRESHOLD / 2.f;
+    private static final int MAX_PROGRESS = 500;
+    private ProgressBar swipeProgressBar;
+
+    private BiConsumer<SubTodo, SubTodoInterface> deleteSubtodoListener;
+
+    private enum State
+    {
+        normal,
+        deletePhase,
+        moving
+    }
+    private State state;
 
     public SubTodoInterface(@NonNull Context context)
     { super(context);                       init();}
@@ -37,40 +63,22 @@ public class SubTodoInterface extends ConstraintLayout
     {
         super.onFinishInflate();
         subText = findViewById(R.id.editText_subTodo);
+        swipeProgressBar = findViewById(R.id.progressBar_subtodo);
+        swipeProgressBar.setProgress(0);
+        swipeProgressBar.setMax(MAX_PROGRESS);
     }
 
 
-    public void initialize(SubTodo InSubTodo, Runnable InSaveDateListener)
+    public void initialize(SubTodo InSubTodo, Runnable InSaveDateListener,
+                           BiConsumer<SubTodo, SubTodoInterface> InDeleteListener)
     {
         subTodo = InSubTodo;
         invokeSaveDateListener = InSaveDateListener;
+        deleteSubtodoListener = InDeleteListener;
 
-        subText.bCompleted = subTodo.bCompleted;
+        bCompleted = subTodo.bCompleted;
         subText.setText(subTodo.subText);
 
-        subText.setOnClickListener(v->
-        {
-            if(subText.bCompleted)
-            {
-                subText.setTextColor(Color.parseColor("#000000"));
-                subText.setPaintFlags(subText.getPaintFlags()
-                        & ~(Paint.STRIKE_THRU_TEXT_FLAG));
-            }
-            else
-            {
-                subText.setTextColor(Color.parseColor("#AAAAAA"));
-                subText.setPaintFlags(subText.getPaintFlags()
-                        | Paint.STRIKE_THRU_TEXT_FLAG);
-            }
-
-            subText.bCompleted = !subText.bCompleted;
-            subTodo.bCompleted = subText.bCompleted;
-
-            if(invokeSaveDateListener != null)
-            {
-                invokeSaveDateListener.run();
-            }
-        });
 
         subText.addTextChangedListener(new TextWatcher()
         {
@@ -88,7 +96,122 @@ public class SubTodoInterface extends ConstraintLayout
         });
     }
 
+    public void onViewMode()
+    {
+        bIntercepting = true;
 
+        setClickable(true);
+        setOnClickListener(v->
+        {
+
+            if(bCompleted)
+            {
+                subText.setTextColor(Color.parseColor("#000000"));
+                subText.setPaintFlags(subText.getPaintFlags()
+                        & ~(Paint.STRIKE_THRU_TEXT_FLAG));
+            }
+            else
+            {
+                subText.setTextColor(Color.parseColor("#AAAAAA"));
+                subText.setPaintFlags(subText.getPaintFlags()
+                        | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+
+            bCompleted = !bCompleted;
+            subTodo.bCompleted = bCompleted;
+
+            if(invokeSaveDateListener != null)
+            {
+                invokeSaveDateListener.run();
+            }
+
+        });
+
+        subText.onViewMode(bCompleted);
+    }
+
+    public void onEditMode()
+    {
+        bIntercepting = false;
+
+        setClickable(false);
+        setOnClickListener(null);
+        subText.onEditMode(123);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent motionEvent)
+    {
+        if(bIntercepting) return true;
+        return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent)
+    {
+        switch(motionEvent.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+                state = State.normal;
+                xPos = motionEvent.getX();
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                float diff = motionEvent.getX() - xPos;
+                boolean isPlus = diff >= 0;
+                diff = Math.abs(diff);
+
+                if(state == State.normal && diff > HALF_DELETE_THRESHOLD)
+                {
+                    state = State.deletePhase;
+                }
+
+                if(state == State.deletePhase)
+                {
+                    if(isPlus)
+                    {
+                        if(swipeProgressBar.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL)
+                        {
+                            swipeProgressBar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+                        }
+                    }
+                    else
+                    {
+                        if(swipeProgressBar.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR)
+                        {
+                            swipeProgressBar.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+                        }
+                    }
+
+                    int progress = (int) Math.min(MAX_PROGRESS,
+                            Math.max(0, (diff - HALF_DELETE_THRESHOLD) / HALF_DELETE_THRESHOLD)
+                    * MAX_PROGRESS);
+                    swipeProgressBar.setProgress(progress);
+                    return true;
+                }
+                break;
+
+            case MotionEvent.ACTION_UP:
+                if(state == State.deletePhase)
+                {
+                    float finalDiff = Math.abs(motionEvent.getX() - xPos);
+                    if(finalDiff >= DELETE_THRESHOLD)
+                    {
+                        if(deleteSubtodoListener != null)
+                        {
+                            deleteSubtodoListener.accept(subTodo, this);
+                        }
+                    }
+
+                    swipeProgressBar.setProgress(0);
+                    return true;
+
+                }
+                break;
+        }
+
+        return super.onTouchEvent(motionEvent);
+    }
 
 
 
@@ -106,8 +229,6 @@ public class SubTodoInterface extends ConstraintLayout
 
     public static class SubTodoMainText extends androidx.appcompat.widget.AppCompatEditText
     {
-        public boolean bCompleted;
-
         public SubTodoMainText(Context context)
         { super(context);                       init();}
 
@@ -122,7 +243,7 @@ public class SubTodoInterface extends ConstraintLayout
             setImeOptions(EditorInfo.IME_ACTION_DONE);
         }
 
-        public void onViewMode()
+        public void onViewMode(boolean bCompleted)
         {
             setFocusable(false);
             setFocusableInTouchMode(false);
@@ -135,10 +256,9 @@ public class SubTodoInterface extends ConstraintLayout
                 setPaintFlags(getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 setTextColor(Color.parseColor("#AAAAAA"));
             }
-
-            setClickable(true);
         }
-        public void onEditMode()
+
+        public void onEditMode(int tempDelAft)
         {
             setFocusable(true);
             setFocusableInTouchMode(true);
@@ -150,5 +270,8 @@ public class SubTodoInterface extends ConstraintLayout
             setPaintFlags(getPaintFlags() & ~(Paint.STRIKE_THRU_TEXT_FLAG));
             setClickable(false);
         }
+
+
+
     }
 }

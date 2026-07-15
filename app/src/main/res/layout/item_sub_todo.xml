@@ -5,13 +5,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/date_background"
+    android:background="@drawable/subtodo_background"
     >
+
+    <ProgressBar
+        android:id="@+id/progressBar_subtodo"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:progressDrawable="@drawable/swipe_progress_bar"
+        android:indeterminate="false"
+        android:clickable="false"
+        android:focusable="false"
+    />
+
 
     <view class="com.example.dailyquest.SubTodoInterface$SubTodoMainText"
         android:id="@+id/editText_subTodo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+
         />
 
 </com.example.dailyquest.SubTodoInterface>

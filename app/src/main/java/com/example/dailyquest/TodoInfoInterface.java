@@ -20,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.example.dailyquest.databinding.ItemSubTodoBinding;
 
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class TodoInfoInterface extends ConstraintLayout
@@ -109,6 +110,23 @@ public class TodoInfoInterface extends ConstraintLayout
         });
 
 
+        BiConsumer<SubTodo, SubTodoInterface> deleteFunc
+                = (SubTodo dSubtodo, SubTodoInterface dSubtodoInterface)->
+        {
+            Consumer<Boolean> isYes = (Boolean bYes) ->
+            {
+                if(bYes)
+                {
+                    todo.subTodos.remove(dSubtodo);
+                    subTodosLayout.removeView(dSubtodoInterface);
+                    invokeSaveDate.run();
+                }
+            };
+
+            InformUtils.instance().ShowYesOrNo(context,
+                    String.format("[%s]\n을 삭제하겠습니까?", dSubtodo.subText), isYes);
+        };
+
         if(todo.subTodos != null)
         {
             for(int i = 0; i < todo.subTodos.size(); i++)
@@ -119,7 +137,7 @@ public class TodoInfoInterface extends ConstraintLayout
                                 subTodosLayout, false);
 
                 SubTodoInterface subInterface = subTodoBinding.getRoot();
-                subInterface.initialize(subTodo, invokeSaveDate);
+                subInterface.initialize(subTodo, invokeSaveDate, deleteFunc);
 
                 subTodosLayout.addView(subInterface);
             }
@@ -139,7 +157,7 @@ public class TodoInfoInterface extends ConstraintLayout
                     .inflate(LayoutInflater.from(context),
                             subTodosLayout, false);
             SubTodoInterface subInterface = subTodoBinding.getRoot();
-            subInterface.initialize(subTodo, invokeSaveDate);
+            subInterface.initialize(subTodo, invokeSaveDate, deleteFunc);
 
             subTodosLayout.addView(subInterface);
 
@@ -215,7 +233,7 @@ public class TodoInfoInterface extends ConstraintLayout
             SubTodoInterface subInterface
                     = (SubTodoInterface) subTodosLayout.getChildAt(i);
 
-            subInterface.subText.onEditMode();
+            subInterface.onEditMode();
         }
     }
 
@@ -253,7 +271,7 @@ public class TodoInfoInterface extends ConstraintLayout
             SubTodoInterface subInterface
                     = (SubTodoInterface) subTodosLayout.getChildAt(i);
 
-            subInterface.subText.onViewMode();
+            subInterface.onViewMode();
         }
     }
     private TypedArray makeEditTextBackground()
