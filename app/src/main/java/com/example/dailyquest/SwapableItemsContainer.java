@@ -15,9 +15,8 @@ import androidx.annotation.Nullable;
 
 public class SwapableItemsContainer extends LinearLayout
 {
-    private ISwapableItem swapingItem = null;
-    private SwapInsertIndicater indicater;
-    private int indiIndex;
+    private View swapingItem = null;
+    private int originIndex;
 
     public SwapableItemsContainer(Context context)
     { super(context); }
@@ -42,13 +41,10 @@ public class SwapableItemsContainer extends LinearLayout
 
     public void startSwap(ISwapableItem requester)
     {
-        swapingItem = requester;
-        swapingItem.changeBackgroundToPicked();
+        swapingItem = (View) requester;
+        requester.changeBackgroundToPicked();
 
-
-        indicater = new SwapInsertIndicater(getContext());
-        indiIndex = indexOfChild((View)swapingItem) + 1;
-        addView(indicater, indiIndex);
+        originIndex = indexOfChild(swapingItem);
 
         invalidate();
 
@@ -87,7 +83,7 @@ public class SwapableItemsContainer extends LinearLayout
                 for(; i < getChildCount(); i++)
                 {
                     View view = getChildAt(i);
-                    if(view instanceof ISwapableItem == false) continue;
+                    if(view == swapingItem) continue;
 
                     int middle = ( view.getTop() + view.getBottom() ) / 2;
 
@@ -98,54 +94,35 @@ public class SwapableItemsContainer extends LinearLayout
                 }
 
 
-                if(i - 1 != indiIndex)
+                int swappingIndex = indexOfChild(swapingItem);
+                if(i - 1 != swappingIndex)
                 {
-                    if(i - 1 > indiIndex)
+                    if(i > swappingIndex)
                     {
-                        removeViewAt(indiIndex);
-                        addView(indicater, i - 1);
-                        indiIndex = i - 1;
+                        removeViewAt(swappingIndex);
+                        addView(swapingItem, i - 1);
                     }
                     else
                     {
-                        removeViewAt(indiIndex);
-                        addView(indicater, i);
-                        indiIndex = i;
+                        removeViewAt(swappingIndex);
+                        addView(swapingItem, i);
                     }
                 }
 
                 break;
 
             case MotionEvent.ACTION_UP:
-                int fromIndex = indexOfChild((View) swapingItem);
+                int toIndex = indexOfChild(swapingItem);
 
-                if(fromIndex != indiIndex - 1)
+                if(toIndex != originIndex)
                 {
-                    View fromItem = (View) swapingItem;
-
-
-                    if(indiIndex > fromIndex)
-                    {
-                        removeViewAt(indiIndex);
-                        removeViewAt(fromIndex);
-                        addView(fromItem, indiIndex - 1);
-                    }
-                    else
-                    {
-                        removeViewAt(fromIndex);
-                        removeViewAt(indiIndex);
-                        addView(fromItem, indiIndex);
-                    }
-                }
-                else
-                {
-                    removeViewAt(indiIndex);
+                    // TODO : 데이터도 위치 스와핑 요청
                 }
 
-                swapingItem.changeBackgroundToNormal();
+
+                ((ISwapableItem)swapingItem).changeBackgroundToNormal();
                 swapingItem = null;
 
-                indicater = null;
                 return false;
         }
 

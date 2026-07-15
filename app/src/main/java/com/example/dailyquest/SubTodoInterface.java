@@ -93,6 +93,17 @@ public class SubTodoInterface extends ConstraintLayout
 
 
 
+
+
+
+
+
+
+
+
+
+
+
     public static class SubTodoMainText extends androidx.appcompat.widget.AppCompatEditText
     {
         public boolean bCompleted;
