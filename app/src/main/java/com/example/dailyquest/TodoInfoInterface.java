@@ -1,5 +1,6 @@
 package com.example.dailyquest;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -16,8 +17,11 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
+import com.example.dailyquest.databinding.DialogColorPaletteBinding;
 import com.example.dailyquest.databinding.ItemSubTodoBinding;
+import com.example.dailyquest.databinding.TodoInfoBinding;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -35,6 +39,7 @@ public class TodoInfoInterface extends ConstraintLayout
     private Button buttonSecondRight;
     private Button buttonAddSubtodo;
 
+    private LinearLayout topLayout;
     private LinearLayout subTodosLayout;
 
     private Consumer<Date> saveDateListener;
@@ -63,6 +68,7 @@ public class TodoInfoInterface extends ConstraintLayout
         buttonSecondRight = findViewById(R.id.button_secondRight);
         buttonAddSubtodo = findViewById(R.id.button_addSubTodo);
         subTodosLayout = findViewById(R.id.linearLayout_SubTodos);
+        topLayout = findViewById(R.id.linearlayout_top);
     }
 
 
@@ -75,9 +81,48 @@ public class TodoInfoInterface extends ConstraintLayout
         mainText.setText(todo.mainText);
         explainText.setText(todo.explainText);
 
+        int color = 0;
+        switch(todo.getColor())
+        {
+            case 1:
+                color = ContextCompat.getColor(context, R.color._1_Dark);
+                break;
+            case 2:
+                color = ContextCompat.getColor(context, R.color._2_Dark);
+                break;
+            case 3:
+                color = ContextCompat.getColor(context, R.color._3_Dark);
+                break;
+            case 4:
+                color = ContextCompat.getColor(context, R.color._4_Dark);
+                break;
+            case 5:
+                color = ContextCompat.getColor(context, R.color._5_Dark);
+                break;
+            case 6:
+                color = ContextCompat.getColor(context, R.color._6_Dark);
+                break;
+            case 7:
+                color = ContextCompat.getColor(context, R.color._7_Dark);
+                break;
+        }
+        topLayout.setBackgroundColor(color);
+
         saveDateListener = SaveDateFunc;
 
         isEditMode = false;
+
+        buttonSecondRight.setOnClickListener(v->
+        {
+            if(isEditMode() == false)
+            {
+                toEditMode();
+            }
+            else
+            {
+                showColorDialog(context);
+            }
+        });
 
         mainText.addTextChangedListener(new TextWatcher()
         {
@@ -246,7 +291,34 @@ public class TodoInfoInterface extends ConstraintLayout
 
 
         buttonLeft.setText("S");
-        buttonSecondRight.setText("N");
+        buttonSecondRight.setText("co");
+        int color = 0;
+        switch(todo.getColor())
+        {
+            case 1:
+                color = ContextCompat.getColor(context, R.color._1_Light);
+                break;
+            case 2:
+                color = ContextCompat.getColor(context, R.color._2_Light);
+                break;
+            case 3:
+                color = ContextCompat.getColor(context, R.color._3_Light);
+                break;
+            case 4:
+                color = ContextCompat.getColor(context, R.color._4_Light);
+                break;
+            case 5:
+                color = ContextCompat.getColor(context, R.color._5_Light);
+                break;
+            case 6:
+                color = ContextCompat.getColor(context, R.color._6_Light);
+                break;
+            case 7:
+                color = ContextCompat.getColor(context, R.color._7_Light);
+                break;
+        }
+        buttonSecondRight.setBackgroundColor(color);
+
         buttonAddSubtodo.setVisibility(View.VISIBLE);
 
         int size = subTodosLayout.getChildCount();
@@ -257,6 +329,7 @@ public class TodoInfoInterface extends ConstraintLayout
 
             subInterface.onEditMode();
         }
+
     }
 
     public void toViewMode()
@@ -277,6 +350,7 @@ public class TodoInfoInterface extends ConstraintLayout
 
         buttonLeft.setText("B");
         buttonSecondRight.setText("M");
+        buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_500));
 
         InputMethodManager imm = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -314,4 +388,63 @@ public class TodoInfoInterface extends ConstraintLayout
         }
     };
 
+    private void showColorDialog(Context context)
+    {
+        DialogColorPaletteBinding binding = DialogColorPaletteBinding
+                .inflate(LayoutInflater.from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setView(binding.getRoot()).create();
+
+        binding.colorBtn1.setOnClickListener(v->
+        {
+            todo.setColor(1);
+            topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color._1_Dark));
+            buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color._1_Light));
+            dialog.dismiss();
+        });
+        binding.colorBtn2.setOnClickListener(v->
+        {
+            todo.setColor(2);
+            topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color._2_Dark));
+            buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color._2_Light));
+            dialog.dismiss();
+        });
+        binding.colorBtn3.setOnClickListener(v->
+        {
+            todo.setColor(3);
+            topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color._3_Dark));
+            buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color._3_Light));
+            dialog.dismiss();
+        });
+        binding.colorBtn4.setOnClickListener(v->
+        {
+            todo.setColor(4);
+            topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color._4_Dark));
+            buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color._4_Light));
+            dialog.dismiss();
+        });
+        binding.colorBtn5.setOnClickListener(v->
+        {
+            todo.setColor(5);
+            topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color._5_Dark));
+            buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color._5_Light));
+            dialog.dismiss();
+        });
+        binding.colorBtn6.setOnClickListener(v->
+        {
+            todo.setColor(6);
+            topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color._6_Dark));
+            buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color._6_Light));
+            dialog.dismiss();
+        });
+        binding.colorBtn7.setOnClickListener(v->
+        {
+            todo.setColor(7);
+            topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color._7_Dark));
+            buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color._7_Light));
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
 }

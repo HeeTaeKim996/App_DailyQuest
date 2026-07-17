@@ -5,14 +5,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.gridlayout.widget.GridLayout;
 
 import com.example.dailyquest.databinding.ActivityMainBinding;
@@ -121,6 +127,10 @@ public class MainInterface
 
     private void initializeCells(Context context)
     {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        int screenWidth = metrics.widthPixels;
+        int screenHeight = metrics.heightPixels;
+
         int totalCells = 42;
         mainBinding.gridLayout.post(()->
         {
@@ -136,6 +146,35 @@ public class MainInterface
                 params.width = 0;
                 params.height = 0;
                 cellView.setLayoutParams(params);
+
+
+                GridLayout dateGrid = cellView.findViewById(R.id.gridLayout_calenderDate);
+
+                int padding = screenWidth / 500;
+
+                for(int j = 0; j < 8; j++)
+                {
+                    View box = new View(context);
+                    GridLayout.LayoutParams boxParams = new GridLayout.LayoutParams();
+                    boxParams.width = screenWidth / 60;
+                    boxParams.height = screenHeight / 80;
+                    boxParams.setMargins(0, padding, padding, 0);
+
+                    box.setLayoutParams(boxParams);
+
+                    box.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_500));
+//                  box.setBackgroundColor(Color.TRANSPARENT);
+
+                    box.setClickable(false);
+                    box.setFocusable(false);
+                    box.setPadding(padding, padding, padding, padding);
+
+                    dateGrid.addView(box);
+                }
+
+
+
+
 
                 cellViews[i] = cellView;
                 mainBinding.gridLayout.addView(cellView);
@@ -170,6 +209,13 @@ public class MainInterface
                 {
                     cellView.setBackgroundResource(R.drawable.date_background_not_used);
                     dayText.setTextColor(Color.parseColor("#888888"));
+
+                    GridLayout boxGrid = cellView.findViewById(R.id.gridLayout_calenderDate);
+                    for(int j = 0; j < 8; j++)
+                    {
+                        View box = boxGrid.getChildAt(j);
+                        box.setBackgroundColor(Color.TRANSPARENT);
+                    }
                 }
                 else
                 {
@@ -257,6 +303,43 @@ public class MainInterface
                         .inflate(LayoutInflater.from(context));
                 ShortTodoInterface shortInterface = shortInfo.getRoot();
                 shortInterface.initialize(todo, deleteTodo);
+
+                // ProgressBar 의 배경색을 date.color 에 맞춰 수정
+                LayerDrawable layerDrawable = (LayerDrawable) shortInfo.progressBarSwipe
+                        .getProgressDrawable();
+                Drawable backgroundDrawable = layerDrawable
+                        .findDrawableByLayerId(android.R.id.background);
+                if(backgroundDrawable instanceof GradientDrawable)
+                {
+                    GradientDrawable shape = (GradientDrawable) backgroundDrawable;
+
+                    int color = 0;
+                    switch(todo.getColor())
+                    {
+                        case 1:
+                            color = ContextCompat.getColor(context, R.color._1_Light);
+                            break;
+                        case 2:
+                            color = ContextCompat.getColor(context, R.color._2_Light);
+                            break;
+                        case 3:
+                            color = ContextCompat.getColor(context, R.color._3_Light);
+                            break;
+                        case 4:
+                            color = ContextCompat.getColor(context, R.color._4_Light);
+                            break;
+                        case 5:
+                            color = ContextCompat.getColor(context, R.color._5_Light);
+                            break;
+                        case 6:
+                            color = ContextCompat.getColor(context, R.color._6_Light);
+                            break;
+                        case 7:
+                            color = ContextCompat.getColor(context, R.color._7_Light);
+                            break;
+                    }
+                    shape.setColor(color);
+                }
 
                 shortInfo.buttonIsFinished.setOnClickListener(v->
                 {
@@ -354,13 +437,7 @@ public class MainInterface
                 dialog.dismiss();
             }
         });
-        binding.buttonSecondRight.setOnClickListener(v->
-        {
-            if(infoInterface.isEditMode() == false)
-            {
-                infoInterface.toEditMode();
-            }
-        });
+
 
 
         dialog.setOnKeyListener(new DialogInterface.OnKeyListener()

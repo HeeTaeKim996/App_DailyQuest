@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 뷰를 이중으로 겹칠 때 주로 사용되지만, 여백을 줄 때 padding으로 여백 주기도 쉬워서,
+     카드뷰를 자식으로 사용할 때 자주 연계됨 -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:padding="20dp">
+
+    <!-- 모서리를 둥글게 깍고, 이미지의 입체감 표현을 위해 사용 -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@android:color/white">
+
+        <androidx.gridlayout.widget.GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:columnCount="3"
+            app:rowCount="3"
+            android:padding="16dp"
+            app:alignmentMode="alignMargins"
+            app:columnOrderPreserved="false">
+
+            <View
+                android:id="@+id/color_btn_1"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/palette_item_background"
+                android:backgroundTint="@color/_1_Dark"
+                android:clickable="true"
+                android:focusable="true" />
+            <View
+                android:id="@+id/color_btn_2"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/palette_item_background"
+                android:backgroundTint="@color/_2_Dark"
+                android:clickable="true"
+                android:focusable="true" />
+            <View
+                android:id="@+id/color_btn_3"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/palette_item_background"
+                android:backgroundTint="@color/_3_Dark"
+                android:clickable="true"
+                android:focusable="true" />
+            <View
+                android:id="@+id/color_btn_4"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/palette_item_background"
+                android:backgroundTint="@color/_4_Dark"
+                android:clickable="true"
+                android:focusable="true" />
+            <View
+                android:id="@+id/color_btn_5"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/palette_item_background"
+                android:backgroundTint="@color/_5_Dark"
+                android:clickable="true"
+                android:focusable="true" />
+            <View
+                android:id="@+id/color_btn_6"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/palette_item_background"
+                android:backgroundTint="@color/_6_Dark"
+                android:clickable="true"
+                android:focusable="true" />
+            <View
+                android:id="@+id/color_btn_7"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/palette_item_background"
+                android:backgroundTint="@color/_7_Dark"
+                android:clickable="true"
+                android:focusable="true" />
+        </androidx.gridlayout.widget.GridLayout>
+    </androidx.cardview.widget.CardView>
+
+
+</FrameLayout>

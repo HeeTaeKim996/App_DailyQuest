@@ -9,4 +9,35 @@
     <color name="white">#FFFFFFFF</color>
     <color name="sky">#9999FF</color>
     <color name="red_little_transparent">#40FF0000</color>
+
+    <!--스카이-->
+    <color name="_1_Dark">#ACFAFA</color>
+    <color name="_1_Light">#EDFFFF</color>
+
+    <!--노랑-->
+    <color name="_2_Dark">#EEFF78</color>
+    <color name="_2_Light">#F8FFC4</color>
+
+    <!--빨강-->
+    <color name="_3_Dark">#FC7D5D</color>
+    <color name="_3_Light">#FFDCD4</color>
+
+    <!--초록-->
+    <color name="_4_Dark">#8FFFAB</color>
+    <color name="_4_Light">#DEFFE6</color>
+
+    <!--파랑-->
+    <color name="_5_Dark">#787EFF</color>
+    <color name="_5_Light">#D9DAFF</color>
+
+    <!--보라-->
+    <color name="_6_Dark">#CF70FF</color>
+    <color name="_6_Light">#EDC7FF</color>
+
+    <!--검정-->
+    <color name="_7_Dark">#6B6B6B</color>
+    <color name="_7_Light">#D1D1D1</color>
+
+
+
 </resources>

@@ -10,6 +10,11 @@ public class Date
     public boolean isCurrMonth = false;
     public ArrayList<Todo> todos = null;
 
+
+
+
+
+
     public static class Builder
     {
         Date _date;
@@ -28,10 +33,13 @@ public class Date
             _date.isCurrMonth = InIsCurrMonth;
             return this;
         }
+
+
         public Date create()
         {
             return _date;
         }
+
 
     }
 }
