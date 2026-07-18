@@ -289,8 +289,9 @@ public class SubTodoInterface extends FrameLayout implements ISwapableItem
             setFocusableInTouchMode(false);
             setClickable(false);
             setCursorVisible(false);
-            setBackgroundColor(Color.WHITE);
+            setBackgroundColor(Color.TRANSPARENT);
             // 원인을 못찾겠다. TRANSPARENT로 하면 바탕색이 _1_LIGHT가 됨. 원인 못찾아서 그냥 WHITE로 오버라이드함
+            // + 저걸 WHITE 로 바꾸면, 프로그래스바가 안나온다. ㅈ같다.. 원인 명확히 찾자
 
             if(bCompleted)
             {

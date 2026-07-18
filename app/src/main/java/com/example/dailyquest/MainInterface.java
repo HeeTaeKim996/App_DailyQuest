@@ -344,6 +344,7 @@ public class MainInterface
 
 
 
+
         if(date.todos.size() != 0)
         {
             BiConsumer<Todo, ShortTodoInterface> deleteTodo
@@ -503,12 +504,23 @@ public class MainInterface
 
 
 
+        Runnable toViewMode = ()->
+        {
+            infoInterface.toViewMode();
+            if(todo.mainText.equals("") && todo.explainText.equals("")
+                && todo.subTodos.size() == 0)
+            {
+                date.todos.remove(todo);
+                dialog.dismiss();
+            }
+            saveDate.accept(date);
+        };
+
         binding.buttonLeft.setOnClickListener(v->
         {
             if(infoInterface.isEditMode())
             {
-                infoInterface.toViewMode();
-                saveDate.accept(date);
+                toViewMode.run();
             }
             else
             {
@@ -528,8 +540,7 @@ public class MainInterface
                 {
                     if(infoInterface.isEditMode())
                     {
-                        infoInterface.toViewMode();
-                        saveDate.accept(date);
+                        toViewMode.run();
                         return true; // 이벤트를 소비하여, 기존 KEYCODE_BACK 이 발동하지 않음
                     }
                 }
