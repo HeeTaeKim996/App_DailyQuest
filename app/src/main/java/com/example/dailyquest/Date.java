@@ -7,37 +7,27 @@ public class Date
     public Date(){}
     public Date(int InDate) { date = InDate;}
     public int date;
-    public boolean isCurrMonth = false;
-    public ArrayList<Todo> todos = null;
-
-
-
+    public ArrayList<Todo> todos = new ArrayList<>();
 
 
 
     public static class Builder
     {
-        Date _date;
+        private Date _date;
         public Builder()
         {
             _date = new Date();
+        }
+
+        public Date create()
+        {
+            return _date;
         }
 
         public Builder setDate(int InDate)
         {
             _date.date = InDate;
             return this;
-        }
-        public Builder setIsCurrMonth(boolean InIsCurrMonth)
-        {
-            _date.isCurrMonth = InIsCurrMonth;
-            return this;
-        }
-
-
-        public Date create()
-        {
-            return _date;
         }
 
 

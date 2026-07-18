@@ -14,7 +14,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -53,6 +52,8 @@ public class MainInterface
 
     MainInterface(Context context)
     {
+        StaticValues.rootFile = context.getFilesDir();
+
         mainBinding = ActivityMainBinding.inflate(LayoutInflater.from(context));
 
         CalenderUtils.Calender today = CalenderUtils.instance().getTodaybyCalender();
@@ -151,13 +152,14 @@ public class MainInterface
                 GridLayout dateGrid = cellView.findViewById(R.id.gridLayout_calenderDate);
 
                 int padding = screenWidth / 500;
+                int length = screenWidth / 60;
 
-                for(int j = 0; j < 8; j++)
+                for(int j = 0; j < StaticValues.shortTodoCount; j++)
                 {
                     View box = new View(context);
                     GridLayout.LayoutParams boxParams = new GridLayout.LayoutParams();
-                    boxParams.width = screenWidth / 60;
-                    boxParams.height = screenHeight / 80;
+                    boxParams.width = length;
+                    boxParams.height = length;
                     boxParams.setMargins(0, padding, padding, 0);
 
                     box.setLayoutParams(boxParams);
@@ -186,7 +188,7 @@ public class MainInterface
     {
         mainBinding.textViewYearMonth.setText(String.format("%4d년 %2d월", year, month));
 
-        calender = new MainCalender(year, month);
+        calender = new MainCalender(context, year, month);
         today = CalenderUtils.instance().getTodaybyCalender();
         isCurrMonth = (calender.year == today.year
                 && calender.month == today.month);
@@ -195,46 +197,91 @@ public class MainInterface
 
         mainBinding.gridLayout.post(()->
         {
-            int gridHeight = mainBinding.gridLayout.getHeight();
-
             for(int i = 0; i < cellViews.length; i++)
             {
                 View cellView = cellViews[i];
 
-                Date date = calender.getDates().get(i);
-                TextView dayText = cellView.findViewById(R.id.textView_date);
-                dayText.setText(String.valueOf(date.date));
+                DateProxy proxy = calender.getProxies().get(i);
 
-                if(date.isCurrMonth == false)
+                updateDateCell(context, cellView, proxy, i);
+            }
+        });
+    }
+
+    private void updateDateCell(Context context, View cellView, DateProxy proxy, int pos)
+    {
+        TextView dayText = cellView.findViewById(R.id.textView_date);
+        dayText.setText(String.valueOf(proxy.date));
+
+        if(proxy.isCurrMonth == false)
+        {
+            cellView.setBackgroundResource(R.drawable.date_background_not_used);
+            dayText.setTextColor(Color.parseColor("#888888"));
+
+            GridLayout boxGrid = cellView.findViewById(R.id.gridLayout_calenderDate);
+            for(int j = 0; j < StaticValues.shortTodoCount; j++)
+            {
+                View box = boxGrid.getChildAt(j);
+                box.setBackgroundColor(Color.TRANSPARENT);
+            }
+        }
+        else
+        {
+            cellView.setBackgroundResource(R.drawable.date_background);
+            cellView.setClickable(true);
+
+            cellView.setOnClickListener(v->
+            {
+                show_date_todoListDialog(context, proxy, pos);
+            });
+
+            if(isCurrMonth && proxy.date == today.date)
+            {
+                cellView.setBackgroundResource(R.drawable.date_background_today);
+            }
+
+            GridLayout boxGrid = cellView.findViewById(R.id.gridLayout_calenderDate);
+            int temp = proxy.todos & 0x3F_FF_FF_FF; // 개당 3비트. 총 10개 사용
+            for(int j = 0; j < StaticValues.shortTodoCount; j++)
+            {
+                View box = boxGrid.getChildAt(j);
+                if(temp == 0)
                 {
-                    cellView.setBackgroundResource(R.drawable.date_background_not_used);
-                    dayText.setTextColor(Color.parseColor("#888888"));
-
-                    GridLayout boxGrid = cellView.findViewById(R.id.gridLayout_calenderDate);
-                    for(int j = 0; j < 8; j++)
-                    {
-                        View box = boxGrid.getChildAt(j);
-                        box.setBackgroundColor(Color.TRANSPARENT);
-                    }
+                    box.setBackgroundColor(Color.TRANSPARENT);
                 }
                 else
                 {
-                    cellView.setBackgroundResource(R.drawable.date_background);
-                    cellView.setClickable(true);
-
-                    final int pos = i;
-                    cellView.setOnClickListener(v->
+                    int colInt = temp & 7;
+                    int color = 0;
+                    switch(colInt)
                     {
-                        show_date_todoListDialog(context, date, pos);
-                    });
-
-                    if(isCurrMonth && date.date == today.date)
-                    {
-                        cellView.setBackgroundResource(R.drawable.date_background_today);
+                        case 1:
+                            color = ContextCompat.getColor(context, R.color._1_Dark);
+                            break;
+                        case 2:
+                            color = ContextCompat.getColor(context, R.color._2_Dark);
+                            break;
+                        case 3:
+                            color = ContextCompat.getColor(context, R.color._3_Dark);
+                            break;
+                        case 4:
+                            color = ContextCompat.getColor(context, R.color._4_Dark);
+                            break;
+                        case 5:
+                            color = ContextCompat.getColor(context, R.color._5_Dark);
+                            break;
+                        case 6:
+                            color = ContextCompat.getColor(context, R.color._6_Dark);
+                            break;
+                        case 7:
+                            color = ContextCompat.getColor(context, R.color._7_Dark);
+                            break;
                     }
+                    box.setBackgroundColor(color);
+                    temp = temp >> 3;
                 }
             }
-        });
+        }
     }
 
 
@@ -242,9 +289,7 @@ public class MainInterface
 
 
 
-
-
-    private void show_date_todoListDialog(Context context, Date date, int position)
+    private void show_date_todoListDialog(Context context, DateProxy proxy, int position)
     {
         ItemDateTodoListBinding binding = ItemDateTodoListBinding
                 .inflate(LayoutInflater.from(context));
@@ -252,6 +297,7 @@ public class MainInterface
                 .setView(binding.getRoot()).create();
         dialog.show();
 
+        Date date = calender.loadDate(proxy);
 
         ISwapCompleteFunc swapCompleteFunc = new ISwapCompleteFunc()
         {
@@ -346,7 +392,7 @@ public class MainInterface
                     if(shortInterface.isCompleted()) return;
 
                     shortInterface.setCompleted(true);
-                    calender.inform_dateUpdated(date);
+                    calender.saveDate(date);
                     saveDate.accept(date);
                 });
 
@@ -372,19 +418,19 @@ public class MainInterface
         binding.buttonToBeforeDate.setOnClickListener(v->
         {
             if(position == 0) return;
-            Date beforeDate = calender.getDates().get(position - 1);
-            if(beforeDate.isCurrMonth == false) return;
+            DateProxy beforeProxy = calender.getProxies().get(position - 1);
+            if(beforeProxy.isCurrMonth == false) return;
 
-            show_date_todoListDialog(context, beforeDate, position - 1);
+            show_date_todoListDialog(context, beforeProxy, position - 1);
             dialog.dismiss();
         });
         binding.buttonToNextDate.setOnClickListener(v->
         {
-            if(position == calender.getDates().size() - 1) return;
-            Date nextDate = calender.getDates().get(position + 1);
-            if(nextDate.isCurrMonth == false) return;
+            if(position == calender.getProxies().size() - 1) return;
+            DateProxy nextProxy = calender.getProxies().get(position + 1);
+            if(nextProxy.isCurrMonth == false) return;
 
-            show_date_todoListDialog(context, nextDate, position + 1);
+            show_date_todoListDialog(context, nextProxy, position + 1);
             dialog.dismiss();
         });
         binding.buttonAddTodoButton.setOnClickListener(v->
@@ -492,7 +538,11 @@ public class MainInterface
 
     public Consumer<Date> saveDate = (Date date)->
     {
-        calender.inform_dateUpdated(date);
+        DateProxy proxy = calender.saveDate(date);
+        int pos = calender.getOffset() + proxy.date - 1;
+        View cellView = cellViews[pos];
+
+        updateDateCell(getRootView().getContext(), cellView, proxy, pos);
     };
 
 

@@ -1,6 +1,7 @@
 package com.example.dailyquest;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -8,9 +9,10 @@ public class Todo
 {
     public WeakReference<Date> parentDate;
     public boolean isCompleted = false;
+
     public String mainText = "";
     public String explainText = "";
-    public List<SubTodo> subTodos = null;
+
     public int alarmTimes = -1;
 
     private int color = 1; // Color Must Be in 1 ~ 7. setted color in values/colors.xml
@@ -22,4 +24,7 @@ public class Todo
     {
         return color;
     }
+
+
+    public ArrayList<SubTodo> subTodos = new ArrayList<>();
 }
