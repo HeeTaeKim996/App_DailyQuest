@@ -7,7 +7,17 @@ import java.util.TreeSet;
 
 public class Todo
 {
-    public WeakReference<Date> parentDate;
+    private WeakReference<Date> parentDate;
+    public void setParentDate(Date InParentDate)
+    {
+        parentDate = new WeakReference<Date>(InParentDate);
+    }
+    public Date getParentDate()
+    {
+        return parentDate.get();
+    }
+
+
     public boolean isCompleted = false;
 
     public String mainText = "";

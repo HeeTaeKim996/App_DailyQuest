@@ -82,8 +82,6 @@
                 android:focusable="false"
                 android:gravity="top|start"
                 android:inputType="textMultiLine"
-                android:text="Name"
-
                 />
 
             <TextView
@@ -96,7 +94,8 @@
                 android:id="@+id/linearLayout_SubTodos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"></com.example.dailyquest.SwapableItemsContainer>
+                android:orientation="vertical">
+            </com.example.dailyquest.SwapableItemsContainer>
 
             <Button
                 android:id="@+id/button_addSubTodo"

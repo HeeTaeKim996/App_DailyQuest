@@ -9,8 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainCalender
 {
@@ -19,17 +17,22 @@ public class MainCalender
     public int maxDate;
 
     private int offset;
+    private File yearFile;
     private File baseFile;
     private File dataFile;
     private File shortTodosFile;
 
-    private ArrayList<DateProxy> proxies;
+    private DateProxy[] proxies;
     private int[] shortTodos;
 
 
     public MainCalender(Context context, int InYear, int InMonth)
     {
-        baseFile = new File(context.getFilesDir(), String.valueOf(InYear));
+//        clearAllFiles();
+
+
+        yearFile = new File(StaticValues.rootFile, String.valueOf(InYear));
+        baseFile = new File(yearFile, String.valueOf(InMonth));
         dataFile = new File(baseFile, "D");
         shortTodosFile = new File(baseFile, "st.std");
 
@@ -40,38 +43,28 @@ public class MainCalender
         maxDate = CalenderUtils.instance().getLastDateFromYearMonth(InYear, InMonth);
 
 
-        if(baseFile.exists() == false)
-        {
-            makeDefaultProxies();
-        }
-        else
-        {
-            loadProxiesFromFile();
-        }
+        makeProxies();
     }
 
-    private void makeDefaultProxies()
+    private void makeProxies()
     {
-        shortTodos = new int[maxDate];
-
         int offsetMaxDate = offset + maxDate - 1;
-        proxies = new ArrayList<DateProxy>(42);
+        proxies = new DateProxy[42];
 
         for(int i = 0; i < offset; i++)
         {
-            proxies.add(new DateProxy.Builder().setIsCurrMonth(false).create());
+            proxies[i] = new DateProxy.Builder().setIsCurrMonth(false).create();
         }
         for(int i = offset; i <= offsetMaxDate; i++)
         {
             int dateNumber = i - offset + 1;
-            proxies.add(new DateProxy.Builder().setDate(dateNumber).setIsCurrMonth(true)
-                .create());
+            proxies[i] = new DateProxy.Builder().setIsCurrMonth(true).create();
         }
         int firstDate = 1;
         for(int i = offsetMaxDate + 1; i < 42; i++)
         {
-            proxies.add(new DateProxy.Builder().setDate(firstDate++).setIsCurrMonth(false)
-                .create());
+            proxies[i] = new DateProxy.Builder().setDate(firstDate++).setIsCurrMonth(false)
+                    .create();
         }
 
         int lastMonthsLastDate;
@@ -88,14 +81,28 @@ public class MainCalender
 
         for(int i = offset - 1; i >= 0; i--)
         {
-            proxies.get(i).date = lastMonthsLastDate--;
+            proxies[i].date = lastMonthsLastDate--;
+        }
+
+        shortTodos = new int[maxDate];
+
+        if(baseFile.exists())
+        {
+            loadShortTodosFromFile();
+        }
+
+        for(int i = 0; i < maxDate; i++)
+        {
+            DateProxy proxy = proxies[i + offset];
+            proxy.date = i + 1;
+            proxy.todos = shortTodos[i];
         }
     }
 
-    private void loadProxiesFromFile()
-    {
-        shortTodos = new int[maxDate];
 
+
+    private void loadShortTodosFromFile()
+    {
         try(DataInputStream dis = new DataInputStream(new FileInputStream(shortTodosFile)))
         {
             int len = dis.readInt();
@@ -113,6 +120,8 @@ public class MainCalender
         catch (IOException e) { e.printStackTrace(); }
     }
 
+
+
     public Date loadDate(DateProxy proxy)
     {
         File dateFile = new File(dataFile, String.valueOf(proxy.date));
@@ -122,6 +131,8 @@ public class MainCalender
         }
 
         Date date = new Date();
+        date.date = proxy.date;
+
         try(DataInputStream dis = new DataInputStream(new FileInputStream(dateFile)))
         {
             int todoCount = dis.readInt();
@@ -130,7 +141,8 @@ public class MainCalender
             {
                 Todo todo = new Todo();
                 date.todos.add(todo);
-                
+                todo.setParentDate(date);
+
                 todo.isCompleted = dis.readBoolean();
 
                 todo.mainText = dis.readUTF();
@@ -156,7 +168,7 @@ public class MainCalender
     }
 
 
-    public List<DateProxy> getProxies()
+    public DateProxy[] getProxies()
     {
         return proxies;
     }
@@ -167,7 +179,7 @@ public class MainCalender
     {
         int shortTodo = makeShortTodo(date);
         shortTodos[date.date - 1] = shortTodo;
-        DateProxy dateProxy = proxies.get(date.date - 1);
+        DateProxy dateProxy = proxies[offset + date.date - 1];
         dateProxy.todos = shortTodo;
 
         // Delete File if Exists
@@ -182,6 +194,16 @@ public class MainCalender
                 if(files.length == 0)
                 {
                     removeBaseFile();
+
+                    files = yearFile.listFiles();
+                    if(files.length == 0)
+                    {
+                        removeYearFile();
+                    }
+                }
+                else
+                {
+                    saveShortTodos();
                 }
             }
 
@@ -192,7 +214,7 @@ public class MainCalender
             // 기본 파일(BaseFile, ShortTodoFile) 이 없다면, 함께 생성
             if(baseFile.exists() == false)
             {
-                baseFile.mkdirs();
+                dataFile.mkdirs();
                 saveShortTodos();
             }
 
@@ -223,29 +245,11 @@ public class MainCalender
                 }
             }
             catch (IOException e) { e.printStackTrace(); }
+
+            saveShortTodos();
         }
 
         return dateProxy;
-    }
-
-    private int makeShortTodo(Date date)
-    {
-        int shortTodo = 0;
-        int size = date.todos.size();
-        if(size > 0)
-        {
-            int colValue = date.todos.get(0).getColor();
-            shortTodo = colValue;
-        }
-
-        for(int i = 1; i < size && i < StaticValues.shortTodoCount; i++)
-        {
-            shortTodo <<= 3;
-            int colValue = date.todos.get(i).getColor();
-            shortTodo |= colValue;
-        }
-
-        return shortTodo;
     }
 
     private void saveShortTodos()
@@ -254,13 +258,35 @@ public class MainCalender
         {
             dos.writeInt(shortTodos.length);
 
-            for(int shortTodo : shortTodos)
+            for(int shortNum : shortTodos)
             {
-                dos.writeInt(shortTodo);
+                dos.writeInt(shortNum);
             }
         }
         catch(IOException e) { e.printStackTrace(); }
     }
+
+    private int makeShortTodo(Date date)
+    {
+        int shortTodo = 0;
+        int size = date.todos.size();
+        if(size > StaticValues.shortTodoCount)
+        {
+            size = StaticValues.shortTodoCount;
+        }
+
+
+        int mul = 1;
+        for(int i = 0; i < size ; i++)
+        {
+            int colValue = date.todos.get(i).getColor();
+            shortTodo |= (colValue * mul);
+            mul <<= 3;
+        }
+
+        return shortTodo;
+    }
+
 
 
     private void removeBaseFile()
@@ -268,12 +294,18 @@ public class MainCalender
         deleteChildrenFiles(baseFile);
         baseFile.delete();
     }
+    private void removeYearFile()
+    {
+        deleteChildrenFiles(yearFile);
+        yearFile.delete();
+    }
+
     private void deleteChildrenFiles(File me)
     {
         File [] files = me.listFiles();
         for(File child : files)
         {
-            if(child.isFile())
+            if(child.isFile() == false)
             {
                 deleteChildrenFiles(child);
             }
@@ -284,6 +316,13 @@ public class MainCalender
     public int getOffset()
     {
         return offset;
+    }
+
+
+
+    private void clearAllFiles()
+    {
+        deleteChildrenFiles(StaticValues.rootFile);
     }
 
 }

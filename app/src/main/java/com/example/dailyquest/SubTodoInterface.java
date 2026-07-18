@@ -289,7 +289,8 @@ public class SubTodoInterface extends FrameLayout implements ISwapableItem
             setFocusableInTouchMode(false);
             setClickable(false);
             setCursorVisible(false);
-            setBackgroundColor(Color.TRANSPARENT);
+            setBackgroundColor(Color.WHITE);
+            // 원인을 못찾겠다. TRANSPARENT로 하면 바탕색이 _1_LIGHT가 됨. 원인 못찾아서 그냥 WHITE로 오버라이드함
 
             if(bCompleted)
             {

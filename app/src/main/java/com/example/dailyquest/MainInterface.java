@@ -201,7 +201,7 @@ public class MainInterface
             {
                 View cellView = cellViews[i];
 
-                DateProxy proxy = calender.getProxies().get(i);
+                DateProxy proxy = calender.getProxies()[i];
 
                 updateDateCell(context, cellView, proxy, i);
             }
@@ -321,7 +321,21 @@ public class MainInterface
         SwapableItemsContainer swappableContainer = binding.linearLayoutScrollView;
         swappableContainer.setSwapCompleteFunc(swapCompleteFunc);
 
-        if(date.todos != null)
+
+
+        Runnable onEmptyTodos = ()->
+        {
+            ViewGroup.LayoutParams layoutParams = binding.linearLayoutScrollView.getLayoutParams();
+            float density = context.getResources().getDisplayMetrics().density;
+            layoutParams.height = (int)(density * 40);
+            binding.linearLayoutScrollView.setLayoutParams(layoutParams);
+        };
+
+
+
+
+
+        if(date.todos.size() != 0)
         {
             BiConsumer<Todo, ShortTodoInterface> deleteTodo
                     = (Todo dTodo, ShortTodoInterface dInterface)->
@@ -333,6 +347,11 @@ public class MainInterface
                         date.todos.remove(dTodo);
                         binding.linearLayoutScrollView.removeView(dInterface);
                         saveDate.accept(date);
+
+                        if(date.todos.size() == 0)
+                        {
+                            onEmptyTodos.run();
+                        }
                     }
                 };
 
@@ -392,7 +411,6 @@ public class MainInterface
                     if(shortInterface.isCompleted()) return;
 
                     shortInterface.setCompleted(true);
-                    calender.saveDate(date);
                     saveDate.accept(date);
                 });
 
@@ -407,18 +425,23 @@ public class MainInterface
         }
         else
         {
-            ViewGroup.LayoutParams layoutParams = binding.linearLayoutScrollView.getLayoutParams();
-            float density = context.getResources().getDisplayMetrics().density;
-            layoutParams.height = (int)(density * 40);
-            binding.linearLayoutScrollView.setLayoutParams(layoutParams);
+            onEmptyTodos.run();
         }
+
+
+
+
+
+
+
+
         binding.textViewMonthDate.setText(String.format("%d월 %d일 (%c)",
                 calender.month, date.date, CalenderUtils.instance().INDEX_TO_DAY[position % 7]
         ));
         binding.buttonToBeforeDate.setOnClickListener(v->
         {
             if(position == 0) return;
-            DateProxy beforeProxy = calender.getProxies().get(position - 1);
+            DateProxy beforeProxy = calender.getProxies()[position - 1];
             if(beforeProxy.isCurrMonth == false) return;
 
             show_date_todoListDialog(context, beforeProxy, position - 1);
@@ -426,8 +449,8 @@ public class MainInterface
         });
         binding.buttonToNextDate.setOnClickListener(v->
         {
-            if(position == calender.getProxies().size() - 1) return;
-            DateProxy nextProxy = calender.getProxies().get(position + 1);
+            if(position == calender.getProxies().length - 1) return;
+            DateProxy nextProxy = calender.getProxies()[position + 1];
             if(nextProxy.isCurrMonth == false) return;
 
             show_date_todoListDialog(context, nextProxy, position + 1);
@@ -441,7 +464,7 @@ public class MainInterface
             }
 
             Todo newTodo = new Todo();
-            newTodo.parentDate = new WeakReference<Date>(date);
+            newTodo.setParentDate(date);
 
             date.todos.add(newTodo);
 
@@ -540,6 +563,7 @@ public class MainInterface
     {
         DateProxy proxy = calender.saveDate(date);
         int pos = calender.getOffset() + proxy.date - 1;
+
         View cellView = cellViews[pos];
 
         updateDateCell(getRootView().getContext(), cellView, proxy, pos);
