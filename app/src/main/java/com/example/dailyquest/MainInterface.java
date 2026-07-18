@@ -5,15 +5,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.util.DebugUtils;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -23,6 +26,7 @@ import androidx.gridlayout.widget.GridLayout;
 import com.example.dailyquest.databinding.ActivityMainBinding;
 import com.example.dailyquest.databinding.ItemDateTodoListBinding;
 import com.example.dailyquest.databinding.ItemTodoShortInfoBinding;
+import com.example.dailyquest.databinding.OthersBinding;
 import com.example.dailyquest.databinding.TodoInfoBinding;
 
 import java.lang.ref.WeakReference;
@@ -90,6 +94,11 @@ public class MainInterface
                 }
                 changeMainCalenderByYearMonth(context);
             }
+        });
+
+        mainBinding.buttonOthers.setOnClickListener(v->
+        {
+            show_others_panel(context);
         });
     }
 
@@ -571,4 +580,37 @@ public class MainInterface
 
 
 
+    private void show_others_panel(Context context)
+    {
+        OthersBinding binding = OthersBinding.inflate(LayoutInflater.from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot())
+                .create();
+
+        binding.buttonShowAllFiles.setOnClickListener(v->
+        {
+            InformUtils.instance().ShowInformYes(context,
+                    DevelopUtils.instance().getAllFiles().toString());
+            dialog.dismiss();
+        });
+
+
+        binding.buttonClearAllData.setOnClickListener(v->
+        {
+            Consumer<Boolean> onCheck = (Boolean bYes)->
+            {
+                if(bYes)
+                {
+                    DevelopUtils.instance().clearAllFiles();
+                    changeMainCalenderByYearMonth(context);
+                }
+            };
+
+            InformUtils.instance().ShowYesOrNo(context,
+                    "데이터가 모두 삭제됩니다. 진행하겠습니까?", onCheck);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+
+    }
 }

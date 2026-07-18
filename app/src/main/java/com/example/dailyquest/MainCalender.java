@@ -28,7 +28,7 @@ public class MainCalender
 
     public MainCalender(Context context, int InYear, int InMonth)
     {
-//        clearAllFiles();
+//        DevelopUtils.instance().clearAllFiles();
 
 
         yearFile = new File(StaticValues.rootFile, String.valueOf(InYear));
@@ -320,9 +320,5 @@ public class MainCalender
 
 
 
-    private void clearAllFiles()
-    {
-        deleteChildrenFiles(StaticValues.rootFile);
-    }
 
 }

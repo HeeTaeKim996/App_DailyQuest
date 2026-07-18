@@ -38,7 +38,7 @@
             android:text="TextView"
             android:clickable="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
 
         <view class="com.example.dailyquest.ShortTodoInterface$BCompletedButton"
             android:id="@+id/button_isFinished"
