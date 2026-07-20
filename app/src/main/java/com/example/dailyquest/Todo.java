@@ -30,10 +30,7 @@ public class Todo
     {
         color = Math.min(7, Math.max(1, InColor));
     }
-    public int getColor()
-    {
-        return color;
-    }
+    public int getColor() { return color; }
 
 
     public ArrayList<SubTodo> subTodos = new ArrayList<>();

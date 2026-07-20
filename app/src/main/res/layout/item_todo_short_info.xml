@@ -32,8 +32,8 @@
         <TextView
             android:id="@+id/textView_shortMainText"
             android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="match_parent"
-            android:layout_weight="5"
             android:gravity="left|center"
             android:text="TextView"
             android:clickable="true"
@@ -42,10 +42,9 @@
 
         <view class="com.example.dailyquest.ShortTodoInterface$BCompletedButton"
             android:id="@+id/button_isFinished"
-            android:layout_width="0dp"
+            android:layout_width="40dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Button" />
+            android:text="" />
 
     </LinearLayout>
 

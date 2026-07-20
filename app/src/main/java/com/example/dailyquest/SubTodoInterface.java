@@ -106,7 +106,6 @@ public class SubTodoInterface extends FrameLayout implements ISwapableItem
         setClickable(true);
         setOnClickListener(v->
         {
-
             if(bCompleted)
             {
                 subText.setTextColor(Color.parseColor("#000000"));

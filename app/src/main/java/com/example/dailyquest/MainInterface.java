@@ -1,8 +1,11 @@
 package com.example.dailyquest;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -44,14 +47,16 @@ public class MainInterface
 
     private MainCalender calender;
     private CalenderUtils.Calender today;
-    private boolean isCurrMonth;
+    private enum YearMonthState
+    {
+        PAST,
+        CURR,
+        FUTURE
+    }
+    private YearMonthState yearMonthState;
 
     private final View[] cellViews = new View[42];
-
-    private GestureDetector gestureDetector;
-    private float touchY = -1;
-
-
+    private BroadcastReceiver dateChangedReceiver;
 
 
     MainInterface(Context context)
@@ -60,7 +65,7 @@ public class MainInterface
 
         mainBinding = ActivityMainBinding.inflate(LayoutInflater.from(context));
 
-        CalenderUtils.Calender today = CalenderUtils.instance().getTodaybyCalender();
+        today = CalenderUtils.instance().getTodaybyCalender();
         year = today.year;
         month = today.month;
 
@@ -100,6 +105,8 @@ public class MainInterface
         {
             show_others_panel(context);
         });
+
+        registerDateChangedReceiver(context);
     }
 
 
@@ -199,8 +206,25 @@ public class MainInterface
 
         calender = new MainCalender(context, year, month);
         today = CalenderUtils.instance().getTodaybyCalender();
-        isCurrMonth = (calender.year == today.year
-                && calender.month == today.month);
+
+        {
+            int todayValue = today.year * 12 + today.month;
+            int calenderValue = calender.year * 12 + calender.month;
+
+            if(todayValue < calenderValue)
+            {
+                yearMonthState = YearMonthState.FUTURE;
+            }
+            else if(todayValue > calenderValue)
+            {
+                yearMonthState = YearMonthState.PAST;
+            }
+            else
+            {
+                yearMonthState = YearMonthState.CURR;
+            }
+        }
+
 
 
 
@@ -244,7 +268,7 @@ public class MainInterface
                 show_date_todoListDialog(context, proxy, pos);
             });
 
-            if(isCurrMonth && proxy.date == today.date)
+            if(yearMonthState == YearMonthState.CURR && proxy.date == today.date)
             {
                 cellView.setBackgroundResource(R.drawable.date_background_today);
             }
@@ -345,7 +369,7 @@ public class MainInterface
 
 
 
-        if(date.todos.size() != 0)
+        if(date.todos.size() > 0)
         {
             BiConsumer<Todo, ShortTodoInterface> deleteTodo
                     = (Todo dTodo, ShortTodoInterface dInterface)->
@@ -369,15 +393,37 @@ public class MainInterface
                         String.format("[%s]\n을 삭제하겠습니까?", dTodo.mainText), isYes);
             };
 
+            boolean bPastedDate;
+            if(yearMonthState == YearMonthState.PAST)
+            {
+                bPastedDate = true;
+            }
+            else if(yearMonthState == YearMonthState.FUTURE)
+            {
+                bPastedDate = false;
+            }
+            else
+            {
+                if(today.date <= date.date)
+                {
+                    bPastedDate = false;
+                }
+                else
+                {
+                    bPastedDate = true;
+                }
+            }
+
 
             for(int i = 0; i < date.todos.size(); i++)
             {
                 Todo todo = date.todos.get(i);
 
+
                 ItemTodoShortInfoBinding shortInfo = ItemTodoShortInfoBinding
                         .inflate(LayoutInflater.from(context));
                 ShortTodoInterface shortInterface = shortInfo.getRoot();
-                shortInterface.initialize(todo, deleteTodo);
+                shortInterface.initialize(todo, deleteTodo, bPastedDate);
 
                 // ProgressBar 의 배경색을 date.color 에 맞춰 수정
                 LayerDrawable layerDrawable = (LayerDrawable) shortInfo.progressBarSwipe
@@ -622,6 +668,44 @@ public class MainInterface
         });
 
         dialog.show();
+    }
 
+
+    private void registerDateChangedReceiver(Context context)
+    {
+        dateChangedReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                if(Intent.ACTION_DATE_CHANGED.equals(intent.getAction())    // 시스템에서 자정일 때 
+                || Intent.ACTION_TIME_CHANGED.equals(intent.getAction()))   // 사용자가 수동으로 바꿀 때
+                {
+                    today = CalenderUtils.instance().getTodaybyCalender();
+                    changeMainCalenderByYearMonth(context);
+
+                    InformUtils.instance().ShowInformYes(context,
+                            "디버그 : DateChangeReceiver 에서 날짜가 변경됨을 확인");
+                }
+            }
+        };
+
+        // 콘텍스트에서 filter 에 추가한 action 만 수신하여 context 에 전달
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_DATE_CHANGED);
+        filter.addAction(Intent.ACTION_TIME_CHANGED);
+
+        context.registerReceiver(dateChangedReceiver, filter);
+    }
+
+    // MainInterface 가 싱글턴처럼 종속하기에, 호출할 필요 없지만, 만약 부모 클래스가 파괴되는 구조라면, 
+    // 아래처럼 수동으로 메모리 해제 필요
+    private void unregisterReceiver(Context context)
+    {
+        if(dateChangedReceiver != null)
+        {
+            context.unregisterReceiver(dateChangedReceiver);
+            dateChangedReceiver = null;
+        }
     }
 }

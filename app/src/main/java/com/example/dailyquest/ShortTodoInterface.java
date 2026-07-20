@@ -1,19 +1,18 @@
 package com.example.dailyquest;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
 
 import java.util.function.BiConsumer;
 
@@ -56,10 +55,12 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
         swipeProgressBar.setProgress(0);
     }
 
-    public void initialize(Todo InTodo, BiConsumer<Todo, ShortTodoInterface> InDeleteTodo)
+    public void initialize(Todo InTodo, BiConsumer<Todo, ShortTodoInterface> InDeleteTodo,
+                           boolean InBPastedDate)
     {
         todo = InTodo;
         deleteTodoListener = InDeleteTodo;
+        completedButton.bPastedDate = InBPastedDate;
 
         completedButton.setCompleted(todo.isCompleted);
         completedButton.setOnLongClickListener(v->
@@ -116,6 +117,7 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
     public static class BCompletedButton extends androidx.appcompat.widget.AppCompatButton
     {
         public boolean bCompleted;
+        public boolean bPastedDate;
 
         public BCompletedButton(Context context)
         { super(context); }
@@ -129,15 +131,24 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
         public void setCompleted(boolean InCompleted)
         {
             bCompleted = InCompleted;
+            int colorId;
             if(bCompleted)
             {
-                setText("C");
+                colorId = R.color.done_color;
             }
             else
             {
-                setText("Y");
+                if(bPastedDate)
+                {
+                    colorId = R.color.not_done_color;
+                }
+                else
+                {
+                    colorId = R.color.todo_color;
+                }
             }
-
+            int color = ContextCompat.getColor(getContext(), colorId);
+            setBackgroundTintList(ColorStateList.valueOf(color));
         }
     }
 

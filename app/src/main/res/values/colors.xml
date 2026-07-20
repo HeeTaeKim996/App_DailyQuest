@@ -38,6 +38,8 @@
     <color name="_7_Dark">#6B6B6B</color>
     <color name="_7_Light">#D1D1D1</color>
 
-
+    <color name="todo_color">#A8FFB8</color>
+    <color name="done_color">#808080</color>
+    <color name="not_done_color">#BD9A8F</color>
 
 </resources>
