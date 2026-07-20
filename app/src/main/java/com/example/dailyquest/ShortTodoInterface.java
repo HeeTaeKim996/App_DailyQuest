@@ -94,10 +94,21 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
         return completedButton.bCompleted;
     }
 
-    public void setCompleted(boolean InCompleted)
+    public boolean setCompleted(boolean InCompleted)
     {
+        for(SubTodo subTodo : todo.subTodos)
+        {
+            if(subTodo.bCompleted == false)
+            {
+                InformUtils.instance().ShowInformYes(getContext(),
+                        "SubTodo를 모두 완료하지 않아,\n완료 처리할 수 없습니다");
+                return false;
+            }
+        }
+
         completedButton.setCompleted(InCompleted);
         saveTodoFromInterface();
+        return  true;
     }
 
     @Override

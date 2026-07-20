@@ -107,6 +107,8 @@ public class MainInterface
         });
 
         registerDateChangedReceiver(context);
+//        TodoMidnightReceiver.scheduleNextMidnightAlarm(context);
+//        TodoMidnightReceiver.updateTodayNotification(context);
     }
 
 
@@ -466,8 +468,10 @@ public class MainInterface
                 {
                     if(shortInterface.isCompleted()) return;
 
-                    shortInterface.setCompleted(true);
-                    saveDate.accept(date);
+                    if(shortInterface.setCompleted(true))
+                    {
+                        saveDate.accept(date);
+                    }
                 });
 
                 shortInfo.textViewShortMainText.setOnClickListener(v->
@@ -633,6 +637,14 @@ public class MainInterface
         View cellView = cellViews[pos];
 
         updateDateCell(getRootView().getContext(), cellView, proxy, pos);
+
+
+        if(yearMonthState == YearMonthState.CURR && date.date == today.date)
+        {
+            // TODO? : 알림 업데이트
+
+            NotificationHelper.updateTodayNotification(getRootView().getContext(), date.todos);
+        }
     };
 
 
