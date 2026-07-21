@@ -106,9 +106,12 @@ public class MainInterface
             show_others_panel(context);
         });
 
+
         registerDateChangedReceiver(context);
-//        TodoMidnightReceiver.scheduleNextMidnightAlarm(context);
-//        TodoMidnightReceiver.updateTodayNotification(context);
+
+        TodoMidnightReceiver.updateTodayNotification(context);
+
+        TodoMidnightReceiver.scheduleNextMidnightAlarm(context);
     }
 
 
@@ -694,10 +697,12 @@ public class MainInterface
                 || Intent.ACTION_TIME_CHANGED.equals(intent.getAction()))   // 사용자가 수동으로 바꿀 때
                 {
                     today = CalenderUtils.instance().getTodaybyCalender();
-                    changeMainCalenderByYearMonth(context);
+                    // 여기서 changeMainCalender 호출하면 안된다. 만약 기존 캘린더 기준으로 dialog가 열려있고,
+                    // saveData 했을 때, 여기서 calender를 바꿨다면, null 참조할듯
+
 
                     InformUtils.instance().ShowInformYes(context,
-                            "디버그 : DateChangeReceiver 에서 날짜가 변경됨을 확인");
+                            "디버그(MainInterface.java 하단) : DateChangeReceiver 에서 날짜가 변경됨을 확인");
                 }
             }
         };

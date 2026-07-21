@@ -40,6 +40,12 @@ public class CalenderUtils
 
     public static CalenderUtils instance()
     {
+        // 백그라운드에서 CalenderUtils 호출하는 경우가 있음(TodoMidnightReceiver에서). 이 때에는 
+        // _instance == null 이기에, 새로 생성 필요
+        if(_instance == null)
+        {
+            _instance = new CalenderUtils();
+        }
         return _instance;
     }
 
