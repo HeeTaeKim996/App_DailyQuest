@@ -20,7 +20,9 @@ public class TodoMidnightReceiver extends BroadcastReceiver
     public void onReceive(Context context, Intent intent)
     {
         updateTodayNotification(context);
-        scheduleNextMidnightAlarm(context); // 다음 날에도 알림이 다시 울리도록 갱신
+
+
+        scheduleNextMidnightAlarm(context);
     }
 
     public static void updateTodayNotification(Context context)
@@ -95,18 +97,27 @@ public class TodoMidnightReceiver extends BroadcastReceiver
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());   // 현재 시간을 기준으로 Calender 객체를 생성
 
-        calendar.add(Calendar.DAY_OF_YEAR, 1);               // 날짜를 하루 뒤로 이동
         calendar.set(Calendar.HOUR_OF_DAY, 0);                  // 시간을 0시로 지정
         calendar.set(Calendar.MINUTE, 0);                       // 분을 0분으로 지정
-        calendar.set(Calendar.SECOND, 1);                       // 초를 1초 로 지정
-                                                                // -> 다음날 0시 0분 1초 에 알림이 작동하도록 설정
+        calendar.set(Calendar.SECOND, 0);                       // 초를 0초 로 지정
+
+        if(calendar.getTimeInMillis() <= System.currentTimeMillis())
+        {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);          // 만약 현재 시간이 이미 자정을 넘었다면, 다음날 자정으로 설정
+        }
+                                                                // -> 다음날 0시 0분 0초 에 알림이 작동하도록 설정
+
 
         if(alarmManager != null)
         {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)  // M : 마시멜로우(6.0) M 이후부터 배터리 절약 모드 도입으로, 백그라운드에서의 호출 함수가 바뀜
             {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, // RTC(RealTimeClock) : 기기의 실제 시간 기준. WAKEUP : 절전 모드여도, CPU를 강제로 깨운다
-                        calendar.getTimeInMillis(), pendingIntent);     // 설정한 시간(calender) 에 설정한 클래스(pendingItent 내 할당) 을 onReceive
+//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, // RTC(RealTimeClock) : 기기의 실제 시간 기준. WAKEUP : 절전 모드여도, CPU를 강제로 깨운다
+//                        calendar.getTimeInMillis(), pendingIntent);     // 설정한 시간(calender) 에 설정한 클래스(pendingItent 내 할당) 을 onReceive
+
+                AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo
+                        (calendar.getTimeInMillis(), pendingIntent);
+                alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
             }
             else
             {
@@ -114,5 +125,11 @@ public class TodoMidnightReceiver extends BroadcastReceiver
                         calendar.getTimeInMillis(), pendingIntent);
             }
         }
+
+//        if(alarmManager != null)
+//        {
+//            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis()
+//                    , AlarmManager.INTERVAL_DAY, pendingIntent);
+//        }
     }
 }

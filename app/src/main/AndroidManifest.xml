@@ -23,8 +23,15 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="TodoMidnightReceiver"
-            android:exported="false"/>
+        <receiver
+            android:name=".TodoMidnightReceiver"
+            android:exported="false">
+                <intent-filter>
+                    <action android:name="android.intent.action.TIME_SET" />
+                    <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                </intent-filter>
+        </receiver>
+
         <!-- BroadcastReceiver 구현 클래스의 경로 지정. 기본 경로가 com.example.dailyquest 이므로, 클래스 명만 입력하면, 경로 인식 -->
         <!-- exported=false : 보안 옵션. 이 리시버를 오직 앱 내부(OS 포함)에서만 호출할 수 있도록 제한 -->
 
