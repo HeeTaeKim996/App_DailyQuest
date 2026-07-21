@@ -6,6 +6,9 @@
          targetSdk 31 이상 환경에서 권한 선언 없이 알람 매서드 호출시, 크래시 발생-->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
+
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,10 +29,6 @@
         <receiver
             android:name=".TodoMidnightReceiver"
             android:exported="false">
-                <intent-filter>
-                    <action android:name="android.intent.action.TIME_SET" />
-                    <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-                </intent-filter>
         </receiver>
 
         <!-- BroadcastReceiver 구현 클래스의 경로 지정. 기본 경로가 com.example.dailyquest 이므로, 클래스 명만 입력하면, 경로 인식 -->

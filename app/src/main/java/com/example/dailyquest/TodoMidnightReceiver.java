@@ -94,18 +94,28 @@ public class TodoMidnightReceiver extends BroadcastReceiver
                 PendingIntent.FLAG_UPDATE_CURRENT           // 이미 등록된 알림이 있다면, 기존 Intent 의 데이터를 갱신
                         | PendingIntent.FLAG_IMMUTABLE);        // 안드로이드 12(API 31) 이상 필수 요구사항으로, 외부에서 이 PendingIntent 의 내용 변경을 막음
 
+
         java.util.Calendar calendar = java.util.Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());   // 현재 시간을 기준으로 Calender 객체를 생성
 
-        calendar.set(Calendar.HOUR_OF_DAY, 0);                  // 시간을 0시로 지정
-        calendar.set(Calendar.MINUTE, 0);                       // 분을 0분으로 지정
-        calendar.set(Calendar.SECOND, 0);                       // 초를 0초 로 지정
-
-        if(calendar.getTimeInMillis() <= System.currentTimeMillis())
+        if(true)
         {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);          // 만약 현재 시간이 이미 자정을 넘었다면, 다음날 자정으로 설정
+            calendar.setTimeInMillis(System.currentTimeMillis());   // 현재 시간을 기준으로 Calender 객체를 생성
+            calendar.set(Calendar.HOUR_OF_DAY, 0);                  // 시간을 0시로 지정
+            calendar.set(Calendar.MINUTE, 0);                       // 분을 0분으로 지정
+            calendar.set(Calendar.SECOND, 0);                       // 초를 0초 로 지정
+            calendar.set(Calendar.MILLISECOND, 0);                  // 밀리초(0~999) 지정. ※ 1000밀리초 == 1초
+
+            calendar.add(Calendar.DATE, 1);                     // -> 다음날 0시 0분 0초 에 알림이 작동하도록 설정
         }
-                                                                // -> 다음날 0시 0분 0초 에 알림이 작동하도록 설정
+        else if(false)
+        {
+            calendar.setTimeInMillis(System.currentTimeMillis());
+
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+
+            calendar.add(Calendar.MINUTE, 1); // 디버그 용도로 1분마다 업데이트
+        }
 
 
         if(alarmManager != null)

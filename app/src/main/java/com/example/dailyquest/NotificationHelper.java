@@ -8,6 +8,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.function.Consumer;
 
 public class NotificationHelper
@@ -23,6 +24,12 @@ public class NotificationHelper
             return;
         }
 
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        String titleText = String.format("[%02d-%02d-%02d(%02d:%02d)]  "
+                , calendar.get(Calendar.YEAR) % 100, calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DATE),
+                calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE));
         String contentText = "";
         boolean hasAny = false;
 
@@ -44,11 +51,19 @@ public class NotificationHelper
                 hasAny = true;
             }
         }
-        if(hasAny == false)
+
+        
+        // 원래 코드는 이거지만, 우선 디버깅 용도로 매번 알림
+        if(false)
         {
-            cancelNotification(context);
-            return;
+            if(hasAny == false)
+            {
+                cancelNotification(context);
+                return;
+            }
         }
+
+
 
 
         // NotificationManager : 앱이 아닌 OS 에 알람을 띄워주길 요청할 때 사용
@@ -75,7 +90,7 @@ public class NotificationHelper
             // 하단의 내용은 알림 내용과 직접적인 연관 내용
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher_background)    // 알림 아이콘 설정
-                    .setContentTitle("DailyQuest 오늘의 할 일")              // 알림 제목
+                    .setContentTitle(titleText)              // 알림 제목
                     .setContentText(contentText)                            // 세부 내용
                     .setOngoing(true)   // ※ 밀어서 삭제되는 것을 방지.
                     .setPriority(NotificationCompat.PRIORITY_LOW);
