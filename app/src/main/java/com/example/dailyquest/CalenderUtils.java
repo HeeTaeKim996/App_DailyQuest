@@ -134,6 +134,12 @@ public class CalenderUtils
         int dates = getDatesFromCalender(year, month, 1);
         return dates % 7;   // 0(일), 1(월)... 6(토)
     }
+    public char getDayFromYearMonthDate(int year, int month, int date)
+    {
+        int dates = getDatesFromCalender(year, month, date);
+        return INDEX_TO_DAY[dates % 7];
+    }
+
     public int getLastDateFromYearMonth(int year, int month)
     {
         if(month == 2 && isLeapYear(year))

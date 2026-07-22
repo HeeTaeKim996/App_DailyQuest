@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
+import com.example.dailyquest.databinding.DateInfoSettingBinding;
 import com.example.dailyquest.databinding.DialogColorPaletteBinding;
 import com.example.dailyquest.databinding.ItemSubTodoBinding;
 import com.example.dailyquest.databinding.TodoInfoBinding;
@@ -38,11 +39,13 @@ public class TodoInfoInterface extends ConstraintLayout
     private Button buttonLeft;
     private Button buttonSecondRight;
     private Button buttonAddSubtodo;
+    private Button buttonSetting;
 
     private LinearLayout topLayout;
     private LinearLayout subTodosLayout;
 
     private Consumer<Date> saveDateListener;
+
 
     public TodoInfoInterface(@NonNull Context context)
     { super(context);                       init();}
@@ -69,6 +72,7 @@ public class TodoInfoInterface extends ConstraintLayout
         buttonAddSubtodo = findViewById(R.id.button_addSubTodo);
         subTodosLayout = findViewById(R.id.linearLayout_SubTodos);
         topLayout = findViewById(R.id.linearlayout_top);
+        buttonSetting = findViewById(R.id.button_setting);
     }
 
 
@@ -241,6 +245,11 @@ public class TodoInfoInterface extends ConstraintLayout
 //                        (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 //            }
         });
+        buttonSetting.setOnClickListener(v->
+        {
+            show_settingInterface(context);
+        });
+
     }
 
 
@@ -441,6 +450,27 @@ public class TodoInfoInterface extends ConstraintLayout
             todo.setColor(7);
             topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color._7_Light));
             buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color._7_Dark));
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+
+    private void show_settingInterface(Context context)
+    {
+        DateInfoSettingBinding binding = DateInfoSettingBinding.inflate(LayoutInflater
+                .from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
+        binding.buttonDateInfoSettingChangeByCalender.setOnClickListener(v->
+        {
+            // TODO : SHOW CALENDER
+
+            dialog.dismiss();
+        });
+        binding.buttonDateInfoSettingDelete.setOnClickListener(v->
+        {
+            // TODO : TODO 삭제 처리
             dialog.dismiss();
         });
 

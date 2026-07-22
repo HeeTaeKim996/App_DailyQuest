@@ -9,6 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="sky">#9999FF</color>
     <color name="red_little_transparent">#40FF0000</color>
+    <color name="light_green">#B6FAC2</color>
+
 
     <!--스카이-->
     <color name="_1_Dark">#ACFAFA</color>

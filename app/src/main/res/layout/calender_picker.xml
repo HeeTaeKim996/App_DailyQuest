@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.dailyquest.CalenderPicker
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/light_green"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView_calenderPicker_year"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="   1996년"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textView_calenderPicker_monthDateDay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="  8월 21일(수)"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_calenderPicker_toBeforeMonth"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="L" />
+
+        <TextView
+            android:id="@+id/textView_calenderPicker_yearMonth"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:text="1996년 8월"
+            android:gravity="center"
+            android:textAlignment="center" />
+
+        <Button
+            android:id="@+id/button_calenderPicker_toNextMonth"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="R" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView21"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="일"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView15"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="월"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView16"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="화"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView17"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="수"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView18"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="목"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView19"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="금"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView20"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="토"
+            android:textAlignment="center" />
+
+    </LinearLayout>
+
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/gridLayout_calenderPicker"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        app:columnCount="7"
+        app:rowCount="6"
+        >
+
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>        <include
+        layout="@layout/calender_picker_item_date"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+        <include
+            layout="@layout/calender_picker_item_date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </androidx.gridlayout.widget.GridLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3" />
+
+        <Button
+            android:id="@+id/button_calenderPicker_cancel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="취소" />
+
+        <Button
+            android:id="@+id/button_calenderPicker_ok"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="확인" />
+    </LinearLayout>
+</com.example.dailyquest.CalenderPicker>

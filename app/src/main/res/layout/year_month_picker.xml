@@ -48,18 +48,18 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/button_yearMonthPicker_ok"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="5"
-            android:text="확인" />
-
-        <Button
             android:id="@+id/button_yearMonthPicker_cancel"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="5"
             android:text="취소" />
+
+        <Button
+            android:id="@+id/button_yearMonthPicker_ok"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="5"
+            android:text="확인" />
 
         <Space
             android:layout_width="0dp"
