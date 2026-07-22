@@ -43,7 +43,7 @@ public class TodoInfoInterface extends ConstraintLayout
     private LinearLayout topLayout;
     private LinearLayout subTodosLayout;
 
-    private BiConsumer<Date, MainFuncEnum> mainFuncListener;
+    private BiConsumer<Todo, MainFuncEnum> mainFuncListener;
 
 
     public TodoInfoInterface(@NonNull Context context)
@@ -75,7 +75,7 @@ public class TodoInfoInterface extends ConstraintLayout
     }
 
 
-    public void initialize(Todo InTodo, BiConsumer<Date, MainFuncEnum> InMainFunc)
+    public void initialize(Todo InTodo, BiConsumer<Todo, MainFuncEnum> InMainFunc)
     {
         Context context = getContext();
 
@@ -275,6 +275,8 @@ public class TodoInfoInterface extends ConstraintLayout
         mainText.setBackground(mainTypedArray.getDrawable(0));
         mainTypedArray.recycle();
         mainText.requestFocus();
+        buttonSetting.setText("");
+        buttonSetting.setClickable(false);
 
         if(mainText.getText() != null)
         {
@@ -355,6 +357,9 @@ public class TodoInfoInterface extends ConstraintLayout
         explainText.setCursorVisible(false);
         explainText.setBackgroundColor(Color.TRANSPARENT);
 
+        buttonSetting.setClickable(true);
+        buttonSetting.setText("S");
+
         buttonLeft.setText("B");
         buttonSecondRight.setText("M");
         buttonSecondRight.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_500));
@@ -387,11 +392,7 @@ public class TodoInfoInterface extends ConstraintLayout
     {
         if(mainFuncListener != null)
         {
-            Date parentDate = todo.getParentDate();
-            if(parentDate != null)
-            {
-                mainFuncListener.accept(parentDate, MainFuncEnum.SaveDate);
-            }
+            mainFuncListener.accept(todo, MainFuncEnum.SaveDate);
         }
     };
 
@@ -465,7 +466,7 @@ public class TodoInfoInterface extends ConstraintLayout
         {
             if(mainFuncListener != null)
             {
-                mainFuncListener.accept(todo.getParentDate(), MainFuncEnum.LoadCalender);
+                mainFuncListener.accept(todo, MainFuncEnum.LoadCalender);
             }
 
             dialog.dismiss();

@@ -13,10 +13,11 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView_calenderPicker_year"
+            android:id="@+id/textView_calenderPicker_pickedYear"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="   1996년"
+            android:textAlignment="textStart"
             android:textAppearance="@android:style/TextAppearance.Material.Large"
             android:textColor="@color/black"
             android:textSize="14sp" />
@@ -26,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="  8월 21일(수)"
+            android:textAlignment="textStart"
             android:textAppearance="@android:style/TextAppearance.Material.Large"
             android:textColor="@color/black" />
     </LinearLayout>
@@ -49,6 +51,7 @@
             android:layout_weight="5"
             android:text="1996년 8월"
             android:gravity="center"
+            android:clickable="true"
             android:textAlignment="center" />
 
         <Button

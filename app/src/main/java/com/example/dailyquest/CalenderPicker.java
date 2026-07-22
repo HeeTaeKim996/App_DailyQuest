@@ -1,8 +1,12 @@
 package com.example.dailyquest;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -10,6 +14,8 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+
+import com.example.dailyquest.databinding.YearMonthPickerBinding;
 
 public class CalenderPicker extends LinearLayout
 {
@@ -20,6 +26,12 @@ public class CalenderPicker extends LinearLayout
             year = InYear;
             month = InMonth;
             date = InDate;
+        }
+        public YearMonthDate(CalenderUtils.Calender InCalender)
+        {
+            year = InCalender.year;
+            month = InCalender.month;
+            date = InCalender.date;
         }
         public YearMonthDate clone()
         {
@@ -44,23 +56,24 @@ public class CalenderPicker extends LinearLayout
     private int lastDate;
     private int indexLastDate;
 
-    private YearMonthDate today;
-    private YearMonthDate picked;
 
+    private YearMonthDate picked;
+    private YearMonthDate originDate;
+    private YearMonthDate today;
 
 
     private boolean isPickedMonth;
+    private boolean isOriginMonth;
     private boolean isTodayMonth;
 
 
     private Button toBeforeMonthButton;
     private Button toNextMonthButton;
-    private TextView yearText;
+    private TextView pickedYearText;
+
     private TextView monthDateDayText;
     private TextView yearMonthText;
     private androidx.gridlayout.widget.GridLayout datesGrid;
-    private Button okButton;
-    private Button cancelButton;
 
     public CalenderPicker(Context context)
     { super(context); }
@@ -78,12 +91,10 @@ public class CalenderPicker extends LinearLayout
 
         toBeforeMonthButton = findViewById(R.id.button_calenderPicker_toBeforeMonth);
         toNextMonthButton = findViewById(R.id.button_calenderPicker_toNextMonth);
-        yearText = findViewById(R.id.textView_calenderPicker_year);
+        pickedYearText = findViewById(R.id.textView_calenderPicker_pickedYear);
         monthDateDayText = findViewById(R.id.textView_calenderPicker_monthDateDay);
         yearMonthText = findViewById(R.id.textView_calenderPicker_yearMonth);
         datesGrid = findViewById(R.id.gridLayout_calenderPicker);
-        okButton = findViewById(R.id.button_calenderPicker_ok);
-        cancelButton = findViewById(R.id.button_calenderPicker_cancel);
     }
 
     public void initialize(CalenderPicker.YearMonthDate InPicked)
@@ -92,7 +103,8 @@ public class CalenderPicker extends LinearLayout
         month = InPicked.month;
 
         picked = InPicked;              // 얕은 복사로 결과 전달
-        today = InPicked.clone();       // 클론으로 깊은 복사
+        originDate = InPicked.clone();       // 클론으로 깊은 복사
+        today = new YearMonthDate(CalenderUtils.instance().getTodaybyCalender());
 
         for(int i = 0; i < 42; i++)
         {
@@ -131,8 +143,13 @@ public class CalenderPicker extends LinearLayout
             }
             updateCalenderByYearMonth();
         });
+        yearMonthText.setOnClickListener(v->
+        {
+            show_yearMonthPicker(getContext());
+        });
 
-        setMonthDateDayText();
+
+        setPickedText();
         updateCalenderByYearMonth();
     }
 
@@ -142,7 +159,6 @@ public class CalenderPicker extends LinearLayout
         lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
         indexLastDate = firstDay + lastDate;
 
-        yearText.setText(String.format("  %04d년", year));
         yearMonthText.setText(String.format("%04d년 %2d월", year, month));
 
         {
@@ -150,6 +166,9 @@ public class CalenderPicker extends LinearLayout
 
             int pickedValue = picked.year * 12 + picked.month;
             isPickedMonth = currValue == pickedValue;
+
+            int originValue = originDate.year * 12 + originDate.month;
+            isOriginMonth = currValue == originValue;
 
             int todayValue = today.year * 12 + today.month;
             isTodayMonth = currValue == todayValue;
@@ -162,7 +181,10 @@ public class CalenderPicker extends LinearLayout
         {
             View dateView = datesGrid.getChildAt(i);
             TextView textView = dateView.findViewById(R.id.textView_calenderPickerItem_date);
+
             textView.setTextColor(Color.TRANSPARENT);
+            dateView.setBackgroundResource(R.drawable.date_background);
+            setBackgroundColor(dateView.getBackground(), Color.WHITE);
         }
         for(int i = firstDay; i < indexLastDate; i++)
         {
@@ -172,7 +194,10 @@ public class CalenderPicker extends LinearLayout
         {
             View dateView = datesGrid.getChildAt(i);
             TextView textView = dateView.findViewById(R.id.textView_calenderPickerItem_date);
+
             textView.setTextColor(Color.TRANSPARENT);
+            dateView.setBackgroundResource(R.drawable.date_background);
+            setBackgroundColor(dateView.getBackground(), Color.WHITE);
         }
     }
 
@@ -183,26 +208,49 @@ public class CalenderPicker extends LinearLayout
 
         int date = i - firstDay + 1;
 
-        dateView.setBackgroundColor(getBackgroundColor(date));
-        textView.setTextColor(getTextColor(date));
+        dateView.setBackgroundResource(getBackgroundResourceByDate(date));
+
+        setBackgroundColorByDate(date, dateView.getBackground());
+
+        textView.setTextColor(getTextColorByDate(date));
         textView.setText(String.valueOf(date));
     }
 
 
-    private int getBackgroundColor(int date)
-    {
-        if(isPickedMonth && date == picked.date)
-        {
-            return ContextCompat.getColor(getContext(), R.color.red_little_transparent);
-        }
-
-        return Color.WHITE;
-    }
-    private int getTextColor(int date)
+    private int getBackgroundResourceByDate(int date)
     {
         if(isTodayMonth && date == today.date)
         {
-            return Color.GREEN;
+            return R.drawable.date_background_today;
+        }
+        return R.drawable.date_background;
+    }
+
+    private void setBackgroundColorByDate(int date, Drawable background)
+    {
+        if(isPickedMonth && date == picked.date)
+        {
+            int color = ContextCompat.getColor(getContext(), R.color.light_blue);
+            setBackgroundColor(background, color);
+            return;
+        }
+
+        setBackgroundColor(background, Color.WHITE);
+    }
+    private void setBackgroundColor(Drawable background, int color)
+    {
+        if(background instanceof GradientDrawable)
+        {
+            GradientDrawable shape = (GradientDrawable) background.mutate();
+            shape.setColor(color);
+        }
+    }
+
+    private int getTextColorByDate(int date)
+    {
+        if(isOriginMonth && date == originDate.date)
+        {
+            return Color.RED;
         }
         return Color.BLACK;
     }
@@ -219,9 +267,11 @@ public class CalenderPicker extends LinearLayout
         {
             if(picked.date == date) return;
 
-            int beforeIndex = picked.date + firstDay - 1;
+            int beforeDate = picked.date;
+            int beforeIndex = beforeDate + firstDay - 1;
             View beforeView = datesGrid.getChildAt(beforeIndex);
-            beforeView.setBackgroundColor(Color.WHITE);
+
+            setBackgroundColor(beforeView.getBackground(), Color.WHITE);
         }
 
 
@@ -231,21 +281,53 @@ public class CalenderPicker extends LinearLayout
 
 
         View currView = datesGrid.getChildAt(i);
-        currView.setBackgroundColor(ContextCompat.getColor
-                (getContext(), R.color.red_little_transparent));
+        int color = ContextCompat.getColor(getContext(), R.color.light_blue);
+        setBackgroundColor(currView.getBackground(), color);
 
-        setMonthDateDayText();
+        setPickedText();
     }
 
-    private void setMonthDateDayText()
+    private void setPickedText()
     {
         char c = CalenderUtils.instance().getDayFromYearMonthDate(picked.year, picked.month,
                 picked.date);
 
+
+        pickedYearText.setText(String.format("  %4d년", picked.year));
         monthDateDayText.setText(String.format("%2d월 %2d일 (%c)",
                 picked.month, picked.date, c));
-
-
     }
 
+    public boolean isSameWithOrigin()
+    {
+        return originDate.equals(picked);
+    }
+
+
+    private void show_yearMonthPicker(Context context)
+    {
+        YearMonthPickerBinding binding = YearMonthPickerBinding.inflate(LayoutInflater
+                .from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot())
+                .create();
+        YearMonthPicker yearMonthPicker = binding.getRoot();
+        yearMonthPicker.initialize(new YearMonthPicker.YearMonth(year, month));
+        binding.buttonYearMonthPickerCancel.setOnClickListener(v->
+        {
+            dialog.dismiss();
+        });
+        binding.buttonYearMonthPickerOk.setOnClickListener(v->
+        {
+            YearMonthPicker.YearMonth yearMonth = yearMonthPicker.getYearMonth();
+            year = yearMonth.year;
+            month = yearMonth.month;
+
+            updateCalenderByYearMonth();
+
+            dialog.dismiss();
+        });
+
+
+        dialog.show();
+    }
 }

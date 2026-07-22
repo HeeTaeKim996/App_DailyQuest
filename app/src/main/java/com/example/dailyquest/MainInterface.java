@@ -634,7 +634,7 @@ public class MainInterface
         }
     }
 
-    public BiConsumer<Date, MainFuncEnum> mainListenerFunc = (Date date, MainFuncEnum mainFuncEnum)->
+    public BiConsumer<Todo, MainFuncEnum> mainListenerFunc = (Todo todo, MainFuncEnum mainFuncEnum)->
     {
         switch(mainFuncEnum)
         {
@@ -642,17 +642,19 @@ public class MainInterface
                 return;
 
             case SaveDate:
-                saveDate(date);
+                saveDate(todo.getParentDate());
                 break;
 
             case LoadCalender:
-                loadCalender(date);
+                loadCalender(todo);
                 break;
         }
     };
 
     private void saveDate(Date date)
     {
+        if(date == null) return;
+
         DateProxy proxy = calender.saveDate(date);
         int pos = calender.getOffset() + proxy.date - 1;
 
@@ -669,7 +671,7 @@ public class MainInterface
         }
     }
 
-    private void loadCalender(Date date)
+    private void loadCalender(Todo todo)
     {
         Context context = getRootView().getContext();;
         CalenderPickerBinding binding = CalenderPickerBinding.inflate(LayoutInflater
@@ -678,18 +680,14 @@ public class MainInterface
 
         CalenderPicker calenderPicker = binding.getRoot();
 
-        int originYear = year;
-        int originMonth = month;
-        int originDate = date.date;
 
-        CalenderPicker.YearMonthDate picked = new CalenderPicker.YearMonthDate(originYear,
-                originMonth, originDate);
+        CalenderPicker.YearMonthDate picked = new CalenderPicker.YearMonthDate(year,
+                month, todo.getParentDate().date);
         calenderPicker.initialize(picked);
 
         binding.buttonCalenderPickerOk.setOnClickListener(v->
         {
-            if(originYear != picked.year || originMonth != picked.month
-                || originDate != picked.date)
+            if(calenderPicker.isSameWithOrigin() == false)
             {
                 // TODO : 변경 처리
                 InformUtils.instance().ShowInformYes(context,

@@ -44,4 +44,6 @@
     <color name="done_color">#808080</color>
     <color name="not_done_color">#BD9A8F</color>
 
+    <color name="light_blue">#B0BFFF</color>
+
 </resources>
