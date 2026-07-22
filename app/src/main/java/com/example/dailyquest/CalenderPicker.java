@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
-import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -16,22 +15,17 @@ public class CalenderPicker extends LinearLayout
 {
     public static class YearMonthDate
     {
-        public YearMonthDate(CalenderUtils.Calender InCalender)
-        {
-            year = InCalender.year;
-            month = InCalender.month;
-            date = InCalender.date;
-        }
-        public YearMonthDate clone()
-        {
-            return new YearMonthDate(year, month, date);
-        }
         public YearMonthDate(int InYear, int InMonth, int InDate)
         {
             year = InYear;
             month = InMonth;
             date = InDate;
         }
+        public YearMonthDate clone()
+        {
+            return new YearMonthDate(year, month, date);
+        }
+
         public boolean equals(CalenderPicker.YearMonthDate other)
         {
             return year == other.year && month == other.month && date == other.date;
@@ -64,7 +58,7 @@ public class CalenderPicker extends LinearLayout
     private TextView yearText;
     private TextView monthDateDayText;
     private TextView yearMonthText;
-    private GridLayout datesGrid;
+    private androidx.gridlayout.widget.GridLayout datesGrid;
     private Button okButton;
     private Button cancelButton;
 
@@ -191,6 +185,7 @@ public class CalenderPicker extends LinearLayout
 
         dateView.setBackgroundColor(getBackgroundColor(date));
         textView.setTextColor(getTextColor(date));
+        textView.setText(String.valueOf(date));
     }
 
 

@@ -22,7 +22,6 @@ import androidx.core.content.ContextCompat;
 import com.example.dailyquest.databinding.DateInfoSettingBinding;
 import com.example.dailyquest.databinding.DialogColorPaletteBinding;
 import com.example.dailyquest.databinding.ItemSubTodoBinding;
-import com.example.dailyquest.databinding.TodoInfoBinding;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -44,7 +43,7 @@ public class TodoInfoInterface extends ConstraintLayout
     private LinearLayout topLayout;
     private LinearLayout subTodosLayout;
 
-    private Consumer<Date> saveDateListener;
+    private BiConsumer<Date, MainFuncEnum> mainFuncListener;
 
 
     public TodoInfoInterface(@NonNull Context context)
@@ -76,7 +75,7 @@ public class TodoInfoInterface extends ConstraintLayout
     }
 
 
-    public void initialize(Todo InTodo, Consumer<Date> SaveDateFunc)
+    public void initialize(Todo InTodo, BiConsumer<Date, MainFuncEnum> InMainFunc)
     {
         Context context = getContext();
 
@@ -112,7 +111,7 @@ public class TodoInfoInterface extends ConstraintLayout
         }
         topLayout.setBackgroundColor(color);
 
-        saveDateListener = SaveDateFunc;
+        mainFuncListener = InMainFunc;
 
         isEditMode = false;
 
@@ -386,12 +385,12 @@ public class TodoInfoInterface extends ConstraintLayout
 
     public Runnable invokeSaveDate = ()->
     {
-        if(saveDateListener != null)
+        if(mainFuncListener != null)
         {
             Date parentDate = todo.getParentDate();
             if(parentDate != null)
             {
-                saveDateListener.accept(parentDate);
+                mainFuncListener.accept(parentDate, MainFuncEnum.SaveDate);
             }
         }
     };
@@ -464,7 +463,10 @@ public class TodoInfoInterface extends ConstraintLayout
         AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
         binding.buttonDateInfoSettingChangeByCalender.setOnClickListener(v->
         {
-            // TODO : SHOW CALENDER
+            if(mainFuncListener != null)
+            {
+                mainFuncListener.accept(todo.getParentDate(), MainFuncEnum.LoadCalender);
+            }
 
             dialog.dismiss();
         });

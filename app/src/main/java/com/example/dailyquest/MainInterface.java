@@ -8,18 +8,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.DebugUtils;
 import android.util.DisplayMetrics;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -27,13 +23,13 @@ import androidx.core.content.ContextCompat;
 import androidx.gridlayout.widget.GridLayout;
 
 import com.example.dailyquest.databinding.ActivityMainBinding;
+import com.example.dailyquest.databinding.CalenderPickerBinding;
 import com.example.dailyquest.databinding.ItemDateTodoListBinding;
 import com.example.dailyquest.databinding.ItemTodoShortInfoBinding;
 import com.example.dailyquest.databinding.OthersBinding;
 import com.example.dailyquest.databinding.TodoInfoBinding;
 import com.example.dailyquest.databinding.YearMonthPickerBinding;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -359,7 +355,7 @@ public class MainInterface
                 date.todos.add(toIndex, swappedTodo);
 
 
-                saveDate.accept(date);
+                saveDate(date);
             }
         };
         SwapableItemsContainer swappableContainer = binding.linearLayoutScrollView;
@@ -391,7 +387,7 @@ public class MainInterface
                     {
                         date.todos.remove(dTodo);
                         binding.linearLayoutScrollView.removeView(dInterface);
-                        saveDate.accept(date);
+                        saveDate(date);
 
                         if(date.todos.size() == 0)
                         {
@@ -479,7 +475,7 @@ public class MainInterface
 
                     if(shortInterface.setCompleted(true))
                     {
-                        saveDate.accept(date);
+                        saveDate(date);
                     }
                 });
 
@@ -559,7 +555,7 @@ public class MainInterface
 
 
         TodoInfoInterface infoInterface = binding.getRoot();
-        infoInterface.initialize(todo, saveDate);
+        infoInterface.initialize(todo, mainListenerFunc);
 
 
 
@@ -572,7 +568,7 @@ public class MainInterface
                 date.todos.remove(todo);
                 dialog.dismiss();
             }
-            saveDate.accept(date);
+            saveDate(date);
         };
 
         binding.buttonLeft.setOnClickListener(v->
@@ -638,7 +634,24 @@ public class MainInterface
         }
     }
 
-    public Consumer<Date> saveDate = (Date date)->
+    public BiConsumer<Date, MainFuncEnum> mainListenerFunc = (Date date, MainFuncEnum mainFuncEnum)->
+    {
+        switch(mainFuncEnum)
+        {
+            case None:
+                return;
+
+            case SaveDate:
+                saveDate(date);
+                break;
+
+            case LoadCalender:
+                loadCalender(date);
+                break;
+        }
+    };
+
+    private void saveDate(Date date)
     {
         DateProxy proxy = calender.saveDate(date);
         int pos = calender.getOffset() + proxy.date - 1;
@@ -654,7 +667,44 @@ public class MainInterface
 
             NotificationHelper.updateTodayNotification(getRootView().getContext(), date.todos);
         }
-    };
+    }
+
+    private void loadCalender(Date date)
+    {
+        Context context = getRootView().getContext();;
+        CalenderPickerBinding binding = CalenderPickerBinding.inflate(LayoutInflater
+                .from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
+
+        CalenderPicker calenderPicker = binding.getRoot();
+
+        int originYear = year;
+        int originMonth = month;
+        int originDate = date.date;
+
+        CalenderPicker.YearMonthDate picked = new CalenderPicker.YearMonthDate(originYear,
+                originMonth, originDate);
+        calenderPicker.initialize(picked);
+
+        binding.buttonCalenderPickerOk.setOnClickListener(v->
+        {
+            if(originYear != picked.year || originMonth != picked.month
+                || originDate != picked.date)
+            {
+                // TODO : 변경 처리
+                InformUtils.instance().ShowInformYes(context,
+                        String.format("%d-%d-%d 로 변경 요청 확인",
+                                picked.year, picked.month, picked.date));
+            }
+            dialog.dismiss();
+        });
+        binding.buttonCalenderPickerCancel.setOnClickListener(v->
+        {
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
 
 
 
