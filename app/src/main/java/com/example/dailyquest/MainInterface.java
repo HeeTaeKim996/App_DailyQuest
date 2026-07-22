@@ -31,6 +31,7 @@ import com.example.dailyquest.databinding.ItemDateTodoListBinding;
 import com.example.dailyquest.databinding.ItemTodoShortInfoBinding;
 import com.example.dailyquest.databinding.OthersBinding;
 import com.example.dailyquest.databinding.TodoInfoBinding;
+import com.example.dailyquest.databinding.YearMonthPickerBinding;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -104,6 +105,10 @@ public class MainInterface
         mainBinding.buttonOthers.setOnClickListener(v->
         {
             show_others_panel(context);
+        });
+        mainBinding.textViewYearMonth.setOnClickListener(v->
+        {
+            show_yearMonthPicker(context);
         });
 
 
@@ -266,6 +271,7 @@ public class MainInterface
         else
         {
             cellView.setBackgroundResource(R.drawable.date_background);
+            dayText.setTextColor(Color.parseColor("#000000"));
             cellView.setClickable(true);
 
             cellView.setOnClickListener(v->
@@ -724,5 +730,30 @@ public class MainInterface
             context.unregisterReceiver(dateChangedReceiver);
             dateChangedReceiver = null;
         }
+    }
+
+    private void show_yearMonthPicker(Context context)
+    {
+        YearMonthPickerBinding binding = YearMonthPickerBinding.inflate(LayoutInflater
+                .from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot())
+                .create();
+        YearMonthPicker yearMonthPicker = binding.getRoot();
+        yearMonthPicker.initialize(new YearMonthPicker.YearMonth(year, month));
+        binding.buttonYearMonthPickerCancel.setOnClickListener(v->
+        {
+            dialog.dismiss();
+        });
+        binding.buttonYearMonthPickerOk.setOnClickListener(v->
+        {
+            YearMonthPicker.YearMonth yearMonth = yearMonthPicker.getYearMonth();
+            year = yearMonth.year;
+            month = yearMonth.month;
+            changeMainCalenderByYearMonth(context);
+            dialog.dismiss();
+        });
+
+
+        dialog.show();
     }
 }
