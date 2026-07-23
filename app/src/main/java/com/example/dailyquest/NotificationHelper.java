@@ -27,10 +27,16 @@ public class NotificationHelper
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
 
-        String titleText = String.format("[%02d-%02d-%02d(%02d:%02d)]  "
-                , calendar.get(Calendar.YEAR) % 100, calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DATE),
-                calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE));
+        String titleText = "";
+
         String contentText = "";
+        if(false)
+        {
+            contentText = String.format("[%02d-%02d-%02d(%02d:%02d)]  "
+                    , calendar.get(Calendar.YEAR) % 100, calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DATE),
+                    calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE));
+        }
+
         boolean hasAny = false;
 
         if(todos.size() > 0)
@@ -38,7 +44,7 @@ public class NotificationHelper
             Todo todo = todos.get(0);
             if(todo.isCompleted == false)
             {
-                contentText += (todo.mainText);
+                titleText += (todo.mainText);
                 hasAny = true;
             }
         }
@@ -47,22 +53,17 @@ public class NotificationHelper
             Todo todo = todos.get(i);
             if(todo.isCompleted == false)
             {
-                contentText += (" / " + todo.mainText);
+                titleText += (" / " + todo.mainText);
                 hasAny = true;
             }
         }
 
-        
-        // 원래 코드는 이거지만, 우선 디버깅 용도로 매번 알림
-        if(false)
-        {
-            if(hasAny == false)
-            {
-                cancelNotification(context);
-                return;
-            }
-        }
 
+        if(hasAny == false)
+        {
+            cancelNotification(context);
+            return;
+        }
 
 
 
