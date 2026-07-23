@@ -385,10 +385,9 @@ public class MainInterface
                 {
                     if(bYes)
                     {
-                        date.todos.remove(dTodo);
-                        binding.linearLayoutScrollView.removeView(dInterface);
-                        saveDate(date);
+                        deleteTodo(dTodo);
 
+                        binding.linearLayoutScrollView.removeView(dInterface);
                         if(date.todos.size() == 0)
                         {
                             onEmptyTodos.run();
@@ -481,7 +480,7 @@ public class MainInterface
 
                 shortInfo.textViewShortMainText.setOnClickListener(v->
                 {
-                    show_todo_info(context, date, todo, position, false);
+                    show_todo_info(context, todo, false);
                     dialog.dismiss();
                 });
 
@@ -533,14 +532,13 @@ public class MainInterface
 
             date.todos.add(newTodo);
 
-            show_todo_info(context, date, newTodo, position, true);
+            show_todo_info(context, newTodo, true);
             dialog.dismiss();
         });
 
     }
 
-    private void show_todo_info(Context context, Date date, Todo todo, int position,
-                                boolean isDirectEditing)
+    private void show_todo_info(Context context, Todo todo, boolean isDirectEditing)
     {
         TodoInfoBinding binding = TodoInfoBinding.inflate(LayoutInflater.from(context));
         AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot())
@@ -555,16 +553,24 @@ public class MainInterface
 
 
         TodoInfoInterface infoInterface = binding.getRoot();
-        infoInterface.initialize(todo, mainListenerFunc);
+        Runnable shutDownThisDialog = ()->
+        {
+            dialog.dismiss();
+        };
+        infoInterface.initialize(todo, mainListenerFunc, shutDownThisDialog);
 
 
 
         Runnable toViewMode = ()->
         {
             infoInterface.toViewMode();
+
+            Date date = todo.getParentDate();
+
             if(todo.mainText.equals("") && todo.explainText.equals("")
                 && todo.subTodos.size() == 0)
             {
+
                 date.todos.remove(todo);
                 dialog.dismiss();
             }
@@ -648,6 +654,10 @@ public class MainInterface
             case LoadCalender:
                 loadCalender(todo);
                 break;
+
+            case DeleteTodo:
+                deleteTodo(todo);
+                break;
         }
     };
 
@@ -665,8 +675,6 @@ public class MainInterface
 
         if(yearMonthState == YearMonthState.CURR && date.date == today.date)
         {
-            // TODO? : 알림 업데이트
-
             NotificationHelper.updateTodayNotification(getRootView().getContext(), date.todos);
         }
     }
@@ -687,13 +695,7 @@ public class MainInterface
 
         binding.buttonCalenderPickerOk.setOnClickListener(v->
         {
-            if(calenderPicker.isSameWithOrigin() == false)
-            {
-                // TODO : 변경 처리
-                InformUtils.instance().ShowInformYes(context,
-                        String.format("%d-%d-%d 로 변경 요청 확인",
-                                picked.year, picked.month, picked.date));
-            }
+            changeTodosDate(todo, picked);
             dialog.dismiss();
         });
         binding.buttonCalenderPickerCancel.setOnClickListener(v->
@@ -702,6 +704,50 @@ public class MainInterface
         });
 
         dialog.show();
+    }
+
+    private void changeTodosDate(Todo todo, CalenderPicker.YearMonthDate toYearMonthDate)
+    {
+        // 함수 호출로 연-월 이 바뀔시, changeMainCalender로 mainCalender를 해당 연-월로 바꾼다.
+        // 따라서 이함수를 호출하는 t.odo 의 연-월은 언제나 mainInterface 의 year, month 이다
+
+        Context context = getRootView().getContext();
+        todo.isCompleted = false;
+
+        Date beforeDate = todo.getParentDate();
+        int fromDate = beforeDate.date;
+
+
+        if(year == toYearMonthDate.year && month == toYearMonthDate.month)
+        {
+            if(fromDate == toYearMonthDate.date)
+            {
+                // isCompleted 재설정 외에 추가 처리 필요 없음
+                saveDate(beforeDate);
+                return;
+            }
+            else
+            {
+                beforeDate.todos.remove(todo);
+                saveDate(beforeDate);
+            }
+        }
+        else
+        {
+            beforeDate.todos.remove(todo);
+            saveDate(beforeDate);
+
+            year = toYearMonthDate.year;
+            month = toYearMonthDate.month;
+            changeMainCalenderByYearMonth(context);
+        }
+
+        Date toDate = calender.loadDateFromDate(toYearMonthDate.date);
+
+        toDate.todos.add(todo);
+        todo.setParentDate(toDate);
+
+        saveDate(toDate);
     }
 
 
@@ -804,4 +850,13 @@ public class MainInterface
 
         dialog.show();
     }
+
+
+    private void deleteTodo(Todo todo)
+    {
+        Date parentDate = todo.getParentDate();
+        parentDate.todos.remove(todo);
+        saveDate(parentDate);
+    }
+
 }

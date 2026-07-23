@@ -318,7 +318,10 @@ public class MainCalender
         return offset;
     }
 
-
-
+    public Date loadDateFromDate(int date)
+    {
+        DateProxy proxy = proxies[date + offset - 1];
+        return loadDate(proxy);
+    }
 
 }

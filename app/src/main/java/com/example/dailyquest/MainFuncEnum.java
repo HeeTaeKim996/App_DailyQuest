@@ -4,5 +4,6 @@ public enum MainFuncEnum
 {
     None,
     SaveDate,
-    LoadCalender
+    LoadCalender,
+    DeleteTodo,
 }

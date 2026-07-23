@@ -61,9 +61,9 @@ public class InterceptGridLayout extends GridLayout
                         {
                             swipeListener.OnSwipe(true);
                         }
-
-                        return true;
                     }
+
+                    return true;
                 }
                 break;
         }

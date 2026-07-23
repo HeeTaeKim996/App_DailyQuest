@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import com.example.dailyquest.databinding.DateInfoSettingBinding;
 import com.example.dailyquest.databinding.DialogColorPaletteBinding;
 import com.example.dailyquest.databinding.ItemSubTodoBinding;
+import com.example.dailyquest.databinding.TodoInfoBinding;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -44,6 +45,7 @@ public class TodoInfoInterface extends ConstraintLayout
     private LinearLayout subTodosLayout;
 
     private BiConsumer<Todo, MainFuncEnum> mainFuncListener;
+    private Runnable shutDownThisDialogListener;
 
 
     public TodoInfoInterface(@NonNull Context context)
@@ -75,11 +77,14 @@ public class TodoInfoInterface extends ConstraintLayout
     }
 
 
-    public void initialize(Todo InTodo, BiConsumer<Todo, MainFuncEnum> InMainFunc)
+    public void initialize(Todo InTodo, BiConsumer<Todo, MainFuncEnum> InMainFunc,
+                           Runnable shutDownThisDialogFunc)
     {
         Context context = getContext();
 
         todo = InTodo;
+        mainFuncListener = InMainFunc;
+        shutDownThisDialogListener = shutDownThisDialogFunc;
 
         mainText.setText(todo.mainText);
         explainText.setText(todo.explainText);
@@ -110,8 +115,6 @@ public class TodoInfoInterface extends ConstraintLayout
                 break;
         }
         topLayout.setBackgroundColor(color);
-
-        mainFuncListener = InMainFunc;
 
         isEditMode = false;
 
@@ -300,7 +303,7 @@ public class TodoInfoInterface extends ConstraintLayout
 
 
         buttonLeft.setText("S");
-        buttonSecondRight.setText("co");
+        buttonSecondRight.setText("C");
         int color = 0;
         switch(todo.getColor())
         {
@@ -473,10 +476,34 @@ public class TodoInfoInterface extends ConstraintLayout
         });
         binding.buttonDateInfoSettingDelete.setOnClickListener(v->
         {
-            // TODO : TODO 삭제 처리
+            Consumer<Boolean> deleteIfTrue = (Boolean bYes)->
+            {
+                if(bYes)
+                {
+                    if(mainFuncListener != null)
+                    {
+                        mainFuncListener.accept(todo, MainFuncEnum.DeleteTodo);
+                        shutDownThisDialog();
+                    }
+                }
+            };
+
+            InformUtils.instance().ShowYesOrNo(context,
+                    String.format("[%s]\n를 삭제하겠습니까?", todo.mainText),
+                    deleteIfTrue);
+
             dialog.dismiss();
         });
 
         dialog.show();
     }
+
+    private void shutDownThisDialog()
+    {
+        if(shutDownThisDialogListener != null)
+        {
+            shutDownThisDialogListener.run();
+        }
+    }
+
 }

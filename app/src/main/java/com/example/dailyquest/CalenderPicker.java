@@ -73,7 +73,7 @@ public class CalenderPicker extends LinearLayout
 
     private TextView monthDateDayText;
     private TextView yearMonthText;
-    private androidx.gridlayout.widget.GridLayout datesGrid;
+    private InterceptGridLayout datesGrid;
 
     public CalenderPicker(Context context)
     { super(context); }
@@ -119,28 +119,12 @@ public class CalenderPicker extends LinearLayout
 
         toBeforeMonthButton.setOnClickListener(v->
         {
-            if(month == 1)
-            {
-                year--;
-                month = 12;
-            }
-            else
-            {
-                month--;
-            }
+            deductMonth();
             updateCalenderByYearMonth();
         });
         toNextMonthButton.setOnClickListener(v->
         {
-            if(month == 12)
-            {
-                year++;
-                month = 1;
-            }
-            else
-            {
-                month++;
-            }
+            addMonth();
             updateCalenderByYearMonth();
         });
         yearMonthText.setOnClickListener(v->
@@ -148,9 +132,52 @@ public class CalenderPicker extends LinearLayout
             show_yearMonthPicker(getContext());
         });
 
+        datesGrid.SetSwipeListener(new InterceptGridLayout.OnSwipeListener()
+        {
+            @Override
+            public void OnSwipe(boolean isUp)
+            {
+                if(isUp)
+                {
+                    addMonth();
+                }
+                else
+                {
+                    deductMonth();
+                }
+                updateCalenderByYearMonth();
+            }
+        });
+
 
         setPickedText();
         updateCalenderByYearMonth();
+    }
+
+    private void addMonth()
+    {
+        if(month == 12)
+        {
+            year++;
+            month = 1;
+        }
+        else
+        {
+            month++;
+        }
+    }
+
+    private void deductMonth()
+    {
+        if(month == 1)
+        {
+            year--;
+            month = 12;
+        }
+        else
+        {
+            month--;
+        }
     }
 
     private void updateCalenderByYearMonth()
@@ -298,10 +325,6 @@ public class CalenderPicker extends LinearLayout
                 picked.month, picked.date, c));
     }
 
-    public boolean isSameWithOrigin()
-    {
-        return originDate.equals(picked);
-    }
 
 
     private void show_yearMonthPicker(Context context)
