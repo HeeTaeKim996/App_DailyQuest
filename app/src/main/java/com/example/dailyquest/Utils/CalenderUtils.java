@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Utils;
 
 import java.util.Calendar;
 

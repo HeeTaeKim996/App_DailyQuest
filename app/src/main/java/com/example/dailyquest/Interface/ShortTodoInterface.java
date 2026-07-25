@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Interface;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -13,6 +13,12 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+
+import com.example.dailyquest.Data.SubTodo;
+import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Small.ISwapableItem;
+import com.example.dailyquest.R;
+import com.example.dailyquest.Utils.InformUtils;
 
 import java.util.function.BiConsumer;
 

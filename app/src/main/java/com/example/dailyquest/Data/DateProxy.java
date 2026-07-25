@@ -1,6 +1,4 @@
-package com.example.dailyquest;
-
-import android.os.Build;
+package com.example.dailyquest.Data;
 
 public class DateProxy
 {

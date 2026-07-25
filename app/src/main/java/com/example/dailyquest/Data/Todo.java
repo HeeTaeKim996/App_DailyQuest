@@ -1,9 +1,7 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Data;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
 
 public class Todo
 {
@@ -23,7 +21,17 @@ public class Todo
     public String mainText = "";
     public String explainText = "";
 
-    public int alarmTimes = -1;
+    private short alarmTime = -1;    // 패딩(5) / 시간(5) / 분(6)
+    public short getAlarmTime() { return alarmTime;}
+    public void setAlarmTime(short InAlarmTime)
+    {
+        if((InAlarmTime & ~0x7FF) > 0) // 하위 11비트 외의 값이 1이면, 오류. -1 로 할당
+        {
+            InAlarmTime = -1;
+        }
+
+        alarmTime = InAlarmTime;
+    }
 
     private int color = 1; // Color Must Be in 1 ~ 7. setted color in values/colors.xml
     public void setColor(int InColor)

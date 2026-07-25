@@ -1,11 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.dailyquest.Interface.YearMonthPicker
+<com.example.dailyquest.Interface.Alarm.AlarmTimeSetPage
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2" />
+
+        <Button
+            android:id="@+id/button_setAlarm_onOff"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="X" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout_todoInfoSetAlarmPage_timeMinute"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -16,15 +43,23 @@
             android:layout_weight="1" />
 
         <NumberPicker
-            android:id="@+id/numberPicker_year"
+            android:id="@+id/numberPicker_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5">
 
         </NumberPicker>
 
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text=":"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
         <NumberPicker
-            android:id="@+id/numberPicker_month"
+            android:id="@+id/numberPicker_minute"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5">
@@ -48,14 +83,14 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/button_yearMonthPicker_cancel"
+            android:id="@+id/button_alarmTimePicker_cancel"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="5"
             android:text="취소" />
 
         <Button
-            android:id="@+id/button_yearMonthPicker_ok"
+            android:id="@+id/button_alarmTimePicker_ok"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="5"
@@ -67,4 +102,4 @@
             android:layout_weight="1" />
     </LinearLayout>
 
-</com.example.dailyquest.Interface.YearMonthPicker>
+</com.example.dailyquest.Interface.Alarm.AlarmTimeSetPage>

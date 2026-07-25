@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
-            <com.example.dailyquest.SwapableItemsContainer
+            <com.example.dailyquest.Interface.SwapableItemsContainer
                 android:id="@+id/linearLayout_ScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

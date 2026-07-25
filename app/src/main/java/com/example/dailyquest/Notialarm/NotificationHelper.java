@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Notialarm;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -7,15 +7,15 @@ import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
+import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.R;
+import com.example.dailyquest.Utils.InformUtils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.function.Consumer;
 
 public class NotificationHelper
 {
-    private static final String CHANNEL_ID = "daily_quest_channel";
-    private static final int NOTIFICATION_ID = 1001; // 1001 말고도 임의의 정수로 가능
-
     public static void updateTodayNotification(Context context, ArrayList<Todo> todos)
     {
         if(todos == null || todos.size() == 0)
@@ -23,6 +23,7 @@ public class NotificationHelper
             cancelNotification(context);
             return;
         }
+
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
@@ -76,7 +77,7 @@ public class NotificationHelper
             // → 알림 카테고리 내에 표시되는 문구들임 (설정에서의 문구들이지, 알림의 내용과는 무관)
             
             NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,             // 채널 식별자
+                    NotialarmManager.instance().CHANNEL_ID,             // 채널 식별자
                     "오늘의 할 일",      // 설정에서 나오는 알림의 제목
                     NotificationManager.IMPORTANCE_LOW);    // LOW로 설정시, 알림 생성시 소리/진동 없이 알람 등록만 됨
             channel.setDescription("오늘 완료되지 않은 할 일의 상태를 표시합니다.");  // 알림 상세 항목을 터치하면 상세 화면 에서 보여지는 문구
@@ -89,7 +90,7 @@ public class NotificationHelper
 
 
             // 하단의 내용은 알림 내용과 직접적인 연관 내용
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NotialarmManager.instance().CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher_background)    // 알림 아이콘 설정
                     .setContentTitle(titleText)              // 알림 제목
                     .setContentText(contentText)                            // 세부 내용
@@ -99,7 +100,7 @@ public class NotificationHelper
 
             if(manager != null)
             {
-                manager.notify(NOTIFICATION_ID, builder.build());
+                manager.notify(NotialarmManager.instance().NOTIFICATION_ID, builder.build());
                 // 세부 알림내용 등록 ( NOTIFICATION_ID 를 식별자로 사용 )
             }
         }
@@ -111,7 +112,7 @@ public class NotificationHelper
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         if(manager != null)
         {
-            manager.cancel(NOTIFICATION_ID);
+            manager.cancel(NotialarmManager.instance().NOTIFICATION_ID);
         }
     }
 

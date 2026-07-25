@@ -1,8 +1,9 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Utils;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import com.example.dailyquest.databinding.YesBinding;
 import com.example.dailyquest.databinding.YesOrNoBinding;
@@ -51,5 +52,10 @@ public class InformUtils
         });
 
         dialog.show();
+    }
+
+    public void showToast(Context context, String message)
+    {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }

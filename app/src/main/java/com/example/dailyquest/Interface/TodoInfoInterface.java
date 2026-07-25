@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Interface;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -19,10 +19,20 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
-import com.example.dailyquest.databinding.DateInfoSettingBinding;
+import com.example.dailyquest.Data.SubTodo;
+import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Interface.Alarm.AlarmEnum;
+import com.example.dailyquest.Interface.Alarm.AlarmFunc;
+import com.example.dailyquest.Interface.Alarm.AlarmTimeSetPage;
+import com.example.dailyquest.R;
+import com.example.dailyquest.Small.ISwapCompleteFunc;
+import com.example.dailyquest.Small.ISwapableItem;
+import com.example.dailyquest.Small.MainFuncEnum;
+import com.example.dailyquest.Utils.InformUtils;
+import com.example.dailyquest.databinding.TodoInfoSetAlarmPageBinding;
+import com.example.dailyquest.databinding.TodoInfoSettingBinding;
 import com.example.dailyquest.databinding.DialogColorPaletteBinding;
 import com.example.dailyquest.databinding.ItemSubTodoBinding;
-import com.example.dailyquest.databinding.TodoInfoBinding;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -344,7 +354,7 @@ public class TodoInfoInterface extends ConstraintLayout
 
     }
 
-    public void toViewMode()
+    public boolean toViewMode()
     {
         isEditMode = false;
 
@@ -384,6 +394,14 @@ public class TodoInfoInterface extends ConstraintLayout
 
             subInterface.onViewMode();
         }
+
+        // 이중으로 삭제 여부 확인 용도
+        if(mainText.getText().toString().trim().isEmpty()
+                && explainText.getText().toString().trim().isEmpty())
+        {
+            return false;
+        }
+        return true;
     }
     private TypedArray makeEditTextBackground()
     {
@@ -462,7 +480,7 @@ public class TodoInfoInterface extends ConstraintLayout
 
     private void show_settingInterface(Context context)
     {
-        DateInfoSettingBinding binding = DateInfoSettingBinding.inflate(LayoutInflater
+        TodoInfoSettingBinding binding = TodoInfoSettingBinding.inflate(LayoutInflater
                 .from(context));
         AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
         binding.buttonDateInfoSettingChangeByCalender.setOnClickListener(v->
@@ -494,6 +512,11 @@ public class TodoInfoInterface extends ConstraintLayout
 
             dialog.dismiss();
         });
+        binding.buttonTodoInfoSettingSetAlarm.setOnClickListener(v->
+        {
+            show_setAlarmPage(context);
+            dialog.dismiss();
+        });
 
         dialog.show();
     }
@@ -504,6 +527,37 @@ public class TodoInfoInterface extends ConstraintLayout
         {
             shutDownThisDialogListener.run();
         }
+    }
+
+    private void show_setAlarmPage(Context context)
+    {
+        TodoInfoSetAlarmPageBinding binding = TodoInfoSetAlarmPageBinding.inflate(LayoutInflater
+                .from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot())
+                .create();
+
+        AlarmTimeSetPage alarmTimeSetPage = binding.getRoot();
+        AlarmFunc alarmFunc = new AlarmFunc()
+        {
+            @Override
+            public void accept(AlarmEnum alarmEnum, short alarmTime)
+            {
+                switch(alarmEnum)
+                {
+                    case Cancel:
+                        dialog.dismiss();
+                        break;
+                    case Ok:
+                        todo.setAlarmTime(alarmTime);
+                        dialog.dismiss();
+                        invokeSaveDate.run();
+                        break;
+                }
+            }
+        };
+        alarmTimeSetPage.initialize(todo.getAlarmTime(), alarmFunc);
+
+        dialog.show();
     }
 
 }

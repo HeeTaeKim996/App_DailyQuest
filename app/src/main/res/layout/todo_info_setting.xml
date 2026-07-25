@@ -11,8 +11,15 @@
         android:text="재할당" />
 
     <Button
+        android:id="@+id/button_todoInfoSetting_setAlarm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="알람" />
+
+    <Button
         android:id="@+id/button_dateInfoSetting_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="삭제" />
+
 </LinearLayout>

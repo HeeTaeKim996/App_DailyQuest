@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Interface;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -15,8 +15,10 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
+
+import com.example.dailyquest.Data.SubTodo;
+import com.example.dailyquest.R;
+import com.example.dailyquest.Small.ISwapableItem;
 
 import java.util.function.BiConsumer;
 

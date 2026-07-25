@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Small;
 
 import java.io.File;
 

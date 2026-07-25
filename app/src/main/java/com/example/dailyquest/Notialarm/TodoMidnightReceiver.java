@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Notialarm;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -6,6 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+
+import com.example.dailyquest.Data.SubTodo;
+import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Utils.CalenderUtils;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -32,7 +36,7 @@ public class TodoMidnightReceiver extends BroadcastReceiver
 
         File file = new File(context.getFilesDir() + "/"
                 + String.valueOf(today.year) + "/" + String.valueOf(today.month) + "/D/"
-                + String.valueOf(today.date));
+                + String.valueOf(today.date) + ".dat");
         if(file.exists())
         {
             ArrayList<Todo> todos = new ArrayList<Todo>();
@@ -49,7 +53,7 @@ public class TodoMidnightReceiver extends BroadcastReceiver
                     todo.mainText = dis.readUTF();
                     todo.explainText = dis.readUTF();
 
-                    todo.alarmTimes = dis.readInt();
+                    todo.setAlarmTime(dis.readShort());
                     todo.setColor((int)dis.readByte());
 
                     int subTodoCount = dis.readInt();

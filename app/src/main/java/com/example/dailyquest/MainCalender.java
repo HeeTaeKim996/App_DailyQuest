@@ -3,6 +3,14 @@ package com.example.dailyquest;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.dailyquest.Data.Date;
+import com.example.dailyquest.Data.DateProxy;
+import com.example.dailyquest.Data.SubTodo;
+import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Small.StaticValues;
+import com.example.dailyquest.Utils.CalenderUtils;
+import com.example.dailyquest.Utils.DevelopUtils;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -120,11 +128,19 @@ public class MainCalender
         catch (IOException e) { e.printStackTrace(); }
     }
 
+    private File makeDateFile(DateProxy proxy)
+    {
+        return new File(dataFile, String.format("%d.dat", proxy.date));
+    }
+    private File makeDateFile(Date date)
+    {
+        return new File(dataFile, String.format("%d.dat", date.date));
+    }
 
 
     public Date loadDate(DateProxy proxy)
     {
-        File dateFile = new File(dataFile, String.valueOf(proxy.date));
+        File dateFile = makeDateFile(proxy);
         if(dateFile.exists() == false)
         {
             return new Date.Builder().setDate(proxy.date).create();
@@ -148,7 +164,7 @@ public class MainCalender
                 todo.mainText = dis.readUTF();
                 todo.explainText = dis.readUTF();
 
-                todo.alarmTimes = dis.readInt();
+                todo.setAlarmTime(dis.readShort());
                 todo.setColor((int)dis.readByte());
 
                 int subTodoCount = dis.readInt();
@@ -179,13 +195,14 @@ public class MainCalender
     {
         int shortTodo = makeShortTodo(date);
         shortTodos[date.date - 1] = shortTodo;
+
         DateProxy dateProxy = proxies[offset + date.date - 1];
         dateProxy.todos = shortTodo;
 
         // Delete File if Exists
         if(date.todos.size() == 0)
         {
-            File dateFile = new File(dataFile, String.valueOf(date.date));
+            File dateFile = makeDateFile(date);
             if(dateFile.exists())
             {
                 dateFile.delete();
@@ -218,7 +235,7 @@ public class MainCalender
                 saveShortTodos();
             }
 
-            File dateFile = new File(dataFile, String.valueOf(date.date));
+            File dateFile = makeDateFile(date);
             try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(dateFile)))
             {
                 int todoCount = date.todos.size();
@@ -231,7 +248,7 @@ public class MainCalender
                     dos.writeUTF(todo.mainText);
                     dos.writeUTF(todo.explainText);
 
-                    dos.writeInt(todo.alarmTimes);
+                    dos.writeShort(todo.getAlarmTime());
                     dos.writeByte((byte)todo.getColor());
 
                     int subTodoCount = todo.subTodos.size();
@@ -244,7 +261,11 @@ public class MainCalender
                     }
                 }
             }
-            catch (IOException e) { e.printStackTrace(); }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                return null;
+            }
 
             saveShortTodos();
         }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.dailyquest.ShortTodoInterface
+<com.example.dailyquest.Interface.ShortTodoInterface
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textSize="18sp" />
 
-        <view class="com.example.dailyquest.ShortTodoInterface$BCompletedButton"
+        <view class="com.example.dailyquest.Interface.ShortTodoInterface$BCompletedButton"
             android:id="@+id/button_isFinished"
             android:layout_width="40dp"
             android:layout_height="match_parent"
@@ -49,4 +49,4 @@
     </LinearLayout>
 
 
-</com.example.dailyquest.ShortTodoInterface>
+</com.example.dailyquest.Interface.ShortTodoInterface>

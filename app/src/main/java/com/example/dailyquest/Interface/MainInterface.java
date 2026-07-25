@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Interface;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -22,6 +22,20 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 import androidx.gridlayout.widget.GridLayout;
 
+import com.example.dailyquest.Utils.CalenderUtils;
+import com.example.dailyquest.Data.Date;
+import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Data.DateProxy;
+import com.example.dailyquest.Utils.DevelopUtils;
+import com.example.dailyquest.MainCalender;
+import com.example.dailyquest.Small.MainFuncEnum;
+import com.example.dailyquest.Notialarm.NotificationHelper;
+import com.example.dailyquest.R;
+import com.example.dailyquest.Small.ISwapCompleteFunc;
+import com.example.dailyquest.Small.ISwapableItem;
+import com.example.dailyquest.Small.StaticValues;
+import com.example.dailyquest.Notialarm.TodoMidnightReceiver;
+import com.example.dailyquest.Utils.InformUtils;
 import com.example.dailyquest.databinding.ActivityMainBinding;
 import com.example.dailyquest.databinding.CalenderPickerBinding;
 import com.example.dailyquest.databinding.ItemDateTodoListBinding;
@@ -56,7 +70,7 @@ public class MainInterface
     private BroadcastReceiver dateChangedReceiver;
 
 
-    MainInterface(Context context)
+    public MainInterface(Context context)
     {
         StaticValues.rootFile = context.getFilesDir();
 
@@ -563,17 +577,24 @@ public class MainInterface
 
         Runnable toViewMode = ()->
         {
-            infoInterface.toViewMode();
-
             Date date = todo.getParentDate();
 
-            if(todo.mainText.equals("") && todo.explainText.equals("")
-                && todo.subTodos.size() == 0)
+            // 1차 삭제 여부 확인
+            if(infoInterface.toViewMode() == false)
             {
+                // 2차 삭제 여부 확인 ( infoInterface.toViewMode() 의 리턴값이 1차 확인)
+                if(todo.mainText.equals("") && todo.explainText.equals("")
+                        && todo.subTodos.size() == 0)
+                {
+                    // 이래도 오류 나려나..
+                    InformUtils.instance().ShowInformYes(context,
+                            "디버깅 : 데이터 공란이라 삭제 처리 확인");
 
-                date.todos.remove(todo);
-                dialog.dismiss();
+                    date.todos.remove(todo);
+                    dialog.dismiss();
+                }
             }
+            
             saveDate(date);
         };
 
@@ -664,18 +685,29 @@ public class MainInterface
     private void saveDate(Date date)
     {
         if(date == null) return;
+        Context context = getRootView().getContext();
 
         DateProxy proxy = calender.saveDate(date);
+        if(proxy == null)
+        {
+            InformUtils.instance().ShowInformYes(context,
+                    "데이터 저장 도중 오류가 발생했습니다");
+        }
+        else
+        {
+            InformUtils.instance().showToast(context, "저장됨");
+        }
+
         int pos = calender.getOffset() + proxy.date - 1;
 
         View cellView = cellViews[pos];
 
-        updateDateCell(getRootView().getContext(), cellView, proxy, pos);
+        updateDateCell(context, cellView, proxy, pos);
 
 
         if(yearMonthState == YearMonthState.CURR && date.date == today.date)
         {
-            NotificationHelper.updateTodayNotification(getRootView().getContext(), date.todos);
+            NotificationHelper.updateTodayNotification(context, date.todos);
         }
     }
 

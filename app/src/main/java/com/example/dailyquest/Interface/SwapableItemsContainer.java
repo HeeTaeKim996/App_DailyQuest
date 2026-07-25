@@ -1,8 +1,6 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Interface;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -11,7 +9,8 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
-import java.util.function.BiConsumer;
+import com.example.dailyquest.Small.ISwapCompleteFunc;
+import com.example.dailyquest.Small.ISwapableItem;
 
 
 public class SwapableItemsContainer extends LinearLayout

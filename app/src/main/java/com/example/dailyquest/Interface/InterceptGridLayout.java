@@ -1,4 +1,4 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Interface;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -1,4 +1,6 @@
-package com.example.dailyquest;
+package com.example.dailyquest.Utils;
+
+import com.example.dailyquest.Small.StaticValues;
 
 import java.io.File;
 
