@@ -1,10 +1,12 @@
 package com.example.dailyquest.Notialarm;
 
+import android.content.Context;
+
+import java.io.File;
+
 public class NotialarmManager
 {
     private static NotialarmManager _instance = new NotialarmManager();
-    private NotialarmManager(){}
-
     public static NotialarmManager instance()
     {
         // 백그라운드 서비스에서도 사용됨
@@ -18,4 +20,20 @@ public class NotialarmManager
 
     public final String CHANNEL_ID = "daily_quest_channel";
     public final int NOTIFICATION_ID = 1001; // 1001 말고도 임의의 정수로 가능
+
+
+    private File baseFile;
+    private NotialarmManager()
+    {
+
+    }
+
+    public File getBaseFile(Context context)
+    {
+        return new File(context.getFilesDir(), "alarm");
+    }
+    public File getAlarmFile(Context context)
+    {
+        return new File(getBaseFile(context), "alarm.alm");
+    }
 }

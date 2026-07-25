@@ -4,15 +4,27 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.core.app.NotificationCompat;
 
 import com.example.dailyquest.Data.Todo;
 import com.example.dailyquest.R;
+import com.example.dailyquest.Utils.CalenderUtils;
 import com.example.dailyquest.Utils.InformUtils;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class NotificationHelper
 {
@@ -38,32 +50,48 @@ public class NotificationHelper
                     calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE));
         }
 
-        boolean hasAny = false;
 
-        if(todos.size() > 0)
+        List<String> textList = new ArrayList<>();
+        TreeMap<Short, String> alarmMap = null;   // textList 는 자주 사용하니 할당. alarmMap은 거의 사용 안하니 할당 안함
+
+
+        for(Todo todo : todos)
         {
-            Todo todo = todos.get(0);
             if(todo.isCompleted == false)
             {
-                titleText += (todo.mainText);
-                hasAny = true;
-            }
-        }
-        for(int i = 1; i < todos.size(); i++ )
-        {
-            Todo todo = todos.get(i);
-            if(todo.isCompleted == false)
-            {
-                titleText += (" / " + todo.mainText);
-                hasAny = true;
+                textList.add(todo.mainText);
+
+                if(todo.getAlarmTime() != -1)
+                {
+                    short alarmTime = todo.getAlarmTime();
+                    if(alarmMap == null)
+                    {
+                        alarmMap = new TreeMap<>();
+                    }
+
+                    if(alarmMap.containsKey(alarmTime))
+                    {
+                        String curr = alarmMap.get(alarmTime);
+                        alarmMap.put(alarmTime, curr + " / " + todo.mainText);
+                    }
+                    else
+                    {
+                        alarmMap.put(alarmTime, todo.mainText);
+                    }
+                }
             }
         }
 
 
-        if(hasAny == false)
+
+        if(textList.size() == 0)
         {
             cancelNotification(context);
             return;
+        }
+        else
+        {
+            titleText = TextUtils.join(" / ", textList);
         }
 
 
@@ -102,6 +130,45 @@ public class NotificationHelper
             {
                 manager.notify(NotialarmManager.instance().NOTIFICATION_ID, builder.build());
                 // 세부 알림내용 등록 ( NOTIFICATION_ID 를 식별자로 사용 )
+            }
+        }
+
+
+
+        // 알람 처리
+        if(alarmMap != null && alarmMap.isEmpty() == false)
+        {
+            Map.Entry<Short, String>[] entries = alarmMap.entrySet().toArray(new Map.Entry[0]);
+
+            File alarmFile = NotialarmManager.instance().getAlarmFile(context);
+            File parentDir = alarmFile.getParentFile();
+            if(parentDir.exists() == false)
+            {
+                parentDir.mkdirs();
+            }
+
+            try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(alarmFile)))
+            {
+
+                int dates = CalenderUtils.instance().getDatesFromCalender(
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH) + 1,
+                        calendar.get(Calendar.DATE));
+
+                dos.writeInt(dates);            // 날짜
+                dos.writeInt(0);            // 인덱스
+                dos.writeInt(alarmMap.size()); // 크기
+
+                // Alarm 들 데이터 입력
+                for(Map.Entry<Short, String> entry : entries)
+                {
+                    dos.writeShort(entry.getKey());
+                    dos.writeUTF(entry.getValue());
+                }
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
             }
         }
     }

@@ -34,7 +34,7 @@ public class TodoMidnightReceiver extends BroadcastReceiver
         CalenderUtils.Calender today = CalenderUtils.instance().getTodaybyCalender();
 
 
-        File file = new File(context.getFilesDir() + "/"
+        File file = new File(context.getFilesDir() + "/Y/"
                 + String.valueOf(today.year) + "/" + String.valueOf(today.month) + "/D/"
                 + String.valueOf(today.date) + ".dat");
         if(file.exists())

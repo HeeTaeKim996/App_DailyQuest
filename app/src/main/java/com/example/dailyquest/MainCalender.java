@@ -39,7 +39,7 @@ public class MainCalender
 //        DevelopUtils.instance().clearAllFiles();
 
 
-        yearFile = new File(StaticValues.rootFile, String.valueOf(InYear));
+        yearFile = new File(StaticValues.rootFile, String.format("Y/%d", InYear));
         baseFile = new File(yearFile, String.valueOf(InMonth));
         dataFile = new File(baseFile, "D");
         shortTodosFile = new File(baseFile, "st.std");
