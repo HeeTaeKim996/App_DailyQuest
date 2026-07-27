@@ -1,4 +1,4 @@
-package com.example.dailyquest.Notialarm;
+package com.example.dailyquest.Notialarm.Receiver;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.os.Build;
 
 import com.example.dailyquest.Data.SubTodo;
+import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Notialarm.NotificationHelper;
 import com.example.dailyquest.Utils.CalenderUtils;
 
 import java.io.DataInputStream;
@@ -26,58 +28,19 @@ public class TodoMidnightReceiver extends BroadcastReceiver
         updateTodayNotification(context);
 
 
-        scheduleNextMidnightAlarm(context);
+        scheduleAlarm(context);
     }
 
     public static void updateTodayNotification(Context context)
     {
-        CalenderUtils.Calender today = CalenderUtils.instance().getTodaybyCalender();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
 
-
-        File file = new File(context.getFilesDir() + "/Y/"
-                + String.valueOf(today.year) + "/" + String.valueOf(today.month) + "/D/"
-                + String.valueOf(today.date) + ".dat");
-        if(file.exists())
-        {
-            ArrayList<Todo> todos = new ArrayList<Todo>();
-            try(DataInputStream dis = new DataInputStream(new FileInputStream(file)))
-            {
-                int todoCount = dis.readInt();
-                while(todoCount-- > 0)
-                {
-                    Todo todo = new Todo();
-                    todos.add(todo);
-
-                    todo.isCompleted = dis.readBoolean();
-
-                    todo.mainText = dis.readUTF();
-                    todo.explainText = dis.readUTF();
-
-                    todo.setAlarmTime(dis.readShort());
-                    todo.setColor((int)dis.readByte());
-
-                    int subTodoCount = dis.readInt();
-                    while(subTodoCount-- > 0)
-                    {
-                        SubTodo subTodo = new SubTodo();
-                        todo.subTodos.add(subTodo);
-
-                        subTodo.bCompleted = dis.readBoolean();
-                        subTodo.subText = dis.readUTF();
-                    }
-                }
-
-                NotificationHelper.updateTodayNotification(context, todos);
-            }
-            catch(IOException e) { e.printStackTrace(); }
-        }
-        else
-        {
-            NotificationHelper.updateTodayNotification(context, null);
-        }
+        // todos 는 null을 할당해서, NotificationHelper에서 찾아보게 한다
+        NotificationHelper.updateTodayNotification(context, new Time(calendar), null, true);
     }
 
-    public static void scheduleNextMidnightAlarm(Context context)
+    public static void scheduleAlarm(Context context)
     {
         // ※ @@ !! @@
         // 하단의 AlarManager + PendingIntent 로 작동하는 코드는 백그라운드에서 작동하므로,
@@ -100,10 +63,10 @@ public class TodoMidnightReceiver extends BroadcastReceiver
 
 
         java.util.Calendar calendar = java.util.Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());   // 현재 시간을 기준으로 Calender 객체를 생성
 
         if(true)
         {
-            calendar.setTimeInMillis(System.currentTimeMillis());   // 현재 시간을 기준으로 Calender 객체를 생성
             calendar.set(Calendar.HOUR_OF_DAY, 0);                  // 시간을 0시로 지정
             calendar.set(Calendar.MINUTE, 0);                       // 분을 0분으로 지정
             calendar.set(Calendar.SECOND, 0);                       // 초를 0초 로 지정
@@ -113,8 +76,6 @@ public class TodoMidnightReceiver extends BroadcastReceiver
         }
         else if(false)
         {
-            calendar.setTimeInMillis(System.currentTimeMillis());
-
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
 
@@ -145,5 +106,21 @@ public class TodoMidnightReceiver extends BroadcastReceiver
 //            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis()
 //                    , AlarmManager.INTERVAL_DAY, pendingIntent);
 //        }
+    }
+
+
+
+
+    public static boolean isAlarmScheduled(Context context)
+    {
+        Intent intent = new Intent(context, TodoMidnightReceiver.class);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, 0, intent,
+                PendingIntent.FLAG_NO_CREATE     // FLAG_NO_CREATE : 기존에 동일 조건으로 등록된 PendingIntent 가 없으면 null 반환
+                    | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        return pendingIntent != null;
     }
 }

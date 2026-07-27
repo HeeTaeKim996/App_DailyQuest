@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -22,6 +21,8 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 import androidx.gridlayout.widget.GridLayout;
 
+import com.example.dailyquest.Data.Time;
+import com.example.dailyquest.Notialarm.NotialarmManager;
 import com.example.dailyquest.Utils.CalenderUtils;
 import com.example.dailyquest.Data.Date;
 import com.example.dailyquest.Data.Todo;
@@ -34,7 +35,7 @@ import com.example.dailyquest.R;
 import com.example.dailyquest.Small.ISwapCompleteFunc;
 import com.example.dailyquest.Small.ISwapableItem;
 import com.example.dailyquest.Small.StaticValues;
-import com.example.dailyquest.Notialarm.TodoMidnightReceiver;
+import com.example.dailyquest.Notialarm.Receiver.TodoMidnightReceiver;
 import com.example.dailyquest.Utils.InformUtils;
 import com.example.dailyquest.databinding.ActivityMainBinding;
 import com.example.dailyquest.databinding.CalenderPickerBinding;
@@ -45,9 +46,9 @@ import com.example.dailyquest.databinding.TodoInfoBinding;
 import com.example.dailyquest.databinding.YearMonthPickerBinding;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class MainInterface
 {
@@ -124,9 +125,25 @@ public class MainInterface
 
         registerDateChangedReceiver(context);
 
-        TodoMidnightReceiver.updateTodayNotification(context);
+        if(NotialarmManager.instance().isNotificationActive(context,
+                NotialarmManager.instance().CHANNEL_ID,
+                NotialarmManager.instance().NOTIFICATION_ID) == false)
+        {
+            TodoMidnightReceiver.updateTodayNotification(context);
+        }
+        else
+        {
+//            InformUtils.instance().ShowInformYes(context, "디버깅 : 이미  Notification 이 활성화됨");
+        }
 
-        TodoMidnightReceiver.scheduleNextMidnightAlarm(context);
+        if(TodoMidnightReceiver.isAlarmScheduled(context) == false)
+        {
+            TodoMidnightReceiver.scheduleAlarm(context);
+        }
+        else
+        {
+//            InformUtils.instance().ShowInformYes(context, "디버깅 : 이미 Alarm 이 활성화됨");
+        }
     }
 
 
@@ -559,11 +576,6 @@ public class MainInterface
                 .create();
 
         final boolean[] isEditMode = {false};
-        Supplier<TypedArray> makeEditTextBackground = ()->
-        {
-            int[] attrs = new int[]{android.R.attr.editTextBackground};
-            return context.obtainStyledAttributes(attrs);
-        };
 
 
         TodoInfoInterface infoInterface = binding.getRoot();
@@ -684,8 +696,13 @@ public class MainInterface
 
     private void saveDate(Date date)
     {
-        if(date == null) return;
         Context context = getRootView().getContext();
+        if(date == null)
+        {
+            InformUtils.instance().ShowInformYes(context,
+                    "디버깅 : SaveDate 함수가 호출됐지만, date == null");
+            return;
+        }
 
         DateProxy proxy = calender.saveDate(date);
         if(proxy == null)
@@ -707,7 +724,12 @@ public class MainInterface
 
         if(yearMonthState == YearMonthState.CURR && date.date == today.date)
         {
-            NotificationHelper.updateTodayNotification(context, date.todos);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+
+            Time time = new Time(calendar);
+
+            NotificationHelper.updateTodayNotification(context, time, date.todos, false);
         }
     }
 

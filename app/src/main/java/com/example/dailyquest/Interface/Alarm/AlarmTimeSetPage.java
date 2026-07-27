@@ -85,8 +85,10 @@ public class AlarmTimeSetPage extends LinearLayout
                 short outAlarmTime = -1;
                 if(getBUseAlarm())
                 {
-                    outAlarmTime = (short) minutePicker.getValue();
-                    outAlarmTime += ( (short) timePicker.getValue() << 6);
+                    short hour = (short) timePicker.getValue();
+                    short minute = (short) minutePicker.getValue();
+                    outAlarmTime = (short) (((short) timePicker.getValue() << 6)
+                        +(short) minutePicker.getValue());
                 }
 
                 alarmFuncListener.accept(AlarmEnum.Ok, outAlarmTime);

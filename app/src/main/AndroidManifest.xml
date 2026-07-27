@@ -27,7 +27,7 @@
         </activity>
 
         <receiver
-            android:name=".Notialarm.TodoMidnightReceiver"
+            android:name=".Notialarm.Receiver.TodoMidnightReceiver"
             android:exported="false">
         </receiver>
 

@@ -8,28 +8,74 @@ import android.text.TextUtils;
 
 import androidx.core.app.NotificationCompat;
 
+import com.example.dailyquest.Data.SubTodo;
+import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Notialarm.Receiver.AlarmReceiver;
 import com.example.dailyquest.R;
 import com.example.dailyquest.Utils.CalenderUtils;
-import com.example.dailyquest.Utils.InformUtils;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class NotificationHelper
 {
-    public static void updateTodayNotification(Context context, ArrayList<Todo> todos)
+    public static void updateTodayNotification(Context context, Time time, ArrayList<Todo> todos,
+                                               boolean isMidnightCalled)
     {
+        File file = new File(context.getFilesDir() + "/Y/"
+                + String.valueOf(time.year) + "/" + String.valueOf(time.month) + "/D/"
+                + String.valueOf(time.date) + ".dat");
+
+
+        // isMidnightCalled인 경우, MidnightAlarmReceiver 에서 준 경우기에, todos 를 찾아본다
+        if(isMidnightCalled)    // (isMidnightCAlled == true) == ( t.odo == null)
+        {
+            if(file.exists())
+            {
+                todos = new ArrayList<Todo>();
+                try(DataInputStream dis = new DataInputStream(new FileInputStream(file)))
+                {
+                    int todoCount = dis.readInt();
+                    while(todoCount-- > 0)
+                    {
+                        Todo todo = new Todo();
+                        todos.add(todo);
+
+                        todo.isCompleted = dis.readBoolean();
+
+                        todo.mainText = dis.readUTF();
+                        todo.explainText = dis.readUTF();
+
+                        todo.setAlarmTime(dis.readShort());
+                        todo.setColor((int)dis.readByte());
+
+                        int subTodoCount = dis.readInt();
+                        while(subTodoCount-- > 0)
+                        {
+                            SubTodo subTodo = new SubTodo();
+                            todo.subTodos.add(subTodo);
+
+                            subTodo.bCompleted = dis.readBoolean();
+                            subTodo.subText = dis.readUTF();
+                        }
+                    }
+                }
+                catch(IOException e) { e.printStackTrace(); }
+            }
+        }
+
+        
+
         if(todos == null || todos.size() == 0)
         {
             cancelNotification(context);
@@ -37,8 +83,6 @@ public class NotificationHelper
         }
 
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
 
         String titleText = "";
 
@@ -46,8 +90,7 @@ public class NotificationHelper
         if(false)
         {
             contentText = String.format("[%02d-%02d-%02d(%02d:%02d)]  "
-                    , calendar.get(Calendar.YEAR) % 100, calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DATE),
-                    calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE));
+                    , time.year % 100, time.month, time.date, time.hour, time.minute);
         }
 
 
@@ -61,9 +104,21 @@ public class NotificationHelper
             {
                 textList.add(todo.mainText);
 
-                if(todo.getAlarmTime() != -1)
+                short alarmTime = todo.getAlarmTime();
+                if(alarmTime != -1)
                 {
-                    short alarmTime = todo.getAlarmTime();
+                    if(time.isFutureTimeFromThis(alarmTime) == false)
+                    {
+                        if(isMidnightCalled)
+                        {
+                            alarmTime = time.toAlarmTime();  // TodoMidnightReceiver 가 늦게 호출되어, 자정에 호출되는 알람이 생략된 경우이므로, alarmTime 을 변경
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+
                     if(alarmMap == null)
                     {
                         alarmMap = new TreeMap<>();
@@ -140,6 +195,7 @@ public class NotificationHelper
         {
             Map.Entry<Short, String>[] entries = alarmMap.entrySet().toArray(new Map.Entry[0]);
 
+
             File alarmFile = NotialarmManager.instance().getAlarmFile(context);
             File parentDir = alarmFile.getParentFile();
             if(parentDir.exists() == false)
@@ -147,29 +203,40 @@ public class NotificationHelper
                 parentDir.mkdirs();
             }
 
-            try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(alarmFile)))
+
+            try(RandomAccessFile raf = new RandomAccessFile(alarmFile, "rw"))
             {
+                raf.setLength(0);
 
                 int dates = CalenderUtils.instance().getDatesFromCalender(
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH) + 1,
-                        calendar.get(Calendar.DATE));
+                        time.year, time.month, time.date);
 
-                dos.writeInt(dates);            // 날짜
-                dos.writeInt(0);            // 인덱스
-                dos.writeInt(alarmMap.size()); // 크기
+                raf.writeInt(dates);                            // 0-3
+                raf.writeLong(0L);                          // 4-11 (더미)
 
-                // Alarm 들 데이터 입력
-                for(Map.Entry<Short, String> entry : entries)
+                long offset = raf.getFilePointer();
+
+                // 스택 형식으로 저장 ( 가장 이른 시간 부터 꺼내 쓸 수 있게 )
+                for(int i = entries.length - 1; i >= 0; i--)
                 {
-                    dos.writeShort(entry.getKey());
-                    dos.writeUTF(entry.getValue());
+                    Map.Entry<Short, String> entry = entries[i];
+                    raf.writeShort(entry.getKey());
+                    raf.writeUTF(entry.getValue());
+
+                    raf.writeLong(offset);
+                    offset = raf.getFilePointer();
                 }
+
+                raf.seek(4);
+                raf.writeLong(raf.length());
             }
             catch(IOException e)
             {
                 e.printStackTrace();
             }
+
+
+            AlarmReceiver.postAndScheduleAlarm(context, time);
         }
     }
 

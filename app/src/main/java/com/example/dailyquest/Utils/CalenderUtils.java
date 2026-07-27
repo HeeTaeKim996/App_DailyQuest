@@ -49,6 +49,11 @@ public class CalenderUtils
         return _instance;
     }
 
+    public int getDatesFromCalender(Calender calender)
+    {
+        return getDatesFromCalender(calender.year, calender.month, calender.date);
+    }
+
 
     public int getDatesFromCalender(int year, int month, int date)
     {
