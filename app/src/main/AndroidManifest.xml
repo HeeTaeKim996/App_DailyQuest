@@ -5,7 +5,8 @@
     <!-- 앱이 원하는 정확한 시간에 알림을 실행할 수 있도록, 정확한 알림 권한을 OS에 요청
          targetSdk 31 이상 환경에서 권한 선언 없이 알람 매서드 호출시, 크래시 발생-->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
 
 
 
@@ -30,10 +31,18 @@
             android:name=".Notialarm.Receiver.TodoMidnightReceiver"
             android:exported="false">
         </receiver>
-
         <!-- BroadcastReceiver 구현 클래스의 경로 지정. 기본 경로가 com.example.dailyquest 이므로, 클래스 명만 입력하면, 경로 인식 -->
         <!-- exported=false : 보안 옵션. 이 리시버를 오직 앱 내부(OS 포함)에서만 호출할 수 있도록 제한 -->
+        <receiver
+            android:name=".Notialarm.Receiver.AlarmReceiver"
+            android:exported="false">
+        </receiver>
 
+        <activity
+            android:name=".Notialarm.AlarmActivity"
+            android:exported="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"/>
     </application>
 
 </manifest>

@@ -1,19 +1,30 @@
 package com.example.dailyquest.Notialarm.Receiver;
 
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 
+import androidx.core.app.NotificationCompat;
+
 import com.example.dailyquest.Data.Time;
+import com.example.dailyquest.Notialarm.AlarmActivity;
 import com.example.dailyquest.Notialarm.NotialarmManager;
+import com.example.dailyquest.R;
 import com.example.dailyquest.Utils.CalenderUtils;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Calendar;
@@ -87,7 +98,7 @@ public class AlarmReceiver extends BroadcastReceiver
 
             if(content.equals("") == false)
             {
-                // TODO : 알림 POST
+                postAlarm(context, content);
             }
 
             if(bFinished)
@@ -141,4 +152,90 @@ public class AlarmReceiver extends BroadcastReceiver
             e.printStackTrace();
         }
     }
+
+    private static void postAlarm(Context context, String content)
+    {
+        Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION); // 기본 알람 소리 Uri(음원 파일의 위치를 나타내는 식별자) 가져오기
+        long[] vibration = new long[] {0, 500, 500, 500}; // { 대기시간, 진동시간, 대기시간, 진동시간 ..}  ==> 0초 대기후 0.5초 진동. 0.5초 대기후 0.5초 진동
+
+        NotificationManager manager = (NotificationManager) context.getSystemService
+                (Context.NOTIFICATION_SERVICE);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            NotificationChannel channel = new NotificationChannel(
+                    NotialarmManager.instance().CHANNEL_ID_POST_ALARM,
+                    "알람", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("알람 용도");
+
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .build();
+            channel.setSound(alarmUri, audioAttributes);
+            channel.enableVibration(true);
+            channel.setVibrationPattern(vibration);
+
+            if(manager != null)
+            {
+                manager.createNotificationChannel(channel);
+            }
+        }
+
+
+
+        Intent intent = new Intent(context, AlarmActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(NotialarmManager.instance().PUT_EXTRA_ALARM_TEXT, content);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
+                NotialarmManager.instance().CHANNEL_ID_POST_ALARM)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentText(content)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setSound(alarmUri)
+                .setVibrate(vibration)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        if(manager != null)
+        {
+            manager.notify(NotialarmManager.instance().NOTIFICATION_ID_POST_ALARM, builder.build());
+        }
+
+        context.startActivity(intent);
+    }
+
+    public static boolean isAlarmScheduled(Context context)
+    {
+        Intent intent = new Intent(context, AlarmReceiver.class);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, 0, intent,
+                PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+
+        return pendingIntent != null;
+    }
+
+    public static void cancelIfExists(Context context)
+    {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService
+                (Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmReceiver.class);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, 0, intent,
+                PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+
+        if(alarmManager != null && pendingIntent != null)
+        {
+            alarmManager.cancel(pendingIntent);
+
+            pendingIntent.cancel();
+        }
+    }
+
 }

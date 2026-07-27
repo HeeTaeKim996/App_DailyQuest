@@ -238,6 +238,10 @@ public class NotificationHelper
 
             AlarmReceiver.postAndScheduleAlarm(context, time);
         }
+        else
+        {
+            cancelAlarm(context);
+        }
     }
 
     public static void cancelNotification(Context context)
@@ -248,6 +252,13 @@ public class NotificationHelper
         {
             manager.cancel(NotialarmManager.instance().NOTIFICATION_ID);
         }
+
+        cancelAlarm(context);
+    }
+
+    private static void cancelAlarm(Context context)
+    {
+        AlarmReceiver.cancelIfExists(context);
     }
 
 }

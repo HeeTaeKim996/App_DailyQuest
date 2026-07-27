@@ -28,6 +28,10 @@ public class NotialarmManager
     public final String CHANNEL_ID = "daily_quest_channel";
     public final int NOTIFICATION_ID = 1001; // 1001 말고도 임의의 정수로 가능
 
+    public final String CHANNEL_ID_POST_ALARM = "daily_quest_post_alarm_channel";
+    public final int NOTIFICATION_ID_POST_ALARM = 1002;
+
+    public final String PUT_EXTRA_ALARM_TEXT = "ALARM_TEXT";
 
     private File baseFile;
     private NotialarmManager()
@@ -43,6 +47,8 @@ public class NotialarmManager
     {
         return new File(getBaseFile(context), "alarm.alm");
     }
+
+
 
     public boolean isNotificationActive(Context context, String channelId,
                                         int notificationId)
