@@ -199,6 +199,7 @@ public class AlarmReceiver extends BroadcastReceiver
                 .setSound(alarmUri)
                 .setVibrate(vibration)
                 .setContentIntent(pendingIntent)
+                .setFullScreenIntent(pendingIntent, true)
                 .setAutoCancel(true);
 
         if(manager != null)
