@@ -57,6 +57,8 @@ public class NotificationHelper
                         todo.explainText = dis.readUTF();
 
                         todo.setAlarmTime(dis.readShort());
+                        todo.alarmRepTime = dis.readByte();
+
                         todo.setColor((int)dis.readByte());
 
                         int subTodoCount = dis.readInt();
@@ -221,6 +223,7 @@ public class NotificationHelper
                 {
                     Map.Entry<Short, String> entry = entries[i];
                     raf.writeShort(entry.getKey());
+
                     raf.writeUTF(entry.getValue());
 
                     raf.writeLong(offset);

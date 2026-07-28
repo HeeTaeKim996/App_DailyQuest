@@ -552,7 +552,7 @@ public class TodoInfoInterface extends ConstraintLayout
         AlarmFunc alarmFunc = new AlarmFunc()
         {
             @Override
-            public void accept(AlarmEnum alarmEnum, short alarmTime)
+            public void accept(AlarmEnum alarmEnum, short alarmTime, byte alarmRepTime)
             {
                 switch(alarmEnum)
                 {
@@ -561,13 +561,14 @@ public class TodoInfoInterface extends ConstraintLayout
                         break;
                     case Ok:
                         todo.setAlarmTime(alarmTime);
+                        todo.alarmRepTime = alarmRepTime;
                         dialog.dismiss();
                         invokeSaveDate.run();
                         break;
                 }
             }
         };
-        alarmTimeSetPage.initialize(todo.getAlarmTime(), alarmFunc);
+        alarmTimeSetPage.initialize(todo.getAlarmTime(), todo.alarmRepTime, alarmFunc);
 
         dialog.show();
     }

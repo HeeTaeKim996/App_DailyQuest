@@ -32,6 +32,7 @@ public class Todo
 
         alarmTime = InAlarmTime;
     }
+    public byte alarmRepTime = -1;
 
     private int color = 1; // Color Must Be in 1 ~ 7. setted color in values/colors.xml
     public void setColor(int InColor)

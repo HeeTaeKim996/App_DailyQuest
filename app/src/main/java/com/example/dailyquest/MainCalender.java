@@ -165,6 +165,8 @@ public class MainCalender
                 todo.explainText = dis.readUTF();
 
                 todo.setAlarmTime(dis.readShort());
+                todo.alarmRepTime = dis.readByte();
+
                 todo.setColor((int)dis.readByte());
 
                 int subTodoCount = dis.readInt();
@@ -249,6 +251,8 @@ public class MainCalender
                     dos.writeUTF(todo.explainText);
 
                     dos.writeShort(todo.getAlarmTime());
+                    dos.writeByte(todo.alarmRepTime);
+
                     dos.writeByte((byte)todo.getColor());
 
                     int subTodoCount = todo.subTodos.size();
