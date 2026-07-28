@@ -32,6 +32,7 @@ public class NotialarmManager
     public final int NOTIFICATION_ID_POST_ALARM = 1002;
 
     public final String PUT_EXTRA_ALARM_TEXT = "ALARM_TEXT";
+    public final String PUT_EXTRA_ALARM_REP_TIME = "BYTE_REP_TIME";
 
     private File baseFile;
     private NotialarmManager()

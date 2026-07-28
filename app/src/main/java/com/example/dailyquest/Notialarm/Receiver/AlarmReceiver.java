@@ -68,17 +68,35 @@ public class AlarmReceiver extends BroadcastReceiver
 
             // 다음 알림 예약
             boolean bFinished = false;
+
             String content = "";
+            byte repTime = -1;
+
             while(alarmTime <= currTime)
             {
+                byte newRepTime = raf.readByte();
+                String newContent = raf.readUTF();
+
+                if(newRepTime != -1)
+                {
+                    if(repTime != -1)
+                    {
+                        repTime = (byte)Math.min(repTime, newRepTime);
+                    }
+                    else
+                    {
+                        repTime = newRepTime;
+                    }
+                }
+
                 if(content.equals(""))
                 {
-                    content = raf.readUTF();
+                    content = newContent;
                 }
                 else
                 {
                     String beforeSt = content;
-                    content = beforeSt + " / " + raf.readUTF();
+                    content = beforeSt + " / " + newContent;
                 }
 
                 // 해당 알림이 마지막 알림이었으므로, 다음 알림을 예약하지 않는다
@@ -98,7 +116,7 @@ public class AlarmReceiver extends BroadcastReceiver
 
             if(content.equals("") == false)
             {
-                postAlarm(context, content);
+                postAlarm(context, content, repTime);
             }
 
             if(bFinished)
@@ -153,7 +171,7 @@ public class AlarmReceiver extends BroadcastReceiver
         }
     }
 
-    private static void postAlarm(Context context, String content)
+    private static void postAlarm(Context context, String content, byte alarmRepTime)
     {
         Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION); // 기본 알람 소리 Uri(음원 파일의 위치를 나타내는 식별자) 가져오기
         long[] vibration = new long[] {0, 500, 500, 500}; // { 대기시간, 진동시간, 대기시간, 진동시간 ..}  ==> 0초 대기후 0.5초 진동. 0.5초 대기후 0.5초 진동
@@ -186,6 +204,7 @@ public class AlarmReceiver extends BroadcastReceiver
         Intent intent = new Intent(context, AlarmActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(NotialarmManager.instance().PUT_EXTRA_ALARM_TEXT, content);
+        intent.putExtra(NotialarmManager.instance().PUT_EXTRA_ALARM_REP_TIME, alarmRepTime);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

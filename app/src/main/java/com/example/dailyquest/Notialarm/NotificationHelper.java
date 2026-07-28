@@ -29,6 +29,18 @@ import java.util.TreeMap;
 
 public class NotificationHelper
 {
+    private static class AlarmSaveInfo
+    {
+        AlarmSaveInfo(){}
+        AlarmSaveInfo(String InText, byte InAlarmTime)
+        {
+            text = InText;
+            alarmTime = InAlarmTime;
+        }
+        public String text;
+        public byte alarmTime;
+    }
+
     public static void updateTodayNotification(Context context, Time time, ArrayList<Todo> todos,
                                                boolean isMidnightCalled)
     {
@@ -97,7 +109,7 @@ public class NotificationHelper
 
 
         List<String> textList = new ArrayList<>();
-        TreeMap<Short, String> alarmMap = null;   // textList 는 자주 사용하니 할당. alarmMap은 거의 사용 안하니 할당 안함
+        TreeMap<Short, AlarmSaveInfo> alarmMap = null;   // textList 는 자주 사용하니 할당. alarmMap은 거의 사용 안하니 할당 안함
 
 
         for(Todo todo : todos)
@@ -128,12 +140,29 @@ public class NotificationHelper
 
                     if(alarmMap.containsKey(alarmTime))
                     {
-                        String curr = alarmMap.get(alarmTime);
-                        alarmMap.put(alarmTime, curr + " / " + todo.getSummary());
+                        AlarmSaveInfo saveInfo = alarmMap.get(alarmTime);
+                        String curr = saveInfo.text;
+                        saveInfo.text = curr + "/" + todo.getSummary();
+
+                        if(todo.alarmRepTime != -1)
+                        {
+                            if(saveInfo.alarmTime != -1)
+                            {
+                                saveInfo.alarmTime =
+                                        (byte) Math.min(saveInfo.alarmTime, todo.alarmRepTime);
+                            }
+                            else
+                            {
+                                saveInfo.alarmTime = todo.alarmRepTime;
+                            }
+                        }
                     }
                     else
                     {
-                        alarmMap.put(alarmTime, todo.getSummary());
+                        AlarmSaveInfo saveInfo
+                                = new AlarmSaveInfo(todo.getSummary(), todo.alarmRepTime);
+
+                        alarmMap.put(alarmTime, saveInfo);
                     }
                 }
             }
@@ -195,7 +224,7 @@ public class NotificationHelper
         // 알람 처리
         if(alarmMap != null && alarmMap.isEmpty() == false)
         {
-            Map.Entry<Short, String>[] entries = alarmMap.entrySet().toArray(new Map.Entry[0]);
+            Map.Entry<Short, AlarmSaveInfo>[] entries = alarmMap.entrySet().toArray(new Map.Entry[0]);
 
 
             File alarmFile = NotialarmManager.instance().getAlarmFile(context);
@@ -221,10 +250,12 @@ public class NotificationHelper
                 // 스택 형식으로 저장 ( 가장 이른 시간 부터 꺼내 쓸 수 있게 )
                 for(int i = entries.length - 1; i >= 0; i--)
                 {
-                    Map.Entry<Short, String> entry = entries[i];
+                    Map.Entry<Short, AlarmSaveInfo> entry = entries[i];
                     raf.writeShort(entry.getKey());
 
-                    raf.writeUTF(entry.getValue());
+                    AlarmSaveInfo saveInfo = entry.getValue();
+                    raf.writeByte(saveInfo.alarmTime);
+                    raf.writeUTF(saveInfo.text);
 
                     raf.writeLong(offset);
                     offset = raf.getFilePointer();

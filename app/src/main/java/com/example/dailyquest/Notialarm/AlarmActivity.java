@@ -39,14 +39,25 @@ public class AlarmActivity extends AppCompatActivity
 
         Button okButton = findViewById(R.id.button_activityAlarm_okButton);
         TextView textView = findViewById(R.id.textView_activityAlarm_text);
+        TextView repTimeView = findViewById(R.id.textView_activityAlarm_repTimeText);
 
         String alarmText = getIntent().getStringExtra
                 (NotialarmManager.instance().PUT_EXTRA_ALARM_TEXT);
+        byte alarmRepTime = getIntent().getByteExtra(
+                NotialarmManager.instance().PUT_EXTRA_ALARM_REP_TIME, (byte) -1);
+
         if(alarmText != null)
         {
             textView.setText(alarmText);
         }
-
+        if(alarmRepTime == -1)
+        {
+            repTimeView.setText("-");
+        }
+        else
+        {
+            repTimeView.setText(String.valueOf(alarmRepTime));
+        }
 
 
         // TODO : 반복 알림 생성 ?

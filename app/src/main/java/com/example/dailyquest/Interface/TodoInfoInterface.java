@@ -521,8 +521,12 @@ public class TodoInfoInterface extends ConstraintLayout
         {
             int hour = (int)(alarmTime >> 6);
             int minute = (int)(alarmTime & 0x3F);
-            binding.buttonTodoInfoSettingSetAlarm.setText(String
-                    .format("%02d:%02d", hour, minute));
+            String alarmText = String.format("%02d:%02d", hour, minute);
+            if(todo.alarmRepTime != -1)
+            {
+                alarmText += "(" + String.valueOf(todo.alarmRepTime) + ")";
+            }
+            binding.buttonTodoInfoSettingSetAlarm.setText(alarmText);
         }
         binding.buttonTodoInfoSettingSetAlarm.setOnClickListener(v->
         {
