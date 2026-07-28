@@ -164,7 +164,7 @@ public class AlarmReceiver extends BroadcastReceiver
         {
             NotificationChannel channel = new NotificationChannel(
                     NotialarmManager.instance().CHANNEL_ID_POST_ALARM,
-                    "알람", NotificationManager.IMPORTANCE_DEFAULT);
+                    "알람", NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription("알람 용도");
 
             AudioAttributes audioAttributes = new AudioAttributes.Builder()

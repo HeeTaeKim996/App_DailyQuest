@@ -42,4 +42,40 @@ public class Todo
 
 
     public ArrayList<SubTodo> subTodos = new ArrayList<>();
+
+    public String getSummary()
+    {
+        String ret = mainText;
+        if(subTodos.size() > 0)
+        {
+            String addedText = "";
+            for(SubTodo subtodo : subTodos)
+            {
+                if(subtodo.bCompleted == false)
+                {
+                    if(addedText.equals(""))
+                    {
+                        addedText = subtodo.subText;
+                    }
+                    else
+                    {
+                        addedText += ("/" + subtodo.subText);
+                    }
+                }
+            }
+            if(addedText.equals("") == false)
+            {
+                ret += ("[" + addedText + "]");
+            }
+        }
+        if(alarmTime != -1)
+        {
+            int hour = (int)(alarmTime >> 6);
+            int minute = (int)(alarmTime & 0x3F);
+            ret += String.format("(%02d:%02d)", hour, minute);
+        }
+
+        return ret;
+    }
+
 }

@@ -512,6 +512,18 @@ public class TodoInfoInterface extends ConstraintLayout
 
             dialog.dismiss();
         });
+        short alarmTime = todo.getAlarmTime();
+        if(alarmTime == -1)
+        {
+            binding.buttonTodoInfoSettingSetAlarm.setText("알람");
+        }
+        else
+        {
+            int hour = (int)(alarmTime >> 6);
+            int minute = (int)(alarmTime & 0x3F);
+            binding.buttonTodoInfoSettingSetAlarm.setText(String
+                    .format("%02d:%02d", hour, minute));
+        }
         binding.buttonTodoInfoSettingSetAlarm.setOnClickListener(v->
         {
             show_setAlarmPage(context);

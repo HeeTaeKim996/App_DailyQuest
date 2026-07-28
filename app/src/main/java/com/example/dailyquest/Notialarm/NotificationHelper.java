@@ -102,7 +102,7 @@ public class NotificationHelper
         {
             if(todo.isCompleted == false)
             {
-                textList.add(todo.mainText);
+                textList.add(todo.getSummary());
 
                 short alarmTime = todo.getAlarmTime();
                 if(alarmTime != -1)
@@ -127,11 +127,11 @@ public class NotificationHelper
                     if(alarmMap.containsKey(alarmTime))
                     {
                         String curr = alarmMap.get(alarmTime);
-                        alarmMap.put(alarmTime, curr + " / " + todo.mainText);
+                        alarmMap.put(alarmTime, curr + " / " + todo.getSummary());
                     }
                     else
                     {
-                        alarmMap.put(alarmTime, todo.mainText);
+                        alarmMap.put(alarmTime, todo.getSummary());
                     }
                 }
             }

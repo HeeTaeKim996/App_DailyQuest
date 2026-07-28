@@ -87,7 +87,7 @@ public class ShortTodoInterface extends FrameLayout implements ISwapableItem
             return true;
         });
 
-        shortText.setText(todo.mainText);
+        shortText.setText(todo.getSummary());
     }
 
     public void saveTodoFromInterface()

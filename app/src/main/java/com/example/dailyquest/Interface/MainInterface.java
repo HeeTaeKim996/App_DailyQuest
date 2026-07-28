@@ -590,6 +590,13 @@ public class MainInterface
         Runnable toViewMode = ()->
         {
             Date date = todo.getParentDate();
+            if(date == null)
+            {
+                InformUtils.instance().ShowInformYes(context,
+                        "show_todo_info 의 Runnable toViewMode 에서 date = " +
+                                "todo.getParentDate(); 를 호출했는데 date == null 임을 확인");
+                
+            }
 
             // 1차 삭제 여부 확인
             if(infoInterface.toViewMode() == false)
