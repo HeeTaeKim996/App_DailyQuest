@@ -32,9 +32,10 @@
             android:layout_height="match_parent"
             android:gravity="left|center"
             android:text="TextView"
-            android:clickable="true"
+            android:clickable="false"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textSize="18sp"/>
+            android:textSize="22sp"
+            />
     </LinearLayout>
 
 

@@ -1,5 +1,7 @@
 package com.example.dailyquest.Utils;
 
+import android.content.Context;
+
 import com.example.dailyquest.Small.StaticValues;
 
 import java.io.File;
@@ -10,9 +12,9 @@ public class DevelopUtils
     private DevelopUtils() {}
     public static DevelopUtils instance() { return _instance; }
 
-    public void clearAllFiles()
+    public void clearAllFiles(Context context)
     {
-        deleteChildrenFiles(StaticValues.rootFile);
+        deleteChildrenFiles(context.getFilesDir());
     }
     private void deleteChildrenFiles(File me)
     {
@@ -27,10 +29,10 @@ public class DevelopUtils
         }
     }
 
-    public StringBuilder getAllFiles()
+    public StringBuilder getAllFiles(Context context)
     {
         StringBuilder sb = new StringBuilder(".\n\n ALL FILES \n\n");
-        listAllFiles(sb, "", StaticValues.rootFile);
+        listAllFiles(sb, "", context.getFilesDir());
         return sb;
     }
     private void listAllFiles(StringBuilder sb, String parent, File dir)

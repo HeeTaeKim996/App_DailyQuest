@@ -3,13 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
 
     >
 
 
     <LinearLayout
+        android:id="@+id/linearLayout_fixedTodoSet_topLayout"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal">
@@ -21,8 +22,8 @@
             android:layout_weight="1"
             android:text="L" />
 
-        <TextView
-            android:id="@+id/textView11"
+        <EditText
+            android:id="@+id/textView_fixedTodoSet_mainText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5"
@@ -46,8 +47,8 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textView12"
+    <EditText
+        android:id="@+id/textView_fixedTodoSet_explainText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="TextView"

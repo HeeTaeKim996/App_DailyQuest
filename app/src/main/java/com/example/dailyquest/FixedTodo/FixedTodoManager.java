@@ -3,7 +3,9 @@ package com.example.dailyquest.FixedTodo;
 import android.content.Context;
 
 import com.example.dailyquest.Data.FixedTodo;
+import com.example.dailyquest.Utils.InformUtils;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -24,6 +26,10 @@ public class FixedTodoManager
             _instance = new FixedTodoManager(context);
         }
     }
+    public static void reset(Context context)
+    {
+        _instance = new FixedTodoManager(context);
+    }
 
 
     private ArrayList<FixedTodo> todos = new ArrayList<>();
@@ -38,7 +44,109 @@ public class FixedTodoManager
             baseFile.mkdirs();
         }
 
+        loadTodos();
+
+        int i = 0;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private boolean saveTodos()
+    {
         File todoInfoFile = getTodoInfoFile();
+
+        try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(todoInfoFile)))
+        {
+            dos.writeShort((short)todos.size());
+
+            for(FixedTodo todo : todos)
+            {
+                dos.writeUTF(todo.mainText);
+                dos.writeUTF(todo.explainText);
+
+                dos.writeShort(todo.getAlarmTime());
+                dos.writeByte(todo.alarmRepTime);
+
+                dos.writeByte((byte)todo.getColor());
+
+                if(saveCategoryInfo(dos, todo) == false)
+                {
+                    return false;
+                }
+            }
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean saveCategoryInfo(DataOutputStream dos, FixedTodo todo)
+    {
+        try
+        {
+            FixedTodo.Category category = todo.getCategory();
+            if(category == null) return false;
+
+            dos.writeInt(category.ordinal());
+
+            switch(todo.getCategory())
+            {
+                case EVERY_YEAR:
+                    // TODO
+                    break;
+                case EVERY_MONTH:
+                    // TODO
+                    break;
+
+                case EVERY_WEEK:
+                    // TODO
+                    break;
+
+                default:
+                    return false;
+            }
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+    private boolean loadTodos()
+    {
+        File todoInfoFile = getTodoInfoFile();
+        if(todoInfoFile.exists() == false) return true; // 아직 생성 안한것. 정상.
+
         try(DataInputStream dis = new DataInputStream(new FileInputStream(todoInfoFile)))
         {
             short size = dis.readShort();
@@ -56,69 +164,45 @@ public class FixedTodoManager
                 todo.alarmRepTime = dis.readByte();
 
                 todo.setColor((int)dis.readByte());
+
+                if(loadTodoCategoryInfo(dis, todo) == false)
+                {
+                    return false;
+                }
             }
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
-    }
-
-
-
-    public boolean addFixedTodo(FixedTodo addedTodo)
-    {
-        todos.add(addedTodo);
-
-        File todoInfoFile = getTodoInfoFile();
-
-        try(RandomAccessFile raf = new RandomAccessFile(todoInfoFile, "rw"))
-        {
-            raf.seek(0);
-            raf.writeShort((short)todos.size());
-
-            // 기존에 데이터가 있는 경우 끝에서 입력 시작. 아니라면, 변동 없음
-            raf.seek(raf.length());
-
-            
-
-            raf.writeUTF(addedTodo.mainText);
-            raf.writeUTF(addedTodo.explainText);
-
-            raf.writeShort(addedTodo.getAlarmTime());
-            raf.writeByte(addedTodo.alarmRepTime);
-
-            raf.writeByte((byte)addedTodo.getColor());
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-            return false;
-        }
 
         return true;
     }
-    public boolean removeFixedTodo(FixedTodo removedTodo)
+
+
+    private boolean loadTodoCategoryInfo(DataInputStream dis, FixedTodo todo)
     {
-        if(todos.remove(removedTodo) == false)
+        try
         {
-            return false;
-        }
+            FixedTodo.Category category = FixedTodo.Category.values()[dis.readInt()];
+            if(category == null) return false;
 
-        File todoInfoFile = getTodoInfoFile();
-        try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(todoInfoFile)))
-        {
-            dos.writeShort((short)todos.size());
+            todo.setCategory(category);
 
-            for(FixedTodo todo : todos)
+            switch (category)
             {
-                dos.writeUTF(todo.mainText);
-                dos.writeUTF(todo.explainText);
+                case EVERY_YEAR:
+                    // TODO
+                    break;
+                case EVERY_MONTH:
+                    // TODO
+                    break;
+                case EVERY_WEEK:
+                    // TODO
+                    break;
 
-                dos.writeShort(todo.getAlarmTime());
-                dos.writeByte(todo.alarmRepTime);
-
-                dos.writeByte((byte)todo.getColor());
+                default:
+                    return false;
             }
         }
         catch(IOException e)
@@ -129,6 +213,91 @@ public class FixedTodoManager
 
         return true;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public int addTodo(FixedTodo addedTodo)
+    {
+        if(todos.size() >= Short.MAX_VALUE)
+        {
+            // 추후 캐시 정보의 todos 인덱스 를 short 로 저장할 예정이기에, 상한값일시 제한
+            return -1;
+        }
+
+        todos.add(addedTodo);
+
+        File todoInfoFile = getTodoInfoFile();
+
+        if(saveTodos() == false)
+        {
+            return -1;
+        }
+
+        return todos.size() - 1;
+    }
+    public int deleteTodo(FixedTodo removedTodo)
+    {
+        int index =  todos.indexOf(removedTodo);
+
+        if(todos.remove(removedTodo) == false)
+        {
+            return -1;
+        }
+
+        if(saveTodos() == false)
+        {
+            return -1;
+        }
+
+        return index;
+    }
+    public void onItemSwapped(int fromIndex, int toIndex)
+    {
+        FixedTodo todo = todos.get(fromIndex);
+
+        todos.remove(fromIndex);
+        todos.add(toIndex, todo);
+
+        saveTodos();
+    }
+
+    public int saveTodo(FixedTodo savedTodo)
+    {
+        saveTodos();
+        return todos.indexOf(savedTodo);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     public ArrayList<FixedTodo> getTodos() { return todos; }

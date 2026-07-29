@@ -28,6 +28,7 @@ import com.example.dailyquest.R;
 import com.example.dailyquest.Small.ISwapCompleteFunc;
 import com.example.dailyquest.Small.ISwapableItem;
 import com.example.dailyquest.Small.MainFuncEnum;
+import com.example.dailyquest.Utils.BackgroundColorUtils;
 import com.example.dailyquest.Utils.InformUtils;
 import com.example.dailyquest.databinding.TodoInfoSetAlarmPageBinding;
 import com.example.dailyquest.databinding.TodoInfoSettingBinding;
@@ -59,17 +60,15 @@ public class TodoInfoInterface extends ConstraintLayout
 
 
     public TodoInfoInterface(@NonNull Context context)
-    { super(context);                       init();}
+    { super(context); }
 
     public TodoInfoInterface(@NonNull Context context, @Nullable AttributeSet attrs)
-    { super(context, attrs);                init();}
+    { super(context, attrs); }
 
     public TodoInfoInterface(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr)
-    { super(context, attrs, defStyleAttr);  init();}
+    { super(context, attrs, defStyleAttr); }
 
-    private void init()
-    {
-    }
+
 
     @Override
     protected void onFinishInflate()
@@ -99,32 +98,9 @@ public class TodoInfoInterface extends ConstraintLayout
         mainText.setText(todo.mainText);
         explainText.setText(todo.explainText);
 
-        int color = 0;
-        switch(todo.getColor())
-        {
-            case 1:
-                color = ContextCompat.getColor(context, R.color._1_Light);
-                break;
-            case 2:
-                color = ContextCompat.getColor(context, R.color._2_Light);
-                break;
-            case 3:
-                color = ContextCompat.getColor(context, R.color._3_Light);
-                break;
-            case 4:
-                color = ContextCompat.getColor(context, R.color._4_Light);
-                break;
-            case 5:
-                color = ContextCompat.getColor(context, R.color._5_Light);
-                break;
-            case 6:
-                color = ContextCompat.getColor(context, R.color._6_Light);
-                break;
-            case 7:
-                color = ContextCompat.getColor(context, R.color._7_Light);
-                break;
-        }
-        topLayout.setBackgroundColor(color);
+
+        topLayout.setBackgroundColor(BackgroundColorUtils.getColorByLight(context,
+                todo.getColor()));
 
         isEditMode = false;
 
@@ -270,11 +246,6 @@ public class TodoInfoInterface extends ConstraintLayout
         return isEditMode;
     }
 
-    public void tempSetEditModeFalse()
-    {
-        isEditMode = false;
-    }
-
     public void toEditMode()
     {
         Context context = getContext();
@@ -356,9 +327,8 @@ public class TodoInfoInterface extends ConstraintLayout
 
     public boolean toViewMode()
     {
-        isEditMode = false;
-
         Context context = getContext();
+        isEditMode = false;
 
         mainText.setFocusableInTouchMode(false);
         mainText.setFocusable(false);

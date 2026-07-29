@@ -1,6 +1,11 @@
 package com.example.dailyquest.Interface.FixedTodo;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,12 +17,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.dailyquest.Data.FixedTodo;
+import com.example.dailyquest.Interface.SwapableItemsContainer;
 import com.example.dailyquest.R;
-import com.example.dailyquest.Utils.InformUtils;
+import com.example.dailyquest.Small.ISwapableItem;
+import com.example.dailyquest.Utils.BackgroundColorUtils;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-public class FixedTodoShortInfo extends FrameLayout
+public class FixedTodoShortInfo extends FrameLayout implements ISwapableItem
 {
     private FixedTodo todo;
     private TextView shortText;
@@ -25,9 +32,16 @@ public class FixedTodoShortInfo extends FrameLayout
 
 
     private float xPos;
-    private boolean bSwiping = false;
+    private enum State
+    {
+        normal,
+        deleting,
+        moving
+    }
+    private State state;
 
-    private BiConsumer<FixedTodo, FixedTodoShortInfo> deleteTodoListener;
+
+    private Consumer<FixedTodo> deleteTodoListener;
 
     private static final float DELETE_THRESHOLD = 400f;
     private static final float HALF_DELETE_THRESHOLD = DELETE_THRESHOLD / 2.f;
@@ -54,20 +68,56 @@ public class FixedTodoShortInfo extends FrameLayout
         swipeProgressBar.setProgress(0);
     }
 
-    public void initialize(FixedTodo InTodo, BiConsumer<FixedTodo,
-            FixedTodoShortInfo> InDeleteTodo)
+    public void initialize(FixedTodo InTodo,
+                           Consumer<FixedTodo> InDeleteTodo)
     {
+        Context context = getContext();
+
         todo = InTodo;
         deleteTodoListener = InDeleteTodo;
 
-        setOnClickListener(v->
+        updateInterface();
+
+
+
+        setOnLongClickListener(v->
         {
-            // TODO : 상세 내용 보이기
-            int i = 0;
+            if(state == State.normal)
+            {
+                state = State.moving;
+
+                SwapableItemsContainer parent = (SwapableItemsContainer) getParent();
+                if(parent != null)
+                {
+                    long now = SystemClock.uptimeMillis();
+                    MotionEvent cancelEvent = MotionEvent.obtain(now, now,
+                            MotionEvent.ACTION_CANCEL, 0, 0, 0);
+                    v.onTouchEvent(cancelEvent);
+                    cancelEvent.recycle();
+
+                    parent.startSwap(this);
+                }
+            }
+
+            return false;
         });
+    }
+    public void updateInterface()
+    {
+        Context context = getContext();
 
         shortText.setText(todo.mainText);
+
+        LayerDrawable layerDrawable = (LayerDrawable) swipeProgressBar.getProgressDrawable();
+        Drawable backgroundDrawable = layerDrawable.findDrawableByLayerId
+                (android.R.id.background);
+        if(backgroundDrawable instanceof GradientDrawable)
+        {
+            GradientDrawable shape = (GradientDrawable) backgroundDrawable;
+            shape.setColor(BackgroundColorUtils.getColorByLight(context, todo.getColor()));
+        }
     }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent)
@@ -76,7 +126,7 @@ public class FixedTodoShortInfo extends FrameLayout
         {
             case MotionEvent.ACTION_DOWN:
                 xPos = motionEvent.getX();
-                bSwiping = false;
+                state = State.normal;
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -84,12 +134,12 @@ public class FixedTodoShortInfo extends FrameLayout
                 boolean isPlus = diff >= 0;
                 diff = Math.abs(diff);
 
-                if(bSwiping == false && diff > HALF_DELETE_THRESHOLD)
+                if(state == State.normal && diff > HALF_DELETE_THRESHOLD)
                 {
-                    bSwiping = true;
+                    state = State.deleting;
                 }
 
-                if(bSwiping)
+                if(state == State.deleting)
                 {
                     if(isPlus)
                     {
@@ -115,7 +165,7 @@ public class FixedTodoShortInfo extends FrameLayout
                 break;
 
             case MotionEvent.ACTION_UP:
-                if(bSwiping)
+                if(state == State.deleting)
                 {
                     swipeProgressBar.setProgress(0);
                     float finalDiff = Math.abs(motionEvent.getX() - xPos);
@@ -123,7 +173,7 @@ public class FixedTodoShortInfo extends FrameLayout
                     {
                         if(deleteTodoListener != null)
                         {
-                            deleteTodoListener.accept(todo, this);
+                            deleteTodoListener.accept(todo);
                         }
                     }
 
@@ -135,4 +185,17 @@ public class FixedTodoShortInfo extends FrameLayout
         return super.onTouchEvent(motionEvent);
     }
 
+    @Override
+    public void changeBackgroundToPicked()
+    {
+        findViewById(R.id.linearLayout_fixedTodos_shortInfo)
+                .setBackgroundResource(R.drawable.date_background_today);
+    }
+
+    @Override
+    public void changeBackgroundToNormal()
+    {
+        findViewById(R.id.linearLayout_fixedTodos_shortInfo)
+                .setBackgroundColor(Color.TRANSPARENT);
+    }
 }

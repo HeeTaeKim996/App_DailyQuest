@@ -44,10 +44,11 @@ import com.example.dailyquest.databinding.CalenderPickerBinding;
 import com.example.dailyquest.databinding.ItemDateTodoListBinding;
 import com.example.dailyquest.databinding.ItemTodoShortInfoBinding;
 import com.example.dailyquest.databinding.OthersBinding;
-import com.example.dailyquest.databinding.OthersFixedToddBinding;
+import com.example.dailyquest.databinding.OthersFixedTodoBinding;
 import com.example.dailyquest.databinding.TodoInfoBinding;
 import com.example.dailyquest.databinding.YearMonthPickerBinding;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.function.BiConsumer;
@@ -76,7 +77,8 @@ public class MainInterface
 
     public MainInterface(Context context)
     {
-        StaticValues.rootFile = context.getFilesDir();
+//        resetData(context);
+
         FixedTodoManager.initialize(context);
 
         mainBinding = ActivityMainBinding.inflate(LayoutInflater.from(context));
@@ -586,7 +588,10 @@ public class MainInterface
         TodoInfoInterface infoInterface = binding.getRoot();
         Runnable shutDownThisDialog = ()->
         {
-            dialog.dismiss();
+            if(dialog != null & dialog.isShowing())
+            {
+                dialog.dismiss();
+            }
         };
         infoInterface.initialize(todo, mainListenerFunc, shutDownThisDialog);
 
@@ -820,6 +825,12 @@ public class MainInterface
     }
 
 
+    private void resetData(Context context)
+    {
+        DevelopUtils.instance().clearAllFiles(context);
+
+        FixedTodoManager.reset(context);
+    }
 
     private void show_others_panel(Context context)
     {
@@ -830,7 +841,7 @@ public class MainInterface
         binding.buttonShowAllFiles.setOnClickListener(v->
         {
             InformUtils.instance().ShowInformYes(context,
-                    DevelopUtils.instance().getAllFiles().toString());
+                    DevelopUtils.instance().getAllFiles(context).toString());
             dialog.dismiss();
         });
 
@@ -841,7 +852,8 @@ public class MainInterface
             {
                 if(bYes)
                 {
-                    DevelopUtils.instance().clearAllFiles();
+                    resetData(context);
+
                     changeMainCalenderByYearMonth(context);
                 }
             };
@@ -936,7 +948,7 @@ public class MainInterface
 
     private void showFixedTodoPage(Context context)
     {
-        OthersFixedToddBinding binding = OthersFixedToddBinding.inflate(LayoutInflater
+        OthersFixedTodoBinding binding = OthersFixedTodoBinding.inflate(LayoutInflater
                 .from(context));
         AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
 

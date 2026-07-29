@@ -1,8 +1,15 @@
 package com.example.dailyquest.Data;
 
+
 public class FixedTodo extends ParentTodo
 {
-//    private short fixedIndex = -1;
-//    public short getFixedIndex() { return fixedIndex; }
-//    public void setFixedIndex(short InIndex) { fixedIndex = InIndex; }
+    public static enum Category
+    {
+        EVERY_YEAR,
+        EVERY_MONTH,
+        EVERY_WEEK
+    }
+    private Category _category = Category.EVERY_YEAR;
+    public Category getCategory() { return _category;}
+    public void setCategory(Category InCategory) { _category = InCategory;}
 }
