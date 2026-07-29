@@ -34,6 +34,10 @@ public class NotialarmManager
     public final String PUT_EXTRA_ALARM_TEXT = "ALARM_TEXT";
     public final String PUT_EXTRA_ALARM_REP_TIME = "BYTE_REP_TIME";
 
+    public final int REQUEST_CODE_ALARM_RECEIVER = 1001;
+    public final int REQUEST_CODE_CIRCULATION_RECEIVER = 1002;
+    public final int REQUEST_CODE_TODO_MIDNIGHT_RECEIVER = 1003;
+
     private File baseFile;
     private NotialarmManager()
     {

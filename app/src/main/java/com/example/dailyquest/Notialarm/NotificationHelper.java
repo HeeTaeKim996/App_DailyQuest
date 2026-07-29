@@ -2,7 +2,9 @@ package com.example.dailyquest.Notialarm;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -11,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 import com.example.dailyquest.Data.SubTodo;
 import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.MainActivity;
 import com.example.dailyquest.Notialarm.Receiver.AlarmReceiver;
 import com.example.dailyquest.R;
 import com.example.dailyquest.Utils.CalenderUtils;
@@ -202,6 +205,18 @@ public class NotificationHelper
                 // 매번 호출해도 안전
             }
 
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            // FLAG_ACTIVITY_CLEAR_TOP : 서브 화면들이 활성화된 경우, 모두 제거하고 메인 화면으로 돌아옴
+            // FLAG_ACTIVITY_SINGLE_TOP : 대상 ACTIVITY 가 이미 존재하는 경우, 액티비티를 새로 생성(onCreate 호출)
+            //                            하지 않고, 기존 인스턴스를 재활용 (onNewIntent 호출)한다
+
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    context, NotialarmManager.instance().NOTIFICATION_ID,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+
 
             // 하단의 내용은 알림 내용과 직접적인 연관 내용
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NotialarmManager.instance().CHANNEL_ID)
@@ -209,8 +224,9 @@ public class NotificationHelper
                     .setContentTitle(titleText)              // 알림 제목
                     .setContentText(contentText)                            // 세부 내용
                     .setOngoing(true)   // ※ 밀어서 삭제되는 것을 방지.
-                    .setPriority(NotificationCompat.PRIORITY_LOW);
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
                         // 앞선 IMPORTANCE_LOW 랑 같은 의미로 이해하자
+                    .setContentIntent(pendingIntent);
 
             if(manager != null)
             {

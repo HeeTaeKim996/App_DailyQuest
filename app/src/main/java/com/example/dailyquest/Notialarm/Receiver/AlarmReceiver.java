@@ -12,6 +12,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.collection.CircularArray;
 import androidx.core.app.NotificationCompat;
 
 import com.example.dailyquest.Data.Time;
@@ -136,7 +137,8 @@ public class AlarmReceiver extends BroadcastReceiver
             Intent intent = new Intent(context, AlarmReceiver.class);
 
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                    context, 0, intent,
+                    context, NotialarmManager.instance().REQUEST_CODE_ALARM_RECEIVER,
+                    intent,
                     PendingIntent.FLAG_UPDATE_CURRENT
                             | PendingIntent.FLAG_IMMUTABLE);
 
@@ -155,8 +157,14 @@ public class AlarmReceiver extends BroadcastReceiver
             {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 {
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+//                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+//                            calendar.getTimeInMillis(), pendingIntent);
+                    
+                    // 제미나이왈 이게 doze 모드 우회하여 정확한 시간에 발동한다 함
+                    AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(
                             calendar.getTimeInMillis(), pendingIntent);
+                    alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
+
                 }
                 else
                 {
@@ -171,7 +179,7 @@ public class AlarmReceiver extends BroadcastReceiver
         }
     }
 
-    private static void postAlarm(Context context, String content, byte alarmRepTime)
+    public static void postAlarm(Context context, String content, byte alarmRepTime)
     {
         Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION); // 기본 알람 소리 Uri(음원 파일의 위치를 나타내는 식별자) 가져오기
         long[] vibration = new long[] {0, 500, 500, 500}; // { 대기시간, 진동시간, 대기시간, 진동시간 ..}  ==> 0초 대기후 0.5초 진동. 0.5초 대기후 0.5초 진동
@@ -206,7 +214,8 @@ public class AlarmReceiver extends BroadcastReceiver
         intent.putExtra(NotialarmManager.instance().PUT_EXTRA_ALARM_TEXT, content);
         intent.putExtra(NotialarmManager.instance().PUT_EXTRA_ALARM_REP_TIME, alarmRepTime);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,
+                NotialarmManager.instance().REQUEST_CODE_ALARM_RECEIVER, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
@@ -226,7 +235,11 @@ public class AlarmReceiver extends BroadcastReceiver
             manager.notify(NotialarmManager.instance().NOTIFICATION_ID_POST_ALARM, builder.build());
         }
 
-        context.startActivity(intent);
+
+        if(alarmRepTime != -1)
+        {
+            CirculationReceiver.scheduleAlarm(context, content, alarmRepTime);
+        }
     }
 
     public static boolean isAlarmScheduled(Context context)
@@ -234,7 +247,7 @@ public class AlarmReceiver extends BroadcastReceiver
         Intent intent = new Intent(context, AlarmReceiver.class);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, 0, intent,
+                context, NotialarmManager.instance().REQUEST_CODE_ALARM_RECEIVER, intent,
                 PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
 
         return pendingIntent != null;
@@ -247,13 +260,12 @@ public class AlarmReceiver extends BroadcastReceiver
         Intent intent = new Intent(context, AlarmReceiver.class);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, 0, intent,
+                context, NotialarmManager.instance().REQUEST_CODE_ALARM_RECEIVER, intent,
                 PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
 
         if(alarmManager != null && pendingIntent != null)
         {
             alarmManager.cancel(pendingIntent);
-
             pendingIntent.cancel();
         }
     }

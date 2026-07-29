@@ -10,6 +10,7 @@ import android.os.Build;
 import com.example.dailyquest.Data.SubTodo;
 import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Notialarm.NotialarmManager;
 import com.example.dailyquest.Notialarm.NotificationHelper;
 import com.example.dailyquest.Utils.CalenderUtils;
 
@@ -56,7 +57,7 @@ public class TodoMidnightReceiver extends BroadcastReceiver
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(   // PendingIntent 는 당장 사용하는 것이 아닌, 미래에 OS 가 사용할 것임을 알려주는 역할
                 context,
-                0,                                      // 0 : rqeustCode. 서로 다른 PendingIntent를 구분하기 위한 식별자.
+                NotialarmManager.instance().REQUEST_CODE_TODO_MIDNIGHT_RECEIVER,                                      // 0 : rqeustCode. 서로 다른 PendingIntent를 구분하기 위한 식별자.
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT           // 이미 등록된 알림이 있다면, 기존 Intent 의 데이터를 갱신
                         | PendingIntent.FLAG_IMMUTABLE);        // 안드로이드 12(API 31) 이상 필수 요구사항으로, 외부에서 이 PendingIntent 의 내용 변경을 막음
@@ -90,6 +91,7 @@ public class TodoMidnightReceiver extends BroadcastReceiver
 //                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, // RTC(RealTimeClock) : 기기의 실제 시간 기준. WAKEUP : 절전 모드여도, CPU를 강제로 깨운다
 //                        calendar.getTimeInMillis(), pendingIntent);     // 설정한 시간(calender) 에 설정한 클래스(pendingItent 내 할당) 을 onReceive
 
+                // 제미나이왈 이게 doze모드 우회하여 정확한 시간에 작동한다 함
                 AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo
                         (calendar.getTimeInMillis(), pendingIntent);
                 alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
@@ -116,7 +118,8 @@ public class TodoMidnightReceiver extends BroadcastReceiver
         Intent intent = new Intent(context, TodoMidnightReceiver.class);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, 0, intent,
+                context, NotialarmManager.instance().REQUEST_CODE_TODO_MIDNIGHT_RECEIVER,
+                intent,
                 PendingIntent.FLAG_NO_CREATE     // FLAG_NO_CREATE : 기존에 동일 조건으로 등록된 PendingIntent 가 없으면 null 반환
                     | PendingIntent.FLAG_IMMUTABLE
         );
