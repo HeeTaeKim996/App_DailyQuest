@@ -22,6 +22,8 @@ import androidx.core.content.ContextCompat;
 import androidx.gridlayout.widget.GridLayout;
 
 import com.example.dailyquest.Data.Time;
+import com.example.dailyquest.FixedTodo.FixedTodoManager;
+import com.example.dailyquest.Interface.FixedTodo.FixedTodoPage;
 import com.example.dailyquest.Notialarm.NotialarmManager;
 import com.example.dailyquest.Utils.CalenderUtils;
 import com.example.dailyquest.Data.Date;
@@ -42,6 +44,7 @@ import com.example.dailyquest.databinding.CalenderPickerBinding;
 import com.example.dailyquest.databinding.ItemDateTodoListBinding;
 import com.example.dailyquest.databinding.ItemTodoShortInfoBinding;
 import com.example.dailyquest.databinding.OthersBinding;
+import com.example.dailyquest.databinding.OthersFixedToddBinding;
 import com.example.dailyquest.databinding.TodoInfoBinding;
 import com.example.dailyquest.databinding.YearMonthPickerBinding;
 
@@ -74,6 +77,7 @@ public class MainInterface
     public MainInterface(Context context)
     {
         StaticValues.rootFile = context.getFilesDir();
+        FixedTodoManager.initialize(context);
 
         mainBinding = ActivityMainBinding.inflate(LayoutInflater.from(context));
 
@@ -144,6 +148,7 @@ public class MainInterface
         {
 //            InformUtils.instance().ShowInformYes(context, "디버깅 : 이미 Alarm 이 활성화됨");
         }
+
     }
 
 
@@ -846,6 +851,12 @@ public class MainInterface
             dialog.dismiss();
         });
 
+        binding.buttonOthersShowFixedTodoPage.setOnClickListener(v->
+        {
+            showFixedTodoPage(context);
+            dialog.dismiss();
+        });
+
         dialog.show();
     }
 
@@ -923,4 +934,15 @@ public class MainInterface
         saveDate(parentDate);
     }
 
+    private void showFixedTodoPage(Context context)
+    {
+        OthersFixedToddBinding binding = OthersFixedToddBinding.inflate(LayoutInflater
+                .from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
+
+        FixedTodoPage fixedTodoPage = (FixedTodoPage) binding.getRoot();
+        fixedTodoPage.initialize(context);
+
+        dialog.show();
+    }
 }

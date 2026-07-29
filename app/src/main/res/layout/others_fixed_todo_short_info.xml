@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.dailyquest.Interface.FixedTodo.FixedTodoShortInfo
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    >
+
+
+    <ProgressBar
+        android:id="@+id/progressBar_fixedTodoShortInfo"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:progressDrawable="@drawable/swipe_progress_bar"
+        android:indeterminate="false"
+        android:clickable="false"
+        android:focusable="false"/>
+
+    <LinearLayout
+        android:id="@+id/linearLayout_fixedTodos_shortInfo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:background="@android:color/transparent">
+
+        <TextView
+            android:id="@+id/textView_fixedTodos_shortInfo"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="left|center"
+            android:text="TextView"
+            android:clickable="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="18sp"/>
+    </LinearLayout>
+
+
+</com.example.dailyquest.Interface.FixedTodo.FixedTodoShortInfo>

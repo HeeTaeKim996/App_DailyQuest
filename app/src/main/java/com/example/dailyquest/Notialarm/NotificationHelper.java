@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 import com.example.dailyquest.Data.SubTodo;
 import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.FixedTodo.FixedTodoManager;
 import com.example.dailyquest.MainActivity;
 import com.example.dailyquest.Notialarm.Receiver.AlarmReceiver;
 import com.example.dailyquest.R;
@@ -47,6 +48,12 @@ public class NotificationHelper
     public static void updateTodayNotification(Context context, Time time, ArrayList<Todo> todos,
                                                boolean isMidnightCalled)
     {
+        // 자정 호출은 백그라운드 호출이므로, FixedTodoManager 를 initialize
+        if(isMidnightCalled)
+        {
+            FixedTodoManager.initialize(context);
+        }
+
         File file = new File(context.getFilesDir() + "/Y/"
                 + String.valueOf(time.year) + "/" + String.valueOf(time.month) + "/D/"
                 + String.valueOf(time.date) + ".dat");

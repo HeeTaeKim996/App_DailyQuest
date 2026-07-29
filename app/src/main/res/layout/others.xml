@@ -14,6 +14,12 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/button_others_showFixedTodoPage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="FixedTodo 관리" />
+
+            <Button
                 android:id="@+id/button_show_all_files"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
