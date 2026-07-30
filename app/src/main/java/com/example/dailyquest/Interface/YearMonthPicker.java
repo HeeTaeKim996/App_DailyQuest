@@ -36,7 +36,7 @@ public class YearMonthPicker extends LinearLayout
     {
         super.onFinishInflate();
 
-        yearPicker = findViewById(R.id.numberPicker_year);
+        yearPicker = findViewById(R.id.numberPicker_utilsOneNumberPicker_first);
         monthPicker = findViewById(R.id.numberPicker_month);
 
         yearPicker.setMinValue(1900);

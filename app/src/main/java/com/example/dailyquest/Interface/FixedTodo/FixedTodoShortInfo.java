@@ -16,7 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.dailyquest.Data.FixedTodo;
+import com.example.dailyquest.Data.Fixed.FixedTodo;
 import com.example.dailyquest.Interface.SwapableItemsContainer;
 import com.example.dailyquest.R;
 import com.example.dailyquest.Small.ISwapableItem;
@@ -106,7 +106,7 @@ public class FixedTodoShortInfo extends FrameLayout implements ISwapableItem
     {
         Context context = getContext();
 
-        shortText.setText(todo.mainText);
+        shortText.setText(todo.getSummary());
 
         LayerDrawable layerDrawable = (LayerDrawable) swipeProgressBar.getProgressDrawable();
         Drawable backgroundDrawable = layerDrawable.findDrawableByLayerId

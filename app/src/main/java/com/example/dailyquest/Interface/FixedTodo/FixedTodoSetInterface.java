@@ -12,17 +12,22 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.example.dailyquest.Data.FixedTodo;
+import com.example.dailyquest.Data.Fixed.FixedCategory;
+import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
+import com.example.dailyquest.Data.Fixed.FixedTodo;
 import com.example.dailyquest.R;
 import com.example.dailyquest.Utils.BackgroundColorUtils;
 import com.example.dailyquest.databinding.DialogColorPaletteBinding;
+import com.example.dailyquest.databinding.OthersFixedTodoSetCategoryBinding;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class FixedTodoSetInterface extends LinearLayout
 {
@@ -44,6 +49,8 @@ public class FixedTodoSetInterface extends LinearLayout
     private LinearLayout topLayout;
     private Button buttonLeft;
     private Button buttonSecondRight;
+    private TextView categoryExplainText;
+    private Button setCategoryButton;
 
     private BiConsumer<FixedTodo, FuncEnum> upperFuncListener;
 
@@ -67,6 +74,8 @@ public class FixedTodoSetInterface extends LinearLayout
         buttonLeft = findViewById(R.id.button_fixedTodoSet_left);
         buttonSecondRight = findViewById(R.id.button_fixedTodoSet_secondRight);
         topLayout = findViewById(R.id.linearLayout_fixedTodoSet_topLayout);
+        categoryExplainText = findViewById(R.id.textView_fixedTodoSet_categoryExplainText);
+        setCategoryButton = findViewById(R.id.button_fixedTodoSet_setCategory);
     }
 
     public void initialize(FixedTodo InTodo, BiConsumer<FixedTodo, FuncEnum> InUpperFunc,
@@ -122,7 +131,9 @@ public class FixedTodoSetInterface extends LinearLayout
             }
         });
 
+        setCategoryButton.setOnClickListener(v->{ show_setCategoryPanel(context);});
 
+        update_categoryExplainText();
     }
 
 
@@ -168,6 +179,8 @@ public class FixedTodoSetInterface extends LinearLayout
         buttonSecondRight.setText("C");
         buttonSecondRight.setBackgroundColor(BackgroundColorUtils.getColorByDark(context,
                 todo.getColor()));
+
+        setCategoryButton.setVisibility(VISIBLE);
     }
 
     public boolean toViewMode()
@@ -196,12 +209,17 @@ public class FixedTodoSetInterface extends LinearLayout
             imm.hideSoftInputFromWindow(getWindowToken(), 0);
         }
 
+        setCategoryButton.setVisibility(INVISIBLE);
+
+
+
+
+
         if(mainText.getText().toString().trim().isEmpty()
                 && explainText.getText().toString().trim().isEmpty())
         {
             return false;
         }
-
         return true;
     }
 
@@ -274,4 +292,32 @@ public class FixedTodoSetInterface extends LinearLayout
             upperFuncListener.accept(todo, FuncEnum.Save);
         }
     };
+
+    private void update_categoryExplainText()
+    {
+        categoryExplainText.setText(todo.getCategory().getSummary());
+    }
+
+
+    private void show_setCategoryPanel(Context context)
+    {
+        OthersFixedTodoSetCategoryBinding binding = OthersFixedTodoSetCategoryBinding
+                .inflate(LayoutInflater.from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
+
+
+        Consumer<FixedCategory> setCategory = (FixedCategory newCategory)->
+        {
+            todo.setCategory(newCategory);
+            update_categoryExplainText();
+            dialog.dismiss();
+        };
+
+        FixedTodoCategorySetPanel setPanel = (FixedTodoCategorySetPanel) binding.getRoot();
+        setPanel.initialize(setCategory, todo.getCategory());
+
+        dialog.show();
+    }
+
+
 }

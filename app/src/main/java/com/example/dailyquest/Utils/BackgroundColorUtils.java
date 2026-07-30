@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.dailyquest.Data.FixedTodo;
 import com.example.dailyquest.R;
 
 public class BackgroundColorUtils

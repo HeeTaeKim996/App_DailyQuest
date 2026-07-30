@@ -2,17 +2,19 @@ package com.example.dailyquest.FixedTodo;
 
 import android.content.Context;
 
-import com.example.dailyquest.Data.FixedTodo;
-import com.example.dailyquest.Utils.InformUtils;
+import com.example.dailyquest.Data.Fixed.FixedCategory;
+import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyMonth;
+import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyWeek;
+import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyYear;
+import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
+import com.example.dailyquest.Data.Fixed.FixedTodo;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 public class FixedTodoManager
@@ -90,6 +92,7 @@ public class FixedTodoManager
 
                 dos.writeByte((byte)todo.getColor());
 
+
                 if(saveCategoryInfo(dos, todo) == false)
                 {
                     return false;
@@ -109,27 +112,12 @@ public class FixedTodoManager
     {
         try
         {
-            FixedTodo.Category category = todo.getCategory();
-            if(category == null) return false;
+            FixedCategoryEnum categoryEnum = todo.getCategoryEnum();
+            if(categoryEnum == null) return false;
+            dos.writeInt(categoryEnum.ordinal());
 
-            dos.writeInt(category.ordinal());
-
-            switch(todo.getCategory())
-            {
-                case EVERY_YEAR:
-                    // TODO
-                    break;
-                case EVERY_MONTH:
-                    // TODO
-                    break;
-
-                case EVERY_WEEK:
-                    // TODO
-                    break;
-
-                default:
-                    return false;
-            }
+            FixedCategory category = todo.getCategory();
+            if(category.saveToDos(dos) == false) return false;
         }
         catch(IOException e)
         {
@@ -165,10 +153,7 @@ public class FixedTodoManager
 
                 todo.setColor((int)dis.readByte());
 
-                if(loadTodoCategoryInfo(dis, todo) == false)
-                {
-                    return false;
-                }
+                if(loadFixedTodoInfo(dis, todo) == false) return false;
             }
         }
         catch (IOException e)
@@ -180,30 +165,39 @@ public class FixedTodoManager
     }
 
 
-    private boolean loadTodoCategoryInfo(DataInputStream dis, FixedTodo todo)
+    private boolean loadFixedTodoInfo(DataInputStream dis, FixedTodo todo)
     {
         try
         {
-            FixedTodo.Category category = FixedTodo.Category.values()[dis.readInt()];
+            FixedCategoryEnum category = FixedCategoryEnum.values()[dis.readInt()];
             if(category == null) return false;
 
-            todo.setCategory(category);
 
             switch (category)
             {
+                case NONE:
+                    break;
+
                 case EVERY_YEAR:
-                    // TODO
+                    FixedCategory_everyYear everyYear = new FixedCategory_everyYear();
+                    todo.setCategory(everyYear);
                     break;
+
                 case EVERY_MONTH:
-                    // TODO
+                    FixedCategory_everyMonth everyMonth = new FixedCategory_everyMonth();
+                    todo.setCategory(everyMonth);
                     break;
+
                 case EVERY_WEEK:
-                    // TODO
+                    FixedCategory_everyWeek everyWeek = new FixedCategory_everyWeek();
+                    todo.setCategory(everyWeek);
                     break;
 
                 default:
                     return false;
             }
+
+            if(todo.getCategory().loadFromDis(dis) == false) return false;
         }
         catch(IOException e)
         {

@@ -22,6 +22,7 @@ public class Todo extends ParentTodo
 
     public ArrayList<SubTodo> subTodos = new ArrayList<>();
 
+    @Override
     public String getSummary()
     {
         String ret = mainText;

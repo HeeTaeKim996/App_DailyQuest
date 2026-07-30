@@ -14,13 +14,12 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
-import com.example.dailyquest.Data.FixedTodo;
+import com.example.dailyquest.Data.Fixed.FixedTodo;
 import com.example.dailyquest.FixedTodo.FixedTodoManager;
 import com.example.dailyquest.Interface.SwapableItemsContainer;
 import com.example.dailyquest.R;
 import com.example.dailyquest.Small.ISwapCompleteFunc;
 import com.example.dailyquest.Small.ISwapableItem;
-import com.example.dailyquest.Small.MainFuncEnum;
 import com.example.dailyquest.Utils.InformUtils;
 import com.example.dailyquest.databinding.OthersFixedTodoSetBinding;
 import com.example.dailyquest.databinding.OthersFixedTodoShortInfoBinding;

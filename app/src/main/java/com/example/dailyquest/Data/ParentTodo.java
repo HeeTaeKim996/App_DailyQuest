@@ -1,6 +1,6 @@
 package com.example.dailyquest.Data;
 
-public class ParentTodo
+public abstract class ParentTodo
 {
     public String mainText = "";
     public String explainText = "";
@@ -25,4 +25,6 @@ public class ParentTodo
         color = Math.min(7, Math.max(1, InColor));
     }
     public int getColor() { return color; }
+
+    public abstract String getSummary();
 }

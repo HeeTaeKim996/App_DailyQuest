@@ -56,4 +56,18 @@
         android:textSize="16sp"
         tools:layout_editor_absoluteX="411dp"
         tools:layout_editor_absoluteY="40dp" />
+
+    <TextView
+        android:id="@+id/textView_fixedTodoSet_categoryExplainText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/button_fixedTodoSet_setCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="카테고리 설정" />
 </com.example.dailyquest.Interface.FixedTodo.FixedTodoSetInterface>
