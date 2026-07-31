@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import androidx.core.app.NotificationCompat;
 
 import com.example.dailyquest.Data.Fixed.FixedTodo;
+import com.example.dailyquest.Data.ParentTodo;
 import com.example.dailyquest.Data.SubTodo;
 import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.Data.Todo;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class NotificationHelper
 {
@@ -97,11 +100,16 @@ public class NotificationHelper
                 }
                 catch(IOException e) { e.printStackTrace(); }
             }
+
+            fixedTodos = FixedTodoManager.instance().getDateInfo(time.year, time.month, time.date);
         }
 
         
 
-        if(todos == null || todos.size() == 0)
+        if(
+                (todos == null || todos.size() == 0)
+            && (fixedTodos == null || fixedTodos.size() == 0)
+        )
         {
             cancelNotification(context);
             return;
@@ -120,62 +128,71 @@ public class NotificationHelper
 
 
         List<String> textList = new ArrayList<>();
-        TreeMap<Short, AlarmSaveInfo> alarmMap = null;   // textList 는 자주 사용하니 할당. alarmMap은 거의 사용 안하니 할당 안함
+        final TreeMap<Short, AlarmSaveInfo> alarmMap = new TreeMap<>();
 
+
+        Consumer<ParentTodo> addressValidTodo
+                = (ParentTodo todo)->
+        {
+            textList.add(todo.getSummary());
+
+            short alarmTime = todo.getAlarmTime();
+            if(alarmTime != -1)
+            {
+                if(time.isFutureTimeFromThis(alarmTime) == false)
+                {
+                    if(isMidnightCalled)
+                    {
+                        alarmTime = time.toAlarmTime();  // TodoMidnightReceiver 가 늦게 호출되어, 자정에 호출되는 알람이 생략된 경우이므로, alarmTime 을 변경
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                if(alarmMap.containsKey(alarmTime))
+                {
+                    AlarmSaveInfo saveInfo = alarmMap.get(alarmTime);
+                    String curr = saveInfo.text;
+                    saveInfo.text = curr + "/" + todo.getSummary();
+
+                    if(todo.alarmRepTime != -1)
+                    {
+                        if(saveInfo.alarmTime != -1)
+                        {
+                            saveInfo.alarmTime =
+                                    (byte) Math.min(saveInfo.alarmTime, todo.alarmRepTime);
+                        }
+                        else
+                        {
+                            saveInfo.alarmTime = todo.alarmRepTime;
+                        }
+                    }
+                }
+                else
+                {
+                    AlarmSaveInfo saveInfo
+                            = new AlarmSaveInfo(todo.getSummary(), todo.alarmRepTime);
+
+                    alarmMap.put(alarmTime, saveInfo);
+                }
+            }
+        };
+
+        if(fixedTodos != null)
+        {
+            for(FixedTodo todo : fixedTodos)
+            {
+                addressValidTodo.accept(todo);
+            }
+        }
 
         for(Todo todo : todos)
         {
             if(todo.isCompleted == false)
             {
-                textList.add(todo.getSummary());
-
-                short alarmTime = todo.getAlarmTime();
-                if(alarmTime != -1)
-                {
-                    if(time.isFutureTimeFromThis(alarmTime) == false)
-                    {
-                        if(isMidnightCalled)
-                        {
-                            alarmTime = time.toAlarmTime();  // TodoMidnightReceiver 가 늦게 호출되어, 자정에 호출되는 알람이 생략된 경우이므로, alarmTime 을 변경
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
-
-                    if(alarmMap == null)
-                    {
-                        alarmMap = new TreeMap<>();
-                    }
-
-                    if(alarmMap.containsKey(alarmTime))
-                    {
-                        AlarmSaveInfo saveInfo = alarmMap.get(alarmTime);
-                        String curr = saveInfo.text;
-                        saveInfo.text = curr + "/" + todo.getSummary();
-
-                        if(todo.alarmRepTime != -1)
-                        {
-                            if(saveInfo.alarmTime != -1)
-                            {
-                                saveInfo.alarmTime =
-                                        (byte) Math.min(saveInfo.alarmTime, todo.alarmRepTime);
-                            }
-                            else
-                            {
-                                saveInfo.alarmTime = todo.alarmRepTime;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        AlarmSaveInfo saveInfo
-                                = new AlarmSaveInfo(todo.getSummary(), todo.alarmRepTime);
-
-                        alarmMap.put(alarmTime, saveInfo);
-                    }
-                }
+                addressValidTodo.accept(todo);
             }
         }
 

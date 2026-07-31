@@ -760,16 +760,35 @@ public class MainInterface
 
         if(yearMonthState == YearMonthState.CURR && date.date == today.date)
         {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-
-            Time time = new Time(calendar);
-
-            ArrayList<FixedTodo> fixedTodos = calender.loadFixedTodos(date.date);
-            NotificationHelper.updateTodayNotification(context, time, date.todos, fixedTodos,
-                    false);
+            updateNotification(context, date);
         }
     }
+
+
+
+    private void updateNotification(Context context, Date date)
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        Time time = new Time(calendar);
+
+        ArrayList<FixedTodo> fixedTodos = calender.loadFixedTodos(date.date);
+        NotificationHelper.updateTodayNotification(context, time, date.todos, fixedTodos,
+                false);
+    }
+    private void updateNotification(Context context)
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        Time time = new Time(calendar);
+
+        Date date = calender.loadDateFromDate(time.date);
+
+        ArrayList<FixedTodo> fixedTodos = calender.loadFixedTodos(date.date);
+        NotificationHelper.updateTodayNotification(context, time, date.todos, fixedTodos,
+                false);
+    }
+
 
     private void loadCalender(Todo todo)
     {
@@ -981,6 +1000,9 @@ public class MainInterface
     {
         // FixedTodos 가 바뀌었으므로, mainCalender 를 새로 로드 ( mainCalender 에서 새로 반영 )
         changeMainCalenderByYearMonth(getRootView().getContext());
+
+        // Notification 도 바뀔 가능성이 있으므로, 수정 요청
+        updateNotification(getRootView().getContext());
     };
 
 }
