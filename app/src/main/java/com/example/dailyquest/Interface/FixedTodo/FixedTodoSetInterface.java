@@ -21,10 +21,14 @@ import androidx.core.content.ContextCompat;
 import com.example.dailyquest.Data.Fixed.FixedCategory;
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
 import com.example.dailyquest.Data.Fixed.FixedTodo;
+import com.example.dailyquest.Interface.Alarm.AlarmEnum;
+import com.example.dailyquest.Interface.Alarm.AlarmFunc;
+import com.example.dailyquest.Interface.Alarm.AlarmTimeSetPage;
 import com.example.dailyquest.R;
 import com.example.dailyquest.Utils.BackgroundColorUtils;
 import com.example.dailyquest.databinding.DialogColorPaletteBinding;
 import com.example.dailyquest.databinding.OthersFixedTodoSetCategoryBinding;
+import com.example.dailyquest.databinding.TodoInfoSetAlarmPageBinding;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -51,6 +55,8 @@ public class FixedTodoSetInterface extends LinearLayout
     private Button buttonSecondRight;
     private TextView categoryExplainText;
     private Button setCategoryButton;
+    private TextView alarmExplainText;
+    private Button alarmSetButton;
 
     private BiConsumer<FixedTodo, FuncEnum> upperFuncListener;
 
@@ -76,6 +82,8 @@ public class FixedTodoSetInterface extends LinearLayout
         topLayout = findViewById(R.id.linearLayout_fixedTodoSet_topLayout);
         categoryExplainText = findViewById(R.id.textView_fixedTodoSet_categoryExplainText);
         setCategoryButton = findViewById(R.id.button_fixedTodoSet_setCategory);
+        alarmExplainText = findViewById(R.id.textView_fixedTodoSet_alarmExplainText);
+        alarmSetButton = findViewById(R.id.button_fixedTodoSet_alarmSetButton);
     }
 
     public void initialize(FixedTodo InTodo, BiConsumer<FixedTodo, FuncEnum> InUpperFunc,
@@ -132,8 +140,13 @@ public class FixedTodoSetInterface extends LinearLayout
         });
 
         setCategoryButton.setOnClickListener(v->{ show_setCategoryPanel(context);});
-
         update_categoryExplainText();
+
+        alarmSetButton.setOnClickListener(v->
+        {
+            show_setAlarmPage(context);
+        });
+        updateAlarmExplainText();
     }
 
 
@@ -181,6 +194,7 @@ public class FixedTodoSetInterface extends LinearLayout
                 todo.getColor()));
 
         setCategoryButton.setVisibility(VISIBLE);
+        alarmSetButton.setVisibility(VISIBLE);
     }
 
     public boolean toViewMode()
@@ -210,7 +224,7 @@ public class FixedTodoSetInterface extends LinearLayout
         }
 
         setCategoryButton.setVisibility(INVISIBLE);
-
+        alarmSetButton.setVisibility(INVISIBLE);
 
 
 
@@ -319,5 +333,54 @@ public class FixedTodoSetInterface extends LinearLayout
         dialog.show();
     }
 
+    private void show_setAlarmPage(Context context)
+    {
+        TodoInfoSetAlarmPageBinding binding = TodoInfoSetAlarmPageBinding.inflate(LayoutInflater
+                .from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot())
+                .create();
+
+        AlarmTimeSetPage alarmTimeSetPage = binding.getRoot();
+        AlarmFunc alarmFunc = new AlarmFunc()
+        {
+            @Override
+            public void accept(AlarmEnum alarmEnum, short alarmTime, byte alarmRepTime)
+            {
+                switch(alarmEnum)
+                {
+                    case Cancel:
+                        dialog.dismiss();
+                        break;
+                    case Ok:
+                        todo.setAlarmTime(alarmTime);
+                        todo.alarmRepTime = alarmRepTime;
+                        dialog.dismiss();
+                        updateAlarmExplainText();
+                        break;
+                }
+            }
+        };
+        alarmTimeSetPage.initialize(todo.getAlarmTime(), todo.alarmRepTime, alarmFunc);
+
+        dialog.show();
+    }
+    private void updateAlarmExplainText()
+    {
+        short alarmTime = todo.getAlarmTime();
+        if(alarmTime == -1)
+        {
+            alarmExplainText.setText("알람 미설정");
+        }
+        else
+        {
+            int hour = alarmTime >> 6;
+            int minute = alarmTime & 0x3F;
+            int repTime = todo.alarmRepTime;
+
+
+            alarmExplainText.setText(String.format
+                    ("%2d:%2d(%d)", hour, minute, repTime));
+        }
+    }
 
 }

@@ -70,4 +70,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="카테고리 설정" />
+
+    <TextView
+        android:id="@+id/textView_fixedTodoSet_alarmExplainText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/button_fixedTodoSet_alarmSetButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="알람 설정" />
 </com.example.dailyquest.Interface.FixedTodo.FixedTodoSetInterface>
