@@ -2,12 +2,14 @@ package com.example.dailyquest.Data.Fixed.FixedCategoryChild;
 
 import com.example.dailyquest.Data.Fixed.FixedCategory;
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
+import com.example.dailyquest.Data.Fixed.FixedTodo;
 import com.example.dailyquest.Utils.CalenderUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 public class FixedCategory_everyYear extends FixedCategory
@@ -64,7 +66,7 @@ public class FixedCategory_everyYear extends FixedCategory
     }
 
     @Override
-    public void paint(short categoryIndex, int year, int quarter, TreeMap<Byte, ArrayList<Short>>[] filled)
+    public void paint(FixedTodo fixedTodo, int year, int quarter, List<TreeMap<Byte, ArrayList<FixedTodo>>> filled)
     {
         int minMonth = quarter * 3 + 1;
         int maxMonth = quarter * 3 + 3;
@@ -74,13 +76,13 @@ public class FixedCategory_everyYear extends FixedCategory
         int lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
         if(date > lastDate || date < 1) return;
 
-        TreeMap<Byte, ArrayList<Short>> targetFilled = filled[(month - 1) % 3];
+        TreeMap<Byte, ArrayList<FixedTodo>> targetFilled = filled.get((month - 1) % 3);
 
         if(targetFilled.containsKey(date) == false)
         {
             targetFilled.put(date, new ArrayList<>());
         }
-        targetFilled.get(date).add(categoryIndex);
+        targetFilled.get(date).add(fixedTodo);
     }
 
 }

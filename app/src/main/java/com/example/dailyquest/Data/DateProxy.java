@@ -1,10 +1,13 @@
 package com.example.dailyquest.Data;
 
+import java.util.ArrayList;
+
 public class DateProxy
 {
     public int date;
     public boolean isCurrMonth;
-    public int todos;
+    public int todos = 0;
+    public int fixedTodos = 0;
 
     public static class Builder
     {

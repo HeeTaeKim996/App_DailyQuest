@@ -16,15 +16,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 import androidx.gridlayout.widget.GridLayout;
 
+import com.example.dailyquest.Data.Fixed.FixedTodo;
 import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.FixedTodo.FixedTodoManager;
 import com.example.dailyquest.Interface.FixedTodo.FixedTodoPage;
 import com.example.dailyquest.Notialarm.NotialarmManager;
+import com.example.dailyquest.Utils.BackgroundColorUtils;
 import com.example.dailyquest.Utils.CalenderUtils;
 import com.example.dailyquest.Data.Date;
 import com.example.dailyquest.Data.Todo;
@@ -42,6 +45,7 @@ import com.example.dailyquest.Utils.InformUtils;
 import com.example.dailyquest.databinding.ActivityMainBinding;
 import com.example.dailyquest.databinding.CalenderPickerBinding;
 import com.example.dailyquest.databinding.ItemDateTodoListBinding;
+import com.example.dailyquest.databinding.ItemFixedTodoShortInfoInDateListBinding;
 import com.example.dailyquest.databinding.ItemTodoShortInfoBinding;
 import com.example.dailyquest.databinding.OthersBinding;
 import com.example.dailyquest.databinding.OthersFixedTodoBinding;
@@ -151,6 +155,7 @@ public class MainInterface
 //            InformUtils.instance().ShowInformYes(context, "디버깅 : 이미 Alarm 이 활성화됨");
         }
 
+        FixedTodoManager.instance().addOnFixedTodosUpdateListener(onFixedTodosUpdated);
     }
 
 
@@ -318,45 +323,34 @@ public class MainInterface
                 cellView.setBackgroundResource(R.drawable.date_background_today);
             }
 
+            int index = 0;
+
             GridLayout boxGrid = cellView.findViewById(R.id.gridLayout_calenderDate);
-            int temp = proxy.todos & 0x3F_FF_FF_FF; // 개당 3비트. 총 10개 사용
-            for(int j = 0; j < StaticValues.shortTodoCount; j++)
+            int fixedTodos = proxy.fixedTodos & 0x3F_FF_FF_FF; // 개당 3비트. 총 10개 사용
+            int todos = proxy.todos & 0x3F_FF_FF_FF; // 개당 3비트. 총 10개 사용
+
+            // fixedTodos, todos 도합 20개 사용할 수 있지만, boxGrid 최대 갯수는 10개로 제한함
+            for(; index < StaticValues.shortTodoCount && fixedTodos > 0; index++)
             {
-                View box = boxGrid.getChildAt(j);
-                if(temp == 0)
+                View box = boxGrid.getChildAt(index);
+
+                int colInt = fixedTodos & 7;
+                box.setBackgroundColor(BackgroundColorUtils.getColorByDark(context, colInt));
+                fixedTodos >>= 3;
+            }
+
+            for(; index < StaticValues.shortTodoCount; index++)
+            {
+                View box = boxGrid.getChildAt(index);
+                if(todos == 0)
                 {
                     box.setBackgroundColor(Color.TRANSPARENT);
                 }
                 else
                 {
-                    int colInt = temp & 7;
-                    int color = 0;
-                    switch(colInt)
-                    {
-                        case 1:
-                            color = ContextCompat.getColor(context, R.color._1_Dark);
-                            break;
-                        case 2:
-                            color = ContextCompat.getColor(context, R.color._2_Dark);
-                            break;
-                        case 3:
-                            color = ContextCompat.getColor(context, R.color._3_Dark);
-                            break;
-                        case 4:
-                            color = ContextCompat.getColor(context, R.color._4_Dark);
-                            break;
-                        case 5:
-                            color = ContextCompat.getColor(context, R.color._5_Dark);
-                            break;
-                        case 6:
-                            color = ContextCompat.getColor(context, R.color._6_Dark);
-                            break;
-                        case 7:
-                            color = ContextCompat.getColor(context, R.color._7_Dark);
-                            break;
-                    }
-                    box.setBackgroundColor(color);
-                    temp = temp >> 3;
+                    int colInt = todos & 7;
+                    box.setBackgroundColor(BackgroundColorUtils.getColorByDark(context, colInt));
+                    todos >>= 3;
                 }
             }
         }
@@ -376,6 +370,8 @@ public class MainInterface
         dialog.show();
 
         Date date = calender.loadDate(proxy);
+
+
 
         ISwapCompleteFunc swapCompleteFunc = new ISwapCompleteFunc()
         {
@@ -403,10 +399,10 @@ public class MainInterface
 
         Runnable onEmptyTodos = ()->
         {
-            ViewGroup.LayoutParams layoutParams = binding.linearLayoutScrollView.getLayoutParams();
-            float density = context.getResources().getDisplayMetrics().density;
-            layoutParams.height = (int)(density * 40);
-            binding.linearLayoutScrollView.setLayoutParams(layoutParams);
+//            ViewGroup.LayoutParams layoutParams = binding.linearLayoutScrollView.getLayoutParams();
+//            float density = context.getResources().getDisplayMetrics().density;
+//            layoutParams.height = (int)(density * 40);
+//            binding.linearLayoutScrollView.setLayoutParams(layoutParams);
         };
 
 
@@ -574,6 +570,26 @@ public class MainInterface
             dialog.dismiss();
         });
 
+
+        ArrayList<FixedTodo> fixedTodos = calender.loadFixedTodos(date.date);
+        if(fixedTodos != null)
+        {
+            LinearLayout fixedTodosLayout = binding.linearLayoutItemDateTodoListFixedTodos;
+
+            for(FixedTodo fixedTodo : fixedTodos)
+            {
+                ItemFixedTodoShortInfoInDateListBinding fixedBinding
+                        = ItemFixedTodoShortInfoInDateListBinding
+                        .inflate(LayoutInflater.from(context));
+                TextView summaryText = fixedBinding.textViewFixedTodoShortInCalenderSummaryText;
+                summaryText.setText(fixedTodo.getSummary());
+
+                fixedBinding.getRoot().setBackgroundColor(BackgroundColorUtils.getColorByLight(context,
+                        fixedTodo.getColor()));
+
+                fixedTodosLayout.addView(fixedBinding.getRoot());
+            }
+        }
     }
 
     private void show_todo_info(Context context, Todo todo, boolean isDirectEditing)
@@ -749,7 +765,9 @@ public class MainInterface
 
             Time time = new Time(calendar);
 
-            NotificationHelper.updateTodayNotification(context, time, date.todos, false);
+            ArrayList<FixedTodo> fixedTodos = calender.loadFixedTodos(date.date);
+            NotificationHelper.updateTodayNotification(context, time, date.todos, fixedTodos,
+                    false);
         }
     }
 
@@ -957,4 +975,12 @@ public class MainInterface
 
         dialog.show();
     }
+
+
+    private Runnable onFixedTodosUpdated = ()->
+    {
+        // FixedTodos 가 바뀌었으므로, mainCalender 를 새로 로드 ( mainCalender 에서 새로 반영 )
+        changeMainCalenderByYearMonth(getRootView().getContext());
+    };
+
 }

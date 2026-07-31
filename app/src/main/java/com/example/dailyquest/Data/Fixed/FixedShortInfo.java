@@ -6,5 +6,5 @@ public class FixedShortInfo
 {
     public FixedShortInfo(Byte InDate) { date = InDate;}
     public Byte date;
-    public ArrayList<Short> categoryIndices = new ArrayList<>();
+    public ArrayList<FixedTodo> fixedTodos = new ArrayList<>();
 }

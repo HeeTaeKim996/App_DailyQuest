@@ -1,5 +1,7 @@
 package com.example.dailyquest.Data;
 
+import com.example.dailyquest.Data.Fixed.FixedTodo;
+
 import java.util.ArrayList;
 
 public class Date
@@ -8,8 +10,6 @@ public class Date
     public Date(int InDate) { date = InDate;}
     public int date;
     public ArrayList<Todo> todos = new ArrayList<>();
-
-
 
     public static class Builder
     {

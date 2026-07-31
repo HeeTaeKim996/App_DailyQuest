@@ -34,7 +34,8 @@
             android:text="TextView"
             android:clickable="false"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textSize="20sp"
+            android:textSize="18sp"
+            android:minHeight="40dp"
             />
     </LinearLayout>
 

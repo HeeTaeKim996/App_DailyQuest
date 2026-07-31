@@ -5,11 +5,15 @@ import android.util.Log;
 
 import com.example.dailyquest.Data.Date;
 import com.example.dailyquest.Data.DateProxy;
+import com.example.dailyquest.Data.Fixed.FixedShortInfo;
+import com.example.dailyquest.Data.Fixed.FixedTodo;
+import com.example.dailyquest.Data.ParentTodo;
 import com.example.dailyquest.Data.SubTodo;
 import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.FixedTodo.FixedTodoManager;
+import com.example.dailyquest.Notialarm.NotificationHelper;
 import com.example.dailyquest.Small.StaticValues;
 import com.example.dailyquest.Utils.CalenderUtils;
-import com.example.dailyquest.Utils.DevelopUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -17,6 +21,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MainCalender
 {
@@ -32,6 +39,7 @@ public class MainCalender
 
     private DateProxy[] proxies;
     private int[] shortTodos;
+    private TreeMap<Byte, ArrayList<FixedTodo>> fixedTodosByDate;
 
 
     public MainCalender(Context context, int InYear, int InMonth)
@@ -50,6 +58,8 @@ public class MainCalender
         offset = CalenderUtils.instance().getFirstDayFromYearMonth(InYear, InMonth);
         maxDate = CalenderUtils.instance().getLastDateFromYearMonth(InYear, InMonth);
 
+
+        fixedTodosByDate = FixedTodoManager.instance().getMonthInfo(year, month);
 
         makeProxies();
     }
@@ -104,6 +114,24 @@ public class MainCalender
             DateProxy proxy = proxies[i + offset];
             proxy.date = i + 1;
             proxy.todos = shortTodos[i];
+        }
+
+
+
+        // FixedTodo 처리
+        if(fixedTodosByDate != null)
+        {
+            Map.Entry<Byte, ArrayList<FixedTodo>>[] entries
+                    = fixedTodosByDate.entrySet().toArray(new Map.Entry[0]);
+
+            for(Map.Entry<Byte, ArrayList<FixedTodo>> entry : entries)
+            {
+                int proxyIndex = offset + (int)entry.getKey() - 1;
+
+                int fixedTodos = makeShortTodo(entry.getValue());
+
+                proxies[proxyIndex].fixedTodos = fixedTodos;
+            }
         }
     }
 
@@ -312,6 +340,27 @@ public class MainCalender
         return shortTodo;
     }
 
+    public int makeShortTodo(ArrayList<FixedTodo> fixedTodos)
+    {
+        int shortTodo = 0;
+        int size = fixedTodos.size();
+        if(size > StaticValues.shortTodoCount)
+        {
+            size = StaticValues.shortTodoCount;
+        }
+
+
+        int mul = 1;
+        for(int i = 0; i < size ; i++)
+        {
+            int colValue = fixedTodos.get(i).getColor();
+            shortTodo |= (colValue * mul);
+            mul <<= 3;
+        }
+
+        return shortTodo;
+    }
+
 
 
     private void removeBaseFile()
@@ -347,6 +396,11 @@ public class MainCalender
     {
         DateProxy proxy = proxies[date + offset - 1];
         return loadDate(proxy);
+    }
+
+    public ArrayList<FixedTodo> loadFixedTodos(int date)
+    {
+        return fixedTodosByDate.get((byte)date);
     }
 
 }

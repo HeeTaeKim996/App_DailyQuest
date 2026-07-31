@@ -2,10 +2,12 @@ package com.example.dailyquest.Data.Fixed.FixedCategoryChild;
 
 import com.example.dailyquest.Data.Fixed.FixedCategory;
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
+import com.example.dailyquest.Data.Fixed.FixedTodo;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 public class FixedCategory_None extends FixedCategory
@@ -25,12 +27,9 @@ public class FixedCategory_None extends FixedCategory
     }
 
     @Override
-    public boolean saveToDos(DataOutputStream dos)
-    {
-        return true;
-    }
+    public boolean saveToDos(DataOutputStream dos) { return true; }
 
     @Override
-    public void paint(short categoryIndex, int year, int quarter, TreeMap<Byte, ArrayList<Short>>[] filled)
+    public void paint(FixedTodo fixedTodoIndex, int year, int quarter, List<TreeMap<Byte, ArrayList<FixedTodo>>> filled)
     {}
 }

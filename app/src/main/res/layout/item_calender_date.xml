@@ -23,16 +23,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-
-
         app:columnCount="5"
         app:rowCount="2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="4dp"
         android:layout_marginBottom="4dp">
-
-
     </androidx.gridlayout.widget.GridLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

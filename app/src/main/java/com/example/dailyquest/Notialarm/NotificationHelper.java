@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import androidx.core.app.NotificationCompat;
 
+import com.example.dailyquest.Data.Fixed.FixedTodo;
 import com.example.dailyquest.Data.SubTodo;
 import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.Data.Todo;
@@ -46,7 +47,7 @@ public class NotificationHelper
     }
 
     public static void updateTodayNotification(Context context, Time time, ArrayList<Todo> todos,
-                                               boolean isMidnightCalled)
+                                               ArrayList<FixedTodo> fixedTodos, boolean isMidnightCalled)
     {
         // 자정 호출은 백그라운드 호출이므로, FixedTodoManager 를 initialize
         if(isMidnightCalled)

@@ -38,7 +38,8 @@ public class TodoMidnightReceiver extends BroadcastReceiver
         calendar.setTimeInMillis(System.currentTimeMillis());
 
         // todos 는 null을 할당해서, NotificationHelper에서 찾아보게 한다
-        NotificationHelper.updateTodayNotification(context, new Time(calendar), null, true);
+        NotificationHelper.updateTodayNotification(context, new Time(calendar), null,
+                null,true);
     }
 
     public static void scheduleAlarm(Context context)

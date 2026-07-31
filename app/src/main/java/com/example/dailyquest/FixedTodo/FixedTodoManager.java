@@ -9,7 +9,7 @@ import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyY
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
 import com.example.dailyquest.Data.Fixed.FixedShortInfo;
 import com.example.dailyquest.Data.Fixed.FixedTodo;
-import com.example.dailyquest.Notialarm.NotificationHelper;
+import com.example.dailyquest.Utils.RunnableDelegate;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -40,7 +41,7 @@ public class FixedTodoManager
 
     private ArrayList<FixedTodo> todos = new ArrayList<>();
     private File baseFile;
-
+    private RunnableDelegate runnableDelegate = new RunnableDelegate();
 
     private FixedTodoManager(Context context)
     {
@@ -109,6 +110,7 @@ public class FixedTodoManager
             return false;
         }
 
+        onFixedTodosUpdated();
         return true;
     }
 
@@ -377,68 +379,60 @@ public class FixedTodoManager
 
 
 
-    private FixedShortInfo[][] loadQuarterData(int year, int month)
+    private List<TreeMap<Byte, ArrayList<FixedTodo>>>  loadQuarterData(int year, int month)
     {
         int quarter = (month - 1) / 3;
-        TreeMap<Byte, ArrayList<Short>>[] filled = new TreeMap[3];
+        List<TreeMap<Byte, ArrayList<FixedTodo>>> filled = new ArrayList<>(3);
         for(int i = 0; i < 3; i++)
         {
-            filled[i] = new TreeMap<>();
+            filled.add(new TreeMap<>());
         }
 
         for(short i = 0; i < todos.size(); i++)
         {
             FixedTodo todo = todos.get(i);
-            todo.getCategory().paint(i, year, quarter, filled);
+            todo.getCategory().paint(todo, year, quarter, filled);
         }
 
-
-
-        FixedShortInfo[][] quarterData = new FixedShortInfo[3][];
-        for(int i = 0; i < 3; i++)
-        {
-            Map.Entry<Byte, ArrayList<Short>>[] entries
-                    = filled[i].entrySet().toArray(new Map.Entry[0]);
-
-            FixedShortInfo[] shortInfos = new FixedShortInfo[entries.length];
-            for(int j = 0; j < shortInfos.length; j++)
-            {
-                FixedShortInfo shortInfo = new FixedShortInfo(entries[j].getKey());
-                for(Short categoryIndex : entries[j].getValue())
-                {
-                    shortInfo.categoryIndices.add(categoryIndex);
-                }
-
-                shortInfos[j] = shortInfo;
-            }
-
-            quarterData[i] = shortInfos;
-        }
-
-        return quarterData;
+        return filled;
     }
 
 
-    public FixedShortInfo[] getMonthInfo(int year, int month)
+    public TreeMap<Byte, ArrayList<FixedTodo>> getMonthInfo(int year, int month)
     {
-        FixedShortInfo[][] quarterData = loadQuarterData(year, month);
+        List<TreeMap<Byte, ArrayList<FixedTodo>>> quarterData = loadQuarterData(year, month);
 
-        return quarterData[(month - 1) % 3];
+        return quarterData.get((month - 1) % 3);
     }
 
-    public FixedShortInfo getDateInfo(int year, int month, int date)
+    public ArrayList<FixedTodo> getDateInfo(int year, int month, int date)
     {
-        FixedShortInfo[] shortInfos = getMonthInfo(year, month);
+        TreeMap<Byte, ArrayList<FixedTodo>> shortInfos = getMonthInfo(year, month);
 
-        for(FixedShortInfo shortInfo : shortInfos)
+        if(shortInfos.containsKey((byte)date))
         {
-            if(shortInfo.date == date)
-            {
-                return shortInfo;
-            }
-            else if(shortInfo.date > date) return null;
+            return shortInfos.get((byte)date);
         }
 
         return null;
     }
+
+    public void addOnFixedTodosUpdateListener(Runnable runnable)
+    {
+        runnableDelegate.addListener(runnable);
+    }
+    public void onFixedTodosUpdated()
+    {
+        runnableDelegate.invoke();
+    }
+    public void removeOnFixedTodosUpdateListener(Runnable runnable)
+    {
+        runnableDelegate.removeListener(runnable);
+    }
+
+    public FixedTodo getTodoAt(short index)
+    {
+        return todos.get(index);
+    }
+
 }
