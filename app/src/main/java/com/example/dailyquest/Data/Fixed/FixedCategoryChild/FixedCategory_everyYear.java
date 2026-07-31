@@ -66,7 +66,7 @@ public class FixedCategory_everyYear extends FixedCategory
     }
 
     @Override
-    public void paint(FixedTodo fixedTodo, int year, int quarter, List<TreeMap<Byte, ArrayList<FixedTodo>>> filled)
+    public void paint(short fixedTodoIndex, int year, int quarter, List<TreeMap<Byte, ArrayList<Short>>> filled)
     {
         int minMonth = quarter * 3 + 1;
         int maxMonth = quarter * 3 + 3;
@@ -76,13 +76,14 @@ public class FixedCategory_everyYear extends FixedCategory
         int lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
         if(date > lastDate || date < 1) return;
 
-        TreeMap<Byte, ArrayList<FixedTodo>> targetFilled = filled.get((month - 1) % 3);
+        TreeMap<Byte, ArrayList<Short>> targetFilled = filled.get((month - 1) % 3);
 
         if(targetFilled.containsKey(date) == false)
         {
             targetFilled.put(date, new ArrayList<>());
         }
-        targetFilled.get(date).add(fixedTodo);
+        targetFilled.get(date).add(fixedTodoIndex);
     }
+
 
 }

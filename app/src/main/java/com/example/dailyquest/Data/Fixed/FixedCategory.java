@@ -20,8 +20,8 @@ public abstract class FixedCategory
 
     public abstract boolean saveToDos(DataOutputStream dos);
 
-    public abstract void paint(FixedTodo fixedTodoIndex, int year, int quarter,
-                               List<TreeMap<Byte, ArrayList<FixedTodo>>> filled);
+    public abstract void paint(short fixedTodoIndex, int year, int quarter,
+                               List<TreeMap<Byte, ArrayList<Short>>> filled);
 
 
 

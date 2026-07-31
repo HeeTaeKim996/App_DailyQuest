@@ -61,11 +61,12 @@ public class FixedCategory_everyWeek extends FixedCategory
     }
 
     @Override
-    public void paint(FixedTodo fixedTodo, int year, int quarter, List<TreeMap<Byte, ArrayList<FixedTodo>>> filled)
+    public void paint(short fixedTodoIndex, int year, int quarter,
+                      List<TreeMap<Byte, ArrayList<Short>>> filled)
     {
         for(int i = 0; i < 3; i++)
         {
-            TreeMap<Byte, ArrayList<FixedTodo>> targetFilled = filled.get(i);
+            TreeMap<Byte, ArrayList<Short>> targetFilled = filled.get(i);
 
             int month = quarter * 3 + i + 1;
             int lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
@@ -78,7 +79,7 @@ public class FixedCategory_everyWeek extends FixedCategory
                 {
                     targetFilled.put(date, new ArrayList<>());
                 }
-                targetFilled.get(date).add(fixedTodo);
+                targetFilled.get(date).add(fixedTodoIndex);
             }
         }
     }

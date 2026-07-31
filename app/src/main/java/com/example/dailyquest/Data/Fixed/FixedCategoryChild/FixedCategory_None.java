@@ -30,6 +30,7 @@ public class FixedCategory_None extends FixedCategory
     public boolean saveToDos(DataOutputStream dos) { return true; }
 
     @Override
-    public void paint(FixedTodo fixedTodoIndex, int year, int quarter, List<TreeMap<Byte, ArrayList<FixedTodo>>> filled)
+    public void paint(short fixedTodoIndex, int year, int quarter,
+                      List<TreeMap<Byte, ArrayList<Short>>> filled)
     {}
 }
