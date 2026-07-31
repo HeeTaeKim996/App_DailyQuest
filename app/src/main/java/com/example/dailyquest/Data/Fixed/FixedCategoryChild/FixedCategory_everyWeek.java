@@ -7,6 +7,8 @@ import com.example.dailyquest.Utils.CalenderUtils;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 public class FixedCategory_everyWeek extends FixedCategory
 {
@@ -54,5 +56,29 @@ public class FixedCategory_everyWeek extends FixedCategory
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void paint(short categoryIndex, int year, int quarter, TreeMap<Byte,
+            ArrayList<Short>>[] filled)
+    {
+        for(int i = 0; i < 3; i++)
+        {
+            TreeMap<Byte, ArrayList<Short>> targetFilled = filled[i];
+
+            int month = quarter * 3 + i + 1;
+            int lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
+
+            byte date = (byte)CalenderUtils.instance().getFirstDateFromDay(year, month, day);
+
+            for(; date <= lastDate; date += 7)
+            {
+                if(targetFilled.containsKey(date) == false)
+                {
+                    targetFilled.put(date, new ArrayList<>());
+                }
+                targetFilled.get(date).add(categoryIndex);
+            }
+        }
     }
 }

@@ -31,4 +31,6 @@ public class FixedTodo extends ParentTodo
         ret += String.format(" | %s", fixedCategory.getSummary());
         return ret;
     }
+
+    
 }

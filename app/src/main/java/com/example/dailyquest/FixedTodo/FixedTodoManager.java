@@ -7,7 +7,9 @@ import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyM
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyWeek;
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyYear;
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
+import com.example.dailyquest.Data.Fixed.FixedShortInfo;
 import com.example.dailyquest.Data.Fixed.FixedTodo;
+import com.example.dailyquest.Notialarm.NotificationHelper;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -16,6 +18,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class FixedTodoManager
 {
@@ -350,5 +354,91 @@ public class FixedTodoManager
                 sb.append(me + "/" + file.getName() + "\n");
             }
         }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private FixedShortInfo[][] loadQuarterData(int year, int month)
+    {
+        int quarter = (month - 1) / 3;
+        TreeMap<Byte, ArrayList<Short>>[] filled = new TreeMap[3];
+        for(int i = 0; i < 3; i++)
+        {
+            filled[i] = new TreeMap<>();
+        }
+
+        for(short i = 0; i < todos.size(); i++)
+        {
+            FixedTodo todo = todos.get(i);
+            todo.getCategory().paint(i, year, quarter, filled);
+        }
+
+
+
+        FixedShortInfo[][] quarterData = new FixedShortInfo[3][];
+        for(int i = 0; i < 3; i++)
+        {
+            Map.Entry<Byte, ArrayList<Short>>[] entries
+                    = filled[i].entrySet().toArray(new Map.Entry[0]);
+
+            FixedShortInfo[] shortInfos = new FixedShortInfo[entries.length];
+            for(int j = 0; j < shortInfos.length; j++)
+            {
+                FixedShortInfo shortInfo = new FixedShortInfo(entries[j].getKey());
+                for(Short categoryIndex : entries[j].getValue())
+                {
+                    shortInfo.categoryIndices.add(categoryIndex);
+                }
+
+                shortInfos[j] = shortInfo;
+            }
+
+            quarterData[i] = shortInfos;
+        }
+
+        return quarterData;
+    }
+
+
+    public FixedShortInfo[] getMonthInfo(int year, int month)
+    {
+        FixedShortInfo[][] quarterData = loadQuarterData(year, month);
+
+        return quarterData[(month - 1) % 3];
+    }
+
+    public FixedShortInfo getDateInfo(int year, int month, int date)
+    {
+        FixedShortInfo[] shortInfos = getMonthInfo(year, month);
+
+        for(FixedShortInfo shortInfo : shortInfos)
+        {
+            if(shortInfo.date == date)
+            {
+                return shortInfo;
+            }
+            else if(shortInfo.date > date) return null;
+        }
+
+        return null;
     }
 }

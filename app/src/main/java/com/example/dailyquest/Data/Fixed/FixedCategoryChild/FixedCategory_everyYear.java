@@ -2,10 +2,13 @@ package com.example.dailyquest.Data.Fixed.FixedCategoryChild;
 
 import com.example.dailyquest.Data.Fixed.FixedCategory;
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
+import com.example.dailyquest.Utils.CalenderUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 public class FixedCategory_everyYear extends FixedCategory
 {
@@ -60,5 +63,24 @@ public class FixedCategory_everyYear extends FixedCategory
         return true;
     }
 
-    // TODO : 주의. month(1_12), date(1_31) 할당 가능하니, 없는 일 이 있을 수 있음. 검수하거나, 아님 호환은 되도록 처리 필요
+    @Override
+    public void paint(short categoryIndex, int year, int quarter, TreeMap<Byte, ArrayList<Short>>[] filled)
+    {
+        int minMonth = quarter * 3 + 1;
+        int maxMonth = quarter * 3 + 3;
+
+        if(month < minMonth || month > maxMonth) return;
+
+        int lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
+        if(date > lastDate || date < 1) return;
+
+        TreeMap<Byte, ArrayList<Short>> targetFilled = filled[(month - 1) % 3];
+
+        if(targetFilled.containsKey(date) == false)
+        {
+            targetFilled.put(date, new ArrayList<>());
+        }
+        targetFilled.get(date).add(categoryIndex);
+    }
+
 }

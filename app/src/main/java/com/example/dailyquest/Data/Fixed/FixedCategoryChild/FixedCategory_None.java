@@ -5,6 +5,8 @@ import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 public class FixedCategory_None extends FixedCategory
 {
@@ -27,4 +29,8 @@ public class FixedCategory_None extends FixedCategory
     {
         return true;
     }
+
+    @Override
+    public void paint(short categoryIndex, int year, int quarter, TreeMap<Byte, ArrayList<Short>>[] filled)
+    {}
 }

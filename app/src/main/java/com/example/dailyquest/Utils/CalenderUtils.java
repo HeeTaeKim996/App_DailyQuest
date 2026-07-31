@@ -154,6 +154,11 @@ public class CalenderUtils
 
         return MonthToDays[month - 1];
     }
+    public int getFirstDateFromDay(int year, int month, int day)
+    {
+        int firstDay = getFirstDayFromYearMonth(year, month);
+        return ((7 + day - firstDay) % 7) + 1;
+    }
 
     public Calender getTodaybyCalender()
     {
