@@ -146,14 +146,19 @@ public class MainInterface
 //            InformUtils.instance().ShowInformYes(context, "디버깅 : 이미  Notification 이 활성화됨");
         }
 
-        if(TodoMidnightReceiver.isAlarmScheduled(context) == false)
-        {
-            TodoMidnightReceiver.scheduleAlarm(context);
-        }
-        else
-        {
+
+        // 날짜를 수동으로 바뀌는 경우, isAlarm 확인 후 처리만 하면 반영이 안되므로, 그냥 매번 앱이 활성화 될 때마다
+        // 자정 알람을 예약하는 것으로 수정
+        TodoMidnightReceiver.scheduleAlarm(context);
+//        if(TodoMidnightReceiver.isAlarmScheduled(context) == false)
+//        {
+//            TodoMidnightReceiver.scheduleAlarm(context);
+//        }
+//        else
+//        {
 //            InformUtils.instance().ShowInformYes(context, "디버깅 : 이미 Alarm 이 활성화됨");
-        }
+//        }
+
 
         FixedTodoManager.instance().addOnFixedTodosUpdateListener(onFixedTodosUpdated);
     }
