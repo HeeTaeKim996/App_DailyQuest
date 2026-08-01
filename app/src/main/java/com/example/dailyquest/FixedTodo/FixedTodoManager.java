@@ -712,8 +712,9 @@ public class FixedTodoManager
     {
         try
         {
-            raf.setLength(0);
+            raf.setLength(4 * Long.BYTES);
 
+            raf.seek(0);
             raf.writeLong(4 * Long.BYTES);
             raf.seek(4 * Long.BYTES);
             // long 4개. 1 시작(확정 0이긴 하지만, 코드 편의를 위해) / 2시작 / 3시작 / length

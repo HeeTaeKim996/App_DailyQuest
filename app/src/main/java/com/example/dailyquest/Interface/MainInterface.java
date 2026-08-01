@@ -871,8 +871,6 @@ public class MainInterface
     private void resetData(Context context)
     {
         DevelopUtils.instance().clearAllFiles(context);
-
-        onDataResetted(context);
     }
     private void onDataResetted(Context context)
     {
@@ -901,6 +899,7 @@ public class MainInterface
                 if(bYes)
                 {
                     resetData(context);
+                    onDataResetted(context);
                 }
             };
 
