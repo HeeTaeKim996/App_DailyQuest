@@ -234,8 +234,6 @@ public class FixedTodoCategorySetPanel extends LinearLayout
                 android.R.layout.simple_spinner_item, INDEX_TO_DAY);
         binding.spinnerUtilsOneSpinnerPicker.setAdapter(adapter);
 
-        int tempDay = everyWeek.getDay();
-
         binding.spinnerUtilsOneSpinnerPicker.setSelection
                 ((int)everyWeek.getDay());
 

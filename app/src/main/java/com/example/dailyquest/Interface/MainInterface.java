@@ -78,7 +78,6 @@ public class MainInterface
     private final View[] cellViews = new View[42];
     private BroadcastReceiver dateChangedReceiver;
 
-
     public MainInterface(Context context)
     {
 //        resetData(context);

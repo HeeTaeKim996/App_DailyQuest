@@ -22,7 +22,6 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.TreeMap;
 
 public class FixedTodoManager
@@ -47,17 +46,14 @@ public class FixedTodoManager
     private File cacheDir;
     private RunnableDelegate runnableDelegate = new RunnableDelegate();
 
-    private final int CACHE_COUNT = 7;
-    private class CacheInfo
-    {
-        public byte state;  // -1(미사용) / 0(해제 가능한 사용공간) / 1(한번 더 기회가 있는 사용 공간)
-        public short title = 0;
-    }
-    private CacheInfo[] cacheInfos = new CacheInfo[CACHE_COUNT];
-    private byte cacheInfoIndex;
+
+
+    private Context FOR_DEBUGING_CONTEXT;
 
     private FixedTodoManager(Context context)
     {
+        FOR_DEBUGING_CONTEXT = context.getApplicationContext();
+
         baseFile = new File(context.getFilesDir(), "FT");
         cacheDir = new File(baseFile, "C");
         if(cacheDir.exists() == false)
@@ -71,7 +67,7 @@ public class FixedTodoManager
                     "FixedTodoManager : loadTodos 실패");
         }
 
-        if(loadCacheInfo() == false)
+        if(initializeCacheInfo() == false)
         {
             InformUtils.instance().ShowInformYes(context,
                     "FixedTodoManager : LoadCacheInfo 실패");
@@ -409,6 +405,9 @@ public class FixedTodoManager
 
         if(findCacheExists(title) == false)
         {
+            InformUtils.instance().showToast(FOR_DEBUGING_CONTEXT,
+                    "캐시 MISS");
+
             List<TreeMap<Byte, ArrayList<Short>>> filled = new ArrayList<>(3);
             for(int i = 0; i < 3; i++)
             {
@@ -421,28 +420,24 @@ public class FixedTodoManager
                 todo.getCategory().paint(i, year, quarter, filled);
             }
 
-            makeCacheSpace(title);
-            cacheInfos[cacheInfoIndex].state = 1;
-            cacheInfos[cacheInfoIndex].title = title;
-            cacheInfoIndex++; // @ ++ 하는거 맞나? 시계열그.. 거 따라한건데. ++ 하는 건지 모르겠다.
-            if(saveCacheInfo())
+
+            File newCacheFile = makeCacheFile(title);
+            RandomAccessFile out = new RandomAccessFile(newCacheFile, "rw");
+
+            if(saveCacheFile(out, filled))
             {
-                File newCacheFile = makeCacheFile(title);
-                RandomAccessFile out = new RandomAccessFile(newCacheFile, "rw");
-
-                if(saveCacheFile(out, filled) == false)
+                makeCacheSpace();
+                if(saveCacheInfo(title) == false)
                 {
-                    newCacheFile.delete();
-
-                    cacheInfos[cacheInfoIndex].state = -1;
-                    cacheInfos[cacheInfoIndex].title = 0;
-                    cacheInfoIndex--;
-                    saveCacheInfo();
-                    return null;
+                    // 여기서 실패할 수가 있을까. 웬만한 없다 본다.
                 }
-
-                return out;
             }
+            else
+            {
+                newCacheFile.delete();
+            }
+
+            return out;
         }
         else
         {
@@ -462,9 +457,8 @@ public class FixedTodoManager
 
     public TreeMap<Byte, ArrayList<FixedTodo>> getMonthInfo(int year, int month)
     {
-        try
+        try(RandomAccessFile raf = loadQuarterData(year, month))
         {
-            RandomAccessFile raf = loadQuarterData(year, month);
             return loadCacheFileByMonth(raf, (month - 1) % 3);
         }
         catch(IOException e)
@@ -476,9 +470,8 @@ public class FixedTodoManager
 
     public ArrayList<FixedTodo> getDateInfo(int year, int month, int date)
     {
-        try
+        try(RandomAccessFile raf = loadQuarterData(year, month))
         {
-            RandomAccessFile raf = loadQuarterData(year, month);
             return loadCacheFileByMonthDate(raf, (month - 1) % 3, date);
         }
         catch (IOException e)
@@ -494,6 +487,20 @@ public class FixedTodoManager
     }
     public void onFixedTodosUpdated()
     {
+        File[] files = cacheDir.listFiles();
+        if(files != null)
+        {
+            for( File file : files)
+            {
+                file.delete();
+            }
+        }
+
+
+        File cacheInfoFile = getCacheInfoFile();
+        resetCacheInfoFile(cacheInfoFile);
+
+
         runnableDelegate.invoke();
     }
     public void removeOnFixedTodosUpdateListener(Runnable runnable)
@@ -524,6 +531,20 @@ public class FixedTodoManager
 
 
 
+    private final byte CACHE_COUNT = 7;
+
+    private final long STATE_START_POINT = Byte.BYTES;
+    private final int STATE_SIZE = Byte.BYTES * CACHE_COUNT;
+
+    private final long TITLE_START_POINT = Byte.BYTES * (1 + CACHE_COUNT);
+    private long getStatePointByIndex(byte index)
+    {
+        return (long) (STATE_START_POINT + Byte.BYTES * index);
+    }
+    private long getTitlePointByIndex(byte index)
+    {
+        return (long) (TITLE_START_POINT + Short.BYTES * index);
+    }
 
 
 
@@ -532,42 +553,60 @@ public class FixedTodoManager
         return new File(baseFile, "cacheInfo.met");
     }
 
-    private boolean loadCacheInfo()
+    private boolean initializeCacheInfo()
     {
         File infoFile = getCacheInfoFile();
-        if(infoFile.exists() == false) return true; // 문제 없음
-
-        try(DataInputStream dis = new DataInputStream(new FileInputStream(infoFile)))
+        if(infoFile.exists() == false)
         {
-            cacheInfoIndex = dis.readByte();
-
-            for(int i = 0; i < CACHE_COUNT; i++)
-            {
-                CacheInfo cacheInfo = cacheInfos[i];
-                cacheInfo.state = dis.readByte();
-                cacheInfo.title = dis.readShort();
-            }
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-            return false;
+            return resetCacheInfoFile(infoFile);
         }
 
         return true;
     }
-    private boolean saveCacheInfo()
+    private boolean resetCacheInfoFile(File infoFile)
     {
-        File infoFile = getCacheInfoFile();
         try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(infoFile)))
         {
-            dos.writeByte(cacheInfoIndex);
+            dos.writeByte(0); // INDEX
 
-            for(CacheInfo cacheInfo : cacheInfos)
+            int rep = CACHE_COUNT;
+            while(rep -- > 0)
             {
-                dos.writeByte(cacheInfo.state);
-                dos.writeShort(cacheInfo.title);
+                dos.writeByte(-1); // state [ -1(공란), 0(삭제하고 사용 가능), 1(한번만 더 기회를)
             }
+            rep = CACHE_COUNT;
+            while(rep -- > 0)
+            {
+                dos.writeShort(0); // title ( ex 20261 (2026년 2분기) )
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+
+    private boolean saveCacheInfo(short newTitle) // 추후 raf 로 필요한 부분만 수정 예정
+    {
+        File infoFile = getCacheInfoFile();
+
+        try(RandomAccessFile raf = new RandomAccessFile(infoFile, "rw"))
+        {
+            raf.seek(0);
+            byte index = raf.readByte();
+
+            raf.seek(getStatePointByIndex(index));
+            raf.writeByte(1);
+
+            raf.seek(getTitlePointByIndex(index));
+            raf.writeShort(newTitle);
+
+            index = (byte)( (index + 1) % CACHE_COUNT );
+            raf.seek(0);
+            raf.writeByte(index);
         }
         catch (IOException e)
         {
@@ -579,42 +618,85 @@ public class FixedTodoManager
     }
 
 
-    private boolean findCacheExists(short title)
-    {
-        byte originIndex = cacheInfoIndex;
-        do
-        {
-            CacheInfo cacheInfo = cacheInfos[cacheInfoIndex];
-            if(cacheInfo.title == title) return true;
 
-            if(++cacheInfoIndex >= CACHE_COUNT)
+
+    private boolean findCacheExists(short findingTitle)
+    {
+        File cacheInfoFile = getCacheInfoFile();
+        try(RandomAccessFile raf = new RandomAccessFile(cacheInfoFile, "rw"))
+        {
+            raf.seek(TITLE_START_POINT);
+            for(byte i = 0; i < CACHE_COUNT; i++)
             {
-                cacheInfoIndex = 0;
+                if(raf.readShort() == findingTitle)
+                {
+                    raf.seek(getStatePointByIndex(i));
+                    raf.writeByte(1);
+                    return true;
+                }
             }
         }
-        while(cacheInfoIndex != originIndex);
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
 
         return false;
     }
 
-    private void makeCacheSpace(short title)
+    private void makeCacheSpace()
     {
-        while(true)
+        File cacheInfoFile = getCacheInfoFile();
+        try(RandomAccessFile raf = new RandomAccessFile(cacheInfoFile, "rw"))
         {
-            CacheInfo cacheInfo = cacheInfos[cacheInfoIndex];
-            if(--cacheInfo.state < 0)
-            {
-                File deleteFile = makeCacheFile(cacheInfo.title);
-                deleteFile.delete();
-                return;
-            }
+            raf.seek(0);
+            int index = (int)raf.readByte();
 
-            if(++cacheInfoIndex >= CACHE_COUNT)
+            byte[] stateBuffer = new byte[STATE_SIZE];
+            raf.seek(STATE_START_POINT);
+            raf.readFully(stateBuffer);
+
+            while(true)
             {
-                cacheInfoIndex = 0;
+                if(--stateBuffer[index] < 0)
+                {
+                    raf.seek(STATE_START_POINT);
+                    raf.write(stateBuffer);
+
+                    raf.seek(getTitlePointByIndex((byte)index));
+                    short title = raf.readShort();
+
+                    File deleteFile = makeCacheFile(title);
+                    deleteFile.delete();
+
+                    raf.seek(getTitlePointByIndex((byte)index));
+                    raf.writeShort(0);
+
+
+                    raf.seek(0);
+                    raf.writeByte((byte)index);
+
+                    return;
+                }
+
+                index = (index + 1) % CACHE_COUNT;
             }
         }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
     }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -630,7 +712,9 @@ public class FixedTodoManager
     {
         try
         {
-            raf.writeLong(0);
+            raf.setLength(0);
+
+            raf.writeLong(4 * Long.BYTES);
             raf.seek(4 * Long.BYTES);
             // long 4개. 1 시작(확정 0이긴 하지만, 코드 편의를 위해) / 2시작 / 3시작 / length
 
@@ -681,7 +765,7 @@ public class FixedTodoManager
             {
                 byte date = raf.readByte();
                 short size = raf.readShort();
-                out.put(raf.readByte(), new ArrayList<>(size));
+                out.put(date, new ArrayList<>(size));
 
                 ArrayList<FixedTodo> retTodos = out.get(date);
                 while(size-- > 0)
