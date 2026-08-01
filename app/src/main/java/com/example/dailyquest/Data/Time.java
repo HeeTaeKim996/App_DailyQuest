@@ -11,6 +11,7 @@ public class Time
         date = calendar.get(Calendar.DATE);
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
+        second = calendar.get(Calendar.SECOND);
     }
     public boolean isFutureTimeFromThis(short compare)
     {
@@ -27,4 +28,5 @@ public class Time
     public int date;
     public int hour;
     public int minute;
+    public int second;
 }

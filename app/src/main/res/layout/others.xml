@@ -31,6 +31,25 @@
                 android:layout_height="wrap_content"
                 android:text="모든 데이터 삭제" />
 
+            <Button
+                android:id="@+id/button_others_showNotialarmUpdatePage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notialarm업데이트 시간 수동 할당\n(※날짜를 수동으로 변경시, 반드시 재할당 필요)"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/button_others_ExportZip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ZIP 압축" />
+
+            <Button
+                android:id="@+id/button_others_importFromZip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ZIP으로 불러오기" />
+
         </LinearLayout>
     </ScrollView>
 

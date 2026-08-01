@@ -70,7 +70,8 @@ public class FixedCategory_everyMonth extends FixedCategory
             int month = quarter * 3 + 1 + i;
             int lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
 
-            if(date > lastDate || date < 1) continue;
+
+            if(date < 1 || date > lastDate) continue;
 
             if(targetFilled.containsKey(date) == false)
             {
@@ -78,6 +79,5 @@ public class FixedCategory_everyMonth extends FixedCategory
             }
             targetFilled.get(date).add(fixedTodoIndex);
         }
-
     }
 }

@@ -10,7 +10,14 @@ public class DevelopUtils
 {
     private static DevelopUtils _instance = new DevelopUtils();
     private DevelopUtils() {}
-    public static DevelopUtils instance() { return _instance; }
+    public static DevelopUtils instance()
+    {
+        if(_instance == null)
+        {
+            _instance = new DevelopUtils();
+        }
+        return _instance;
+    }
 
     public void clearAllFiles(Context context)
     {
@@ -52,8 +59,5 @@ public class DevelopUtils
             }
         }
     }
-
-
-
 
 }

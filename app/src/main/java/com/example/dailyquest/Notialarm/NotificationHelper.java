@@ -104,28 +104,6 @@ public class NotificationHelper
             fixedTodos = FixedTodoManager.instance().getDateInfo(time.year, time.month, time.date);
         }
 
-        
-
-        if(
-                (todos == null || todos.size() == 0)
-            && (fixedTodos == null || fixedTodos.size() == 0)
-        )
-        {
-            cancelNotification(context);
-            return;
-        }
-
-
-
-        String titleText = "";
-
-        String contentText = "";
-        if(false)
-        {
-            contentText = String.format("[%02d-%02d-%02d(%02d:%02d)]  "
-                    , time.year % 100, time.month, time.date, time.hour, time.minute);
-        }
-
 
         List<String> textList = new ArrayList<>();
         final TreeMap<Short, AlarmSaveInfo> alarmMap = new TreeMap<>();
@@ -188,25 +166,34 @@ public class NotificationHelper
             }
         }
 
-        for(Todo todo : todos)
+        if(todos != null)
         {
-            if(todo.isCompleted == false)
+            for(Todo todo : todos)
             {
-                addressValidTodo.accept(todo);
+                if(todo.isCompleted == false)
+                {
+                    addressValidTodo.accept(todo);
+                }
             }
         }
-
-
 
         if(textList.size() == 0)
         {
             cancelNotification(context);
             return;
         }
-        else
+
+
+        String titleText = TextUtils.join(" / ", textList);
+
+        String contentText = "";
+        if(true)
         {
-            titleText = TextUtils.join(" / ", textList);
+            contentText = String.format("%02d-%02d-%02d(%02d:%02d:%02d)"
+                    , time.year % 100, time.month, time.date, time.hour, time.minute, time.second);
         }
+
+
 
 
 

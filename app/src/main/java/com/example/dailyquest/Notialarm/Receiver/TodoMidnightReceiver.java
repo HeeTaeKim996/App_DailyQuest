@@ -10,6 +10,7 @@ import android.os.Build;
 import com.example.dailyquest.Data.SubTodo;
 import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.Data.Todo;
+import com.example.dailyquest.Notialarm.NotiUpdateTimeEnum;
 import com.example.dailyquest.Notialarm.NotialarmManager;
 import com.example.dailyquest.Notialarm.NotificationHelper;
 import com.example.dailyquest.Utils.CalenderUtils;
@@ -28,8 +29,17 @@ public class TodoMidnightReceiver extends BroadcastReceiver
     {
         updateTodayNotification(context);
 
+        NotiUpdateTimeEnum updateTimeEnum = NotiUpdateTimeEnum.EVERY_MIDNIGHT;
 
-        scheduleAlarm(context);
+        int ordinal = intent.getIntExtra(NotialarmManager.instance().PUT_EXTRA_NOTI_UPDATE_TIME_ENUM,
+                0);
+        NotiUpdateTimeEnum[] values = NotiUpdateTimeEnum.values();
+        if(ordinal >= 0 && ordinal < values.length)
+        {
+            updateTimeEnum = values[ordinal];
+        }
+
+        scheduleAlarm(context, updateTimeEnum);
     }
 
     public static void updateTodayNotification(Context context)
@@ -42,7 +52,7 @@ public class TodoMidnightReceiver extends BroadcastReceiver
                 null,true);
     }
 
-    public static void scheduleAlarm(Context context)
+    public static void scheduleAlarm(Context context, NotiUpdateTimeEnum updateTimeEnum)
     {
         // ※ @@ !! @@
         // 하단의 AlarManager + PendingIntent 로 작동하는 코드는 백그라운드에서 작동하므로,
@@ -55,6 +65,9 @@ public class TodoMidnightReceiver extends BroadcastReceiver
         AlarmManager alarmManager = (AlarmManager) context               // OS 의 알림 서비스인 AlarmManager 를 사용
                 .getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, TodoMidnightReceiver.class); // 알림이 발동할 때 실행할 클래스를 지정
+        intent.putExtra(NotialarmManager.instance().PUT_EXTRA_NOTI_UPDATE_TIME_ENUM,
+                updateTimeEnum.ordinal());
+
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(   // PendingIntent 는 당장 사용하는 것이 아닌, 미래에 OS 가 사용할 것임을 알려주는 역할
                 context,
@@ -67,21 +80,28 @@ public class TodoMidnightReceiver extends BroadcastReceiver
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());   // 현재 시간을 기준으로 Calender 객체를 생성
 
-        if(true)
+        calendar.set(Calendar.SECOND, 0);                       // 초를 0초 로 지정
+        calendar.set(Calendar.MILLISECOND, 0);                  // 밀리초(0~999) 지정. ※ 1000밀리초 == 1초
+
+        if(updateTimeEnum == NotiUpdateTimeEnum.EVERY_MIDNIGHT)
         {
             calendar.set(Calendar.HOUR_OF_DAY, 0);                  // 시간을 0시로 지정
             calendar.set(Calendar.MINUTE, 0);                       // 분을 0분으로 지정
-            calendar.set(Calendar.SECOND, 0);                       // 초를 0초 로 지정
-            calendar.set(Calendar.MILLISECOND, 0);                  // 밀리초(0~999) 지정. ※ 1000밀리초 == 1초
 
             calendar.add(Calendar.DATE, 1);                     // -> 다음날 0시 0분 0초 에 알림이 작동하도록 설정
         }
-        else if(false)
+        else if(updateTimeEnum == NotiUpdateTimeEnum.EVERY_HOUR)
         {
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-
-            calendar.add(Calendar.MINUTE, 1); // 디버그 용도로 1분마다 업데이트
+            calendar.add(Calendar.HOUR, 1);
+            calendar.set(Calendar.MINUTE, 0);
+        }
+        else if(updateTimeEnum == NotiUpdateTimeEnum.EVERY_MINUTE)
+        {
+            calendar.add(Calendar.MINUTE, 1);
+        }
+        else
+        {
+            calendar.add(Calendar.SECOND, 1); // 디버그 용도로 1초마다 업데이트
         }
 
 

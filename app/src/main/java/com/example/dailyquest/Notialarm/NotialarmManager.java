@@ -33,6 +33,7 @@ public class NotialarmManager
 
     public final String PUT_EXTRA_ALARM_TEXT = "ALARM_TEXT";
     public final String PUT_EXTRA_ALARM_REP_TIME = "BYTE_REP_TIME";
+    public final String PUT_EXTRA_NOTI_UPDATE_TIME_ENUM = "NotiUpdateTimeEnum";
 
     public final int REQUEST_CODE_ALARM_RECEIVER = 1001;
     public final int REQUEST_CODE_CIRCULATION_RECEIVER = 1002;

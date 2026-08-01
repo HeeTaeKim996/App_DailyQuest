@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ import com.example.dailyquest.Data.Fixed.FixedTodo;
 import com.example.dailyquest.Data.Time;
 import com.example.dailyquest.FixedTodo.FixedTodoManager;
 import com.example.dailyquest.Interface.FixedTodo.FixedTodoPage;
+import com.example.dailyquest.Notialarm.NotiUpdateTimeEnum;
 import com.example.dailyquest.Notialarm.NotialarmManager;
 import com.example.dailyquest.Utils.BackgroundColorUtils;
 import com.example.dailyquest.Utils.CalenderUtils;
@@ -42,6 +44,7 @@ import com.example.dailyquest.Small.ISwapableItem;
 import com.example.dailyquest.Small.StaticValues;
 import com.example.dailyquest.Notialarm.Receiver.TodoMidnightReceiver;
 import com.example.dailyquest.Utils.InformUtils;
+import com.example.dailyquest.Utils.ZipUtils;
 import com.example.dailyquest.databinding.ActivityMainBinding;
 import com.example.dailyquest.databinding.CalenderPickerBinding;
 import com.example.dailyquest.databinding.ItemDateTodoListBinding;
@@ -50,9 +53,9 @@ import com.example.dailyquest.databinding.ItemTodoShortInfoBinding;
 import com.example.dailyquest.databinding.OthersBinding;
 import com.example.dailyquest.databinding.OthersFixedTodoBinding;
 import com.example.dailyquest.databinding.TodoInfoBinding;
+import com.example.dailyquest.databinding.UtilsOneSpinnerPickerBinding;
 import com.example.dailyquest.databinding.YearMonthPickerBinding;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.function.BiConsumer;
@@ -146,17 +149,16 @@ public class MainInterface
         }
 
 
-        // 날짜를 수동으로 바뀌는 경우, isAlarm 확인 후 처리만 하면 반영이 안되므로, 그냥 매번 앱이 활성화 될 때마다
-        // 자정 알람을 예약하는 것으로 수정
-        TodoMidnightReceiver.scheduleAlarm(context);
-//        if(TodoMidnightReceiver.isAlarmScheduled(context) == false)
-//        {
-//            TodoMidnightReceiver.scheduleAlarm(context);
-//        }
-//        else
-//        {
+
+        // [주의] 수동으로 날짜를 바꾸는 경우, Alarm 이 엉뚱하게 유지되기 때문에, 그 때에는 수동으로 수정 필요
+        if(TodoMidnightReceiver.isAlarmScheduled(context) == false)
+        {
+            TodoMidnightReceiver.scheduleAlarm(context, NotiUpdateTimeEnum.EVERY_MIDNIGHT);
+        }
+        else
+        {
 //            InformUtils.instance().ShowInformYes(context, "디버깅 : 이미 Alarm 이 활성화됨");
-//        }
+        }
 
 
         FixedTodoManager.instance().addOnFixedTodosUpdateListener(onFixedTodosUpdated);
@@ -870,7 +872,12 @@ public class MainInterface
     {
         DevelopUtils.instance().clearAllFiles(context);
 
+        onDataResetted(context);
+    }
+    private void onDataResetted(Context context)
+    {
         FixedTodoManager.reset(context);
+        changeMainCalenderByYearMonth(context);
     }
 
     private void show_others_panel(Context context)
@@ -894,8 +901,6 @@ public class MainInterface
                 if(bYes)
                 {
                     resetData(context);
-
-                    changeMainCalenderByYearMonth(context);
                 }
             };
 
@@ -909,6 +914,46 @@ public class MainInterface
             showFixedTodoPage(context);
             dialog.dismiss();
         });
+
+        binding.buttonOthersShowNotialarmUpdatePage.setOnClickListener(v->
+        {
+            show_NotialarmUpdateTime_setPage(context);
+            dialog.dismiss();
+        });
+
+        binding.buttonOthersExportZip.setOnClickListener(v->
+        {
+            if(ZipUtils.makeZip(context))
+            {
+                InformUtils.instance().ShowInformYes(context,
+                        "압축 성공");
+            }
+            else
+            {
+                InformUtils.instance().ShowInformYes(context,
+                        "압축 실패");
+            }
+        });
+        binding.buttonOthersImportFromZip.setOnClickListener(v->
+        {
+            Consumer<Boolean> check = (Boolean succeed)->
+            {
+                if(succeed)
+                {
+                    onDataResetted(context);
+                    InformUtils.instance().ShowInformYes(context,
+                            "ZIP으로부터 데이터 불러오기 성공");
+                }
+                else
+                {
+                    InformUtils.instance().ShowInformYes(context,
+                            "ZIP으로부터 데이터 불러오기 실패");
+                }
+            };
+
+            ZipUtils.tryImportFromZip(context, check);
+        });
+
 
         dialog.show();
     }
@@ -1009,4 +1054,29 @@ public class MainInterface
         updateNotification(getRootView().getContext());
     };
 
+
+    private void show_NotialarmUpdateTime_setPage(Context context)
+    {
+        UtilsOneSpinnerPickerBinding binding = UtilsOneSpinnerPickerBinding.inflate
+                (LayoutInflater.from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
+
+        ArrayAdapter<NotiUpdateTimeEnum> adapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_spinner_item, NotiUpdateTimeEnum.values());
+
+        binding.spinnerUtilsOneSpinnerPicker.setAdapter(adapter);
+
+        binding.buttonUtilsOneSpinnerPickerOk.setOnClickListener(v->
+        {
+            NotiUpdateTimeEnum updateTimeEnum = (NotiUpdateTimeEnum)
+                    binding.spinnerUtilsOneSpinnerPicker.getSelectedItem();
+
+            TodoMidnightReceiver.scheduleAlarm(context,
+                    updateTimeEnum);
+
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
 }
