@@ -28,7 +28,7 @@ public class FixedTodo extends ParentTodo
             ret += String.format("(%02d:%02d)", hour, minute);
         }
 
-        ret += String.format(" | %s", fixedCategory.getSummary());
+        ret += String.format("{%s}", fixedCategory.getSummary());
         return ret;
     }
 

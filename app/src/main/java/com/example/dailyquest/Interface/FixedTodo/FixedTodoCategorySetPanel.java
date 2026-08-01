@@ -19,6 +19,7 @@ import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_None;
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyMonth;
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyWeek;
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyYear;
+import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_moonCalender;
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
 import com.example.dailyquest.R;
 import com.example.dailyquest.Utils.CalenderUtils;
@@ -105,6 +106,10 @@ public class FixedTodoCategorySetPanel extends LinearLayout
                         category = new FixedCategory_everyWeek();
                         break;
 
+                    case MOON_EVERY_YEAR:
+                        category = new FixedCategory_moonCalender();
+                        break;
+
                     default:
                         InformUtils.instance().ShowInformYes(context,
                                 "FixedTodoCategorySEtPanel : 아직 할당 안한 Category " +
@@ -151,6 +156,10 @@ public class FixedTodoCategorySetPanel extends LinearLayout
 
             case EVERY_WEEK:
                 showSpecific_EVERY_WEEK(context);
+                break;
+
+            case MOON_EVERY_YEAR:
+                showSpecific_MOON_CALENDER(context);
                 break;
 
             default:
@@ -248,4 +257,33 @@ public class FixedTodoCategorySetPanel extends LinearLayout
         dialog.show();
     }
 
+    private void showSpecific_MOON_CALENDER(Context context)
+    {
+        if(category instanceof FixedCategory_moonCalender == false) return;
+
+        FixedCategory_moonCalender moonCalender = (FixedCategory_moonCalender) category;
+
+        UtilsTwoNumberPickerBinding binding = UtilsTwoNumberPickerBinding
+                .inflate(LayoutInflater.from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
+
+        binding.numberPickerUtilsTwoNumberPickerFirst.setMinValue(1);
+        binding.numberPickerUtilsTwoNumberPickerFirst.setMaxValue(12);
+        binding.numberPickerUtilsTwoNumberPickerFirst.setValue(moonCalender.getMonth());
+
+        binding.numberPickerUtilsTwoNumberPickerSecond.setMinValue(1);
+        binding.numberPickerUtilsTwoNumberPickerSecond.setMaxValue(31);
+        binding.numberPickerUtilsTwoNumberPickerSecond.setValue(moonCalender.getDate());
+
+        binding.buttonUtilsTwoNumberPickerOk.setOnClickListener(v->
+        {
+            moonCalender.setMonth(binding.numberPickerUtilsTwoNumberPickerFirst.getValue());
+            moonCalender.setDate(binding.numberPickerUtilsTwoNumberPickerSecond.getValue());
+
+            updateSummary();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
 }

@@ -5,5 +5,6 @@ public enum FixedCategoryEnum
     NONE,
     EVERY_YEAR,
     EVERY_MONTH,
-    EVERY_WEEK
+    EVERY_WEEK,
+    MOON_EVERY_YEAR
 }

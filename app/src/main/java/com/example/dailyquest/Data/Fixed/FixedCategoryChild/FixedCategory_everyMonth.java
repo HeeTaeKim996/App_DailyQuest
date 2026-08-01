@@ -26,7 +26,7 @@ public class FixedCategory_everyMonth extends FixedCategory
     @Override
     public String getSummary()
     {
-        return String.format("FC[EveryMonth(%2d)]", date);
+        return String.format("%d", date);
     }
 
     @Override

@@ -27,7 +27,7 @@ public class FixedCategory_everyWeek extends FixedCategory
     @Override
     public String getSummary()
     {
-        return String.format("FC[EveryWeek(%s)]", CalenderUtils.instance().INDEX_TO_DAY[day]);
+        return String.format("%s", CalenderUtils.instance().INDEX_TO_DAY[day]);
     }
 
     @Override

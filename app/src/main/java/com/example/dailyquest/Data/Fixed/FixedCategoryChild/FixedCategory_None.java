@@ -18,7 +18,7 @@ public class FixedCategory_None extends FixedCategory
     }
 
     @Override
-    public  String getSummary() { return "FC[NotAssigned]";}
+    public  String getSummary() { return "NA";}
 
     @Override
     public boolean loadFromDis(DataInputStream dis)

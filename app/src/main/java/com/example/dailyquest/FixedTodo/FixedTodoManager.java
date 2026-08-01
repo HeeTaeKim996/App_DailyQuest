@@ -6,6 +6,7 @@ import com.example.dailyquest.Data.Fixed.FixedCategory;
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyMonth;
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyWeek;
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyYear;
+import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_moonCalender;
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
 import com.example.dailyquest.Data.Fixed.FixedTodo;
 import com.example.dailyquest.Utils.InformUtils;
@@ -215,6 +216,11 @@ public class FixedTodoManager
                 case EVERY_WEEK:
                     FixedCategory_everyWeek everyWeek = new FixedCategory_everyWeek();
                     todo.setCategory(everyWeek);
+                    break;
+
+                case MOON_EVERY_YEAR:
+                    FixedCategory_moonCalender moonCalender = new FixedCategory_moonCalender();
+                    todo.setCategory(moonCalender);
                     break;
 
                 default:

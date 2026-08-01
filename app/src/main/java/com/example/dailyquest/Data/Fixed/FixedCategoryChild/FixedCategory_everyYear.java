@@ -30,7 +30,7 @@ public class FixedCategory_everyYear extends FixedCategory
     @Override
     public String getSummary()
     {
-        return String.format("FC[EveryYear(%2d-%2d)]", month, date);
+        return String.format("%d.%d", month, date);
     }
 
     @Override
