@@ -18,6 +18,11 @@ public class FixedCategory_everyMonth extends FixedCategory
     public byte getDate() { return date; }
     public void setDate(byte InDate) { date = InDate; }
 
+    private boolean bReverse = false;
+    public boolean isReverse() { return bReverse;}
+    public void setReverse(boolean set) { bReverse = set;}
+
+
     public FixedCategory_everyMonth()
     {
         super(FixedCategoryEnum.EVERY_MONTH);
@@ -25,8 +30,16 @@ public class FixedCategory_everyMonth extends FixedCategory
 
     @Override
     public String getSummary()
+
     {
-        return String.format("%d", date);
+        if(bReverse)
+        {
+            return String.format("-%d", date);
+        }
+        else
+        {
+            return String.format("%d", date);
+        }
     }
 
     @Override
@@ -35,6 +48,7 @@ public class FixedCategory_everyMonth extends FixedCategory
         try
         {
             date = dis.readByte();
+            bReverse = dis.readBoolean();
         }
         catch (IOException e)
         {
@@ -50,6 +64,7 @@ public class FixedCategory_everyMonth extends FixedCategory
         try
         {
             dos.writeByte(date);
+            dos.writeBoolean(bReverse);
         }
         catch (IOException e)
         {
@@ -70,14 +85,16 @@ public class FixedCategory_everyMonth extends FixedCategory
             int month = quarter * 3 + 1 + i;
             int lastDate = CalenderUtils.instance().getLastDateFromYearMonth(year, month);
 
+            byte aimDate = bReverse ? (byte) (lastDate - date + 1)
+                    : date;
 
-            if(date < 1 || date > lastDate) continue;
+            if(aimDate < 1 || aimDate > lastDate) continue;
 
-            if(targetFilled.containsKey(date) == false)
+            if(targetFilled.containsKey(aimDate) == false)
             {
-                targetFilled.put(date, new ArrayList<>());
+                targetFilled.put(aimDate, new ArrayList<>());
             }
-            targetFilled.get(date).add(fixedTodoIndex);
+            targetFilled.get(aimDate).add(fixedTodoIndex);
         }
     }
 }

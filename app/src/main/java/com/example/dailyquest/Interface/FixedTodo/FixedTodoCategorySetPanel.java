@@ -24,6 +24,7 @@ import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
 import com.example.dailyquest.R;
 import com.example.dailyquest.Utils.CalenderUtils;
 import com.example.dailyquest.Utils.InformUtils;
+import com.example.dailyquest.databinding.OthersFixedTodoSetCategoryMonthSetBinding;
 import com.example.dailyquest.databinding.UtilsOneNumberPickerBinding;
 import com.example.dailyquest.databinding.UtilsOneSpinnerPickerBinding;
 import com.example.dailyquest.databinding.UtilsTwoNumberPickerBinding;
@@ -208,17 +209,19 @@ public class FixedTodoCategorySetPanel extends LinearLayout
 
         FixedCategory_everyMonth everyMonth = (FixedCategory_everyMonth) category;
 
-        UtilsOneNumberPickerBinding binding = UtilsOneNumberPickerBinding
-                .inflate(LayoutInflater.from(context));
+        OthersFixedTodoSetCategoryMonthSetBinding binding
+                = OthersFixedTodoSetCategoryMonthSetBinding.inflate(LayoutInflater.from(context));
         AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
 
-        binding.numberPickerUtilsOneNumberPickerFirst.setMinValue(1);
-        binding.numberPickerUtilsOneNumberPickerFirst.setMaxValue(31);
-        binding.numberPickerUtilsOneNumberPickerFirst.setValue((int)everyMonth.getDate());
+        binding.numberPickerCategoryMonthSet.setMinValue(1);
+        binding.numberPickerCategoryMonthSet.setMaxValue(31);
+        binding.numberPickerCategoryMonthSet.setValue((int)everyMonth.getDate());
+        binding.checkBoxCategoryMonthSet.setChecked(everyMonth.isReverse());
 
-        binding.buttonUtilsOneNumberPickerOk.setOnClickListener(v->
+        binding.buttonOthersFixedTodoSetCategoryMonthSet.setOnClickListener(v->
         {
-            everyMonth.setDate((byte)binding.numberPickerUtilsOneNumberPickerFirst.getValue());
+            everyMonth.setDate((byte)binding.numberPickerCategoryMonthSet.getValue());
+            everyMonth.setReverse(binding.checkBoxCategoryMonthSet.isChecked());
             updateSummary();
             dialog.dismiss();
         });
