@@ -306,6 +306,9 @@ public class MainInterface
             cellView.setBackgroundResource(R.drawable.date_background_not_used);
             dayText.setTextColor(Color.parseColor("#888888"));
 
+            cellView.setClickable(false);
+            cellView.setOnClickListener(null);
+
             GridLayout boxGrid = cellView.findViewById(R.id.gridLayout_calenderDate);
             for(int j = 0; j < StaticValues.shortTodoCount; j++)
             {
@@ -317,8 +320,8 @@ public class MainInterface
         {
             cellView.setBackgroundResource(R.drawable.date_background);
             dayText.setTextColor(Color.parseColor("#000000"));
-            cellView.setClickable(true);
 
+            cellView.setClickable(true);
             cellView.setOnClickListener(v->
             {
                 show_date_todoListDialog(context, proxy, pos);

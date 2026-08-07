@@ -42,6 +42,8 @@ public class FixedTodoPage extends LinearLayout
 
     private Button addTodoButton;
     private SwapableItemsContainer todosLayout;
+    private Button showLogButton;
+    private Button clearLogButton;
 
     @Override
     protected void onFinishInflate()
@@ -50,6 +52,8 @@ public class FixedTodoPage extends LinearLayout
 
         addTodoButton = findViewById(R.id.button_fixedTodos_addFixedTodo);
         todosLayout = findViewById(R.id.linearLayout_fixedTodos);
+        showLogButton = findViewById(R.id.button_fixedTodos_show_log);
+        clearLogButton = findViewById(R.id.button_fixedTodos_clearLog);
     }
 
     public void initialize(Context context)
@@ -86,6 +90,25 @@ public class FixedTodoPage extends LinearLayout
             // TODO : 기본 그.. FIXED TODO 항목 및 설정 추가 처리 생성 후 TODO 넘기기
             FixedTodo todo = new FixedTodo();
             showTodoInfo(context, todo, true);
+        });
+
+        showLogButton.setOnClickListener(v->
+        {
+            String logs = FixedTodoManager.instance().showLog();
+            InformUtils.instance().ShowInformYes(context, logs);
+        });
+        clearLogButton.setOnClickListener(v->
+        {
+            Consumer<Boolean> checkYes = (Boolean bYes)->
+            {
+                if(bYes)
+                {
+                    FixedTodoManager.instance().clearLog();
+                }
+            };
+
+            InformUtils.instance().ShowYesOrNo(context,
+                    "FixedTodo 변경 내역 로그를 모두 삭제하겠습니까?", checkYes);
         });
     }
 

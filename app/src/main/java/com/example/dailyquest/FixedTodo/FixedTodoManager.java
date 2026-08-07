@@ -9,6 +9,7 @@ import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_everyY
 import com.example.dailyquest.Data.Fixed.FixedCategoryChild.FixedCategory_moonCalender;
 import com.example.dailyquest.Data.Fixed.FixedCategoryEnum;
 import com.example.dailyquest.Data.Fixed.FixedTodo;
+import com.example.dailyquest.Utils.CalenderUtils;
 import com.example.dailyquest.Utils.InformUtils;
 import com.example.dailyquest.Utils.RunnableDelegate;
 
@@ -21,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -49,11 +51,11 @@ public class FixedTodoManager
 
 
 
-    private Context FOR_DEBUGING_CONTEXT;
+    private Context appContext;
 
     private FixedTodoManager(Context context)
     {
-        FOR_DEBUGING_CONTEXT = context.getApplicationContext();
+        appContext = context.getApplicationContext();
 
         baseFile = new File(context.getFilesDir(), "FT");
         cacheDir = new File(baseFile, "C");
@@ -266,13 +268,12 @@ public class FixedTodoManager
 
         todos.add(addedTodo);
 
-        File todoInfoFile = getTodoInfoFile();
-
         if(saveTodos() == false)
         {
             return -1;
         }
 
+        onTodoAdded_updateLog(addedTodo);
         return todos.size() - 1;
     }
     public int deleteTodo(FixedTodo removedTodo)
@@ -289,6 +290,7 @@ public class FixedTodoManager
             return -1;
         }
 
+        onTodoDeleted_updateLog(removedTodo);
         return index;
     }
     public void onItemSwapped(int fromIndex, int toIndex)
@@ -304,6 +306,8 @@ public class FixedTodoManager
     public int saveTodo(FixedTodo savedTodo)
     {
         saveTodos();
+
+        onTodoUpdated_updateLog(savedTodo);
         return todos.indexOf(savedTodo);
     }
 
@@ -411,7 +415,7 @@ public class FixedTodoManager
 
         if(findCacheExists(title) == false)
         {
-            InformUtils.instance().showToast(FOR_DEBUGING_CONTEXT,
+            InformUtils.instance().showToast(appContext,
                     "캐시 MISS");
 
             List<TreeMap<Byte, ArrayList<Short>>> filled = new ArrayList<>(3);
@@ -830,5 +834,148 @@ public class FixedTodoManager
         }
 
         return null;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private void onTodoAdded_updateLog(FixedTodo todo)
+    {
+        addLog("ADD", todo);
+    }
+    private void onTodoUpdated_updateLog(FixedTodo todo)
+    {
+        addLog("SAV", todo);
+    }
+    private void onTodoDeleted_updateLog(FixedTodo todo)
+    {
+        addLog("DEL", todo);
+    }
+
+
+    private File getLogFile()
+    {
+        return new File(baseFile, "CatLog.log");
+    }
+    private void addLog(String prefix, FixedTodo todo)
+    {
+        CalenderUtils.Calender today = CalenderUtils.instance().getTodaybyCalender();
+        String log = String.format("%s - %s", prefix, todo.getSummary());
+        int yearMonthDate =
+                (today.year << 9) | (today.month << 5) | (today.date & 0x1F);
+
+        File logFile = getLogFile();
+        if(logFile.exists() == false)
+        {
+            makeEmptyLogFile(logFile);
+        }
+
+        try(RandomAccessFile raf = new RandomAccessFile(logFile, "rw"))
+        {
+            raf.seek(0);
+            int count = raf.readInt();
+            raf.seek(0);
+            raf.writeInt(++count);
+
+            raf.seek(raf.length());
+            raf.writeUTF(log);
+            raf.writeInt(yearMonthDate);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            logFile.delete();
+        }
+    }
+    private void makeEmptyLogFile(File logFile)
+    {
+        try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(logFile)))
+        {
+            dos.writeInt(0); // count
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public String showLog()
+    {
+        File logFile = getLogFile();
+        if(logFile.exists() == false)
+        {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        try(DataInputStream dis = new DataInputStream(new FileInputStream(logFile)))
+        {
+            int size = dis.readInt();
+            while(size-- > 0)
+            {
+                String log = dis.readUTF();
+                int time = dis.readInt();
+                String timeString = String.format
+                        ("(%02d-%02d-%02d)", (time >> 9), (time >> 5) & 0x0F,
+                                time & 0x1F);
+
+                if(sb.length() > 0)
+                {
+                    sb.append("\n");
+                }
+
+                sb.append(log);
+                sb.append(" " + timeString);
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return "";
+        }
+
+        return sb.toString();
+    }
+
+    public void clearLog()
+    {
+        File logFile = getLogFile();
+        try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(logFile)))
+        {
+            dos.writeInt(0);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

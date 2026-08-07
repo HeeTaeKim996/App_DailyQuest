@@ -13,6 +13,26 @@
         android:background="@color/light_green"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_fixedTodos_show_log"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="로그 보기" />
+
+        <Button
+            android:id="@+id/button_fixedTodos_clearLog"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="로그 초기화" />
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -21,19 +41,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
             <com.example.dailyquest.Interface.SwapableItemsContainer
                 android:id="@+id/linearLayout_fixedTodos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:orientation="vertical" >
+
+            </com.example.dailyquest.Interface.SwapableItemsContainer>
 
         </LinearLayout>
 
 
 
     </ScrollView>
-
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,4 +68,6 @@
             android:layout_weight="1"
             android:text="추가" />
     </LinearLayout>
+
+
 </com.example.dailyquest.Interface.FixedTodo.FixedTodoPage>
