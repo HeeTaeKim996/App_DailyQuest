@@ -398,29 +398,4 @@ public class MainCalender
     {
         return fixedTodosByDate.get((byte)date);
     }
-
-
-
-
-
-
-
-    public int getDatePtr(int date)
-    {
-        return (year << 9) + (month << 5) + date; // date : ~31(5비트), month : ~12(4비트)
-    }
-
-    public Date loadDateFromPtr(int datePtr)
-    {
-        if(
-                (datePtr >> 9) != year
-        ||
-                (datePtr >> 5 & 0x0F) != month)
-        {
-            return null;
-        }
-
-
-        return loadDate(datePtr & 0x1F);
-    }
 }

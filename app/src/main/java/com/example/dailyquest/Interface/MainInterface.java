@@ -635,10 +635,6 @@ public class MainInterface
                 if(todo.mainText.equals("") && todo.explainText.equals("")
                         && todo.subTodos.size() == 0)
                 {
-                    // 이래도 오류 나려나..
-                    InformUtils.instance().ShowInformYes(context,
-                            "디버깅 : 데이터 공란이라 삭제 처리 확인");
-
                     date.todos.remove(todo);
                     dialog.dismiss();
                 }
