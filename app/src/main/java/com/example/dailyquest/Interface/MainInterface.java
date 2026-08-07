@@ -375,7 +375,7 @@ public class MainInterface
                 .setView(binding.getRoot()).create();
         dialog.show();
 
-        Date date = calender.loadDate(proxy);
+        Date date = calender.loadDate(proxy.date);
 
 
 
@@ -788,7 +788,7 @@ public class MainInterface
         calendar.setTimeInMillis(System.currentTimeMillis());
         Time time = new Time(calendar);
 
-        Date date = calender.loadDateFromDate(time.date);
+        Date date = calender.loadDate(time.date);
 
         ArrayList<FixedTodo> fixedTodos = calender.loadFixedTodos(date.date);
         NotificationHelper.updateTodayNotification(context, time, date.todos, fixedTodos,
@@ -859,7 +859,7 @@ public class MainInterface
             changeMainCalenderByYearMonth(context);
         }
 
-        Date toDate = calender.loadDateFromDate(toYearMonthDate.date);
+        Date toDate = calender.loadDate(toYearMonthDate.date);
 
         toDate.todos.add(todo);
         todo.setParentDate(toDate);

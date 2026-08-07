@@ -156,26 +156,26 @@ public class MainCalender
         catch (IOException e) { e.printStackTrace(); }
     }
 
-    private File makeDateFile(DateProxy proxy)
+
+
+    private File makeDateFile(int date)
     {
-        return new File(dataFile, String.format("%d.dat", proxy.date));
-    }
-    private File makeDateFile(Date date)
-    {
-        return new File(dataFile, String.format("%d.dat", date.date));
+        return new File(dataFile, String.format("%d.dat", date));
     }
 
 
-    public Date loadDate(DateProxy proxy)
+    public Date loadDate(int date)
     {
-        File dateFile = makeDateFile(proxy);
+        if(date < 1 || date > maxDate) return null;
+
+        File dateFile = makeDateFile(date);
         if(dateFile.exists() == false)
         {
-            return new Date.Builder().setDate(proxy.date).create();
+            return new Date.Builder().setDate(date).create();
         }
 
-        Date date = new Date();
-        date.date = proxy.date;
+        Date newDate = new Date();
+        newDate.date = date;
 
         try(DataInputStream dis = new DataInputStream(new FileInputStream(dateFile)))
         {
@@ -184,8 +184,8 @@ public class MainCalender
             while(todoCount-- > 0)
             {
                 Todo todo = new Todo();
-                date.todos.add(todo);
-                todo.setParentDate(date);
+                newDate.todos.add(todo);
+                todo.setParentDate(newDate);
 
                 todo.isCompleted = dis.readBoolean();
 
@@ -210,7 +210,7 @@ public class MainCalender
         }
         catch (IOException e) { e.printStackTrace(); }
 
-        return date;
+        return newDate;
     }
 
 
@@ -232,7 +232,7 @@ public class MainCalender
         // Delete File if Exists
         if(date.todos.size() == 0)
         {
-            File dateFile = makeDateFile(date);
+            File dateFile = makeDateFile(date.date);
             if(dateFile.exists())
             {
                 dateFile.delete();
@@ -265,7 +265,7 @@ public class MainCalender
                 saveShortTodos();
             }
 
-            File dateFile = makeDateFile(date);
+            File dateFile = makeDateFile(date.date);
             try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(dateFile)))
             {
                 int todoCount = date.todos.size();
@@ -392,15 +392,35 @@ public class MainCalender
         return offset;
     }
 
-    public Date loadDateFromDate(int date)
-    {
-        DateProxy proxy = proxies[date + offset - 1];
-        return loadDate(proxy);
-    }
+
 
     public ArrayList<FixedTodo> loadFixedTodos(int date)
     {
         return fixedTodosByDate.get((byte)date);
     }
 
+
+
+
+
+
+
+    public int getDatePtr(int date)
+    {
+        return (year << 9) + (month << 5) + date; // date : ~31(5비트), month : ~12(4비트)
+    }
+
+    public Date loadDateFromPtr(int datePtr)
+    {
+        if(
+                (datePtr >> 9) != year
+        ||
+                (datePtr >> 5 & 0x0F) != month)
+        {
+            return null;
+        }
+
+
+        return loadDate(datePtr & 0x1F);
+    }
 }
