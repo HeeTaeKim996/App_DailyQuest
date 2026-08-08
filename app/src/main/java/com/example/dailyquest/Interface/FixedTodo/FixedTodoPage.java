@@ -4,12 +4,15 @@ package com.example.dailyquest.Interface.FixedTodo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
@@ -23,6 +26,7 @@ import com.example.dailyquest.Small.ISwapableItem;
 import com.example.dailyquest.Utils.InformUtils;
 import com.example.dailyquest.databinding.OthersFixedTodoSetBinding;
 import com.example.dailyquest.databinding.OthersFixedTodoShortInfoBinding;
+import com.example.dailyquest.databinding.UtilsEditTextOkCancelBinding;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -94,8 +98,7 @@ public class FixedTodoPage extends LinearLayout
 
         showLogButton.setOnClickListener(v->
         {
-            String logs = FixedTodoManager.instance().showLog();
-            InformUtils.instance().ShowInformYes(context, logs);
+            show_logPage(context);
         });
         clearLogButton.setOnClickListener(v->
         {
@@ -316,4 +319,83 @@ public class FixedTodoPage extends LinearLayout
         InformUtils.instance().showToast(getContext(), "스왑됨");
     }
 
+
+    private void show_logPage(Context context)
+    {
+        UtilsEditTextOkCancelBinding binding = UtilsEditTextOkCancelBinding.inflate
+                (LayoutInflater.from(context));
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(binding.getRoot()).create();
+
+
+
+        binding.buttonUtilsEditTextOkCancelCancel.setOnClickListener(v->
+        {
+            dialog.dismiss();
+        });
+        binding.buttonUtilsEditTextOkCancelOk.setOnClickListener(v->
+        {
+            FixedTodoManager.instance().resetLog
+                    (binding.editTextUtilsEditTextOkCancel.getText().toString());
+            dialog.dismiss();
+        });
+
+
+        EditText editText = binding.editTextUtilsEditTextOkCancel;
+        editText.setText(FixedTodoManager.instance().showLog());
+
+        boolean[] boo = { false };
+        Button topButton = binding.buttonUtilsEditTextOkCancelTop;
+        topButton.setBackgroundColor(Color.GRAY);
+        topButton.setText("-");
+
+
+
+        topButton.setOnClickListener(v->
+        {
+            if(boo[0])
+            {
+                boo[0] = false;
+
+                topButton.setBackgroundColor(Color.GRAY);
+                topButton.setText("-");
+
+                editText.setFocusable(false);
+                editText.setFocusableInTouchMode(false);
+                editText.setCursorVisible(false);
+
+                InputMethodManager imm = (InputMethodManager) context
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
+                if(imm != null)
+                {
+                    imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                }
+            }
+            else
+            {
+                boo[0] = true;
+
+                topButton.setBackgroundColor(context.getColor(R.color.purple_500));
+                topButton.setText("O");
+
+                editText.setFocusable(true);
+                editText.setFocusableInTouchMode(true);
+                editText.setCursorVisible(true);
+
+                editText.requestFocus();
+                if(editText.getText() != null)
+                {
+                    editText.setSelection(editText.getText().length());
+                }
+                InputMethodManager imm = (InputMethodManager) context
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
+                if(imm != null)
+                {
+                    imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }
+
+        });
+
+        dialog.show();
+    }
 }

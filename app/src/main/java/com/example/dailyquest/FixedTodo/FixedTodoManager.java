@@ -937,7 +937,6 @@ public class FixedTodoManager
             return "";
         }
 
-        String ret = "";
 
         try(DataInputStream dis = new DataInputStream(new FileInputStream(logFile)))
         {
@@ -946,15 +945,13 @@ public class FixedTodoManager
 
             dis.readFully(buffer);
 
-            ret = new String(buffer, StandardCharsets.UTF_16BE);
+            return new String(buffer, StandardCharsets.UTF_16BE);
         }
         catch (IOException e)
         {
             e.printStackTrace();
             return "";
         }
-
-        return ret;
     }
 
     public void clearLog()
@@ -969,4 +966,20 @@ public class FixedTodoManager
             e.printStackTrace();
         }
     }
+    public void resetLog(String log)
+    {
+        File logFile = getLogFile();
+        try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(logFile)))
+        {
+            dos.writeInt(log.length());
+
+            byte[] buffer = log.getBytes(StandardCharsets.UTF_16BE);
+            dos.write(buffer);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 }
