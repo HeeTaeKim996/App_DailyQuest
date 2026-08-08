@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -889,9 +890,8 @@ public class FixedTodoManager
     private void addLog(String prefix, FixedTodo todo)
     {
         CalenderUtils.Calender today = CalenderUtils.instance().getTodaybyCalender();
-        String log = String.format("%s - %s", prefix, todo.getSummary());
-        int yearMonthDate =
-                (today.year << 9) | (today.month << 5) | (today.date & 0x1F);
+        String log = String.format("%s - %s (%02d-%02d-%02d)\n", prefix, todo.getSummary(),
+                today.year % 100, today.month, today.date);
 
         File logFile = getLogFile();
         if(logFile.exists() == false)
@@ -904,11 +904,12 @@ public class FixedTodoManager
             raf.seek(0);
             int count = raf.readInt();
             raf.seek(0);
-            raf.writeInt(++count);
+            raf.writeInt(count + log.length());
 
             raf.seek(raf.length());
-            raf.writeUTF(log);
-            raf.writeInt(yearMonthDate);
+
+            byte[] buffer = log.getBytes(StandardCharsets.UTF_16BE); // BE : 헤더에 len 기록 없이, 내용물만 기록
+            raf.write(buffer);
         }
         catch (IOException e)
         {
@@ -936,26 +937,16 @@ public class FixedTodoManager
             return "";
         }
 
-        StringBuilder sb = new StringBuilder();
+        String ret = "";
+
         try(DataInputStream dis = new DataInputStream(new FileInputStream(logFile)))
         {
-            int size = dis.readInt();
-            while(size-- > 0)
-            {
-                String log = dis.readUTF();
-                int time = dis.readInt();
-                String timeString = String.format
-                        ("(%02d-%02d-%02d)", (time >> 9), (time >> 5) & 0x0F,
-                                time & 0x1F);
+            int len = dis.readInt();
+            byte[] buffer = new byte[len * 2]; // WCHAR
 
-                if(sb.length() > 0)
-                {
-                    sb.append("\n");
-                }
+            dis.readFully(buffer);
 
-                sb.append(log);
-                sb.append(" " + timeString);
-            }
+            ret = new String(buffer, StandardCharsets.UTF_16BE);
         }
         catch (IOException e)
         {
@@ -963,7 +954,7 @@ public class FixedTodoManager
             return "";
         }
 
-        return sb.toString();
+        return ret;
     }
 
     public void clearLog()
